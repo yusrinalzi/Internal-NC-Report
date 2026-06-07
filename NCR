@@ -102,7 +102,7 @@
 
   <script>
     // GANTI DENGAN URL DEPLOYMENT WEB APP GOOGLE APPS SCRIPT-MU
-    const API_URL = 'SALIN_URL_WEB_APP_DEPLOYMENT_KAMU_DISINI'; 
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxdQR4STXJr7vwlkuYAKtcEQ9lOb5HpXLG6Mb1_YGTQxt42cM_gfIar7e6WrbpdT78/exec'; 
     
     let rawSummaryData = [];
     let trendChartInstance = null;
