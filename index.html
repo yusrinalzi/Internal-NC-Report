@@ -189,7 +189,16 @@ input[readonly] {
       <div class="table-responsive">
         <table class="table table-hover border align-middle">
           <thead class="table-dark">
-            <tr><th>ID No.</th><th>Type</th><th>Category</th><th>Issued By</th><th>DetailNC</th><th>CustomerName</th><th>Issued Date</th><th>Status</th></tr>
+            <tr>
+              <th>ID No.</th>
+              <th>Type</th>
+              <th>Category</th>
+              <th>Issued By</th>
+              <th>DetailNC</th>
+              <th>CustomerName</th>
+              <th>Issued Date</th>
+              <th>Status</th>
+            </tr>
           </thead>
           <tbody id="ncrTableBody">
             <tr><td colspan="6" class="text-center py-4">Loading database from Google Sheet...</td></tr>
@@ -459,6 +468,7 @@ function doGuestLogin() {
   }
 
  function renderDashboard(data) {
+  // Update KPI Cards
   document.getElementById('kpi-total').innerText = data.length;
   document.getElementById('kpi-pdr').innerText = data.filter(r => r.Type === 'PDR').length;
   document.getElementById('kpi-ncmr').innerText = data.filter(r => r.Type === 'NCMR').length;
@@ -466,13 +476,19 @@ function doGuestLogin() {
 
   const tbody = document.getElementById('ncrTableBody');
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-3">No active report found.</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-3">No active report found.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = data.map(r => {
-    // Category = EV/PWC/ICA (bukan NCCatagory)
     const productCategory = r.Category || '-';
+    
+    // Batasi panjang DetailNC agar tidak terlalu panjang
+    let detailNC = r.DetailNC || r.NCMode || '-';
+    if (detailNC.length > 50) detailNC = detailNC.substring(0, 47) + '...';
+    
+    let customerName = r.CustomerName || '-';
+    if (customerName.length > 30) customerName = customerName.substring(0, 27) + '...';
     
     return `
       <tr style="cursor:pointer;" onclick="openFollowUp('${r['ID No.']}')">
@@ -480,6 +496,8 @@ function doGuestLogin() {
         <td><span class="badge bg-secondary">${r.Type || 'PDR'}</span></td>
         <td>${productCategory}</td>
         <td>${r.IssuedBy || '-'}</td>
+        <td>${detailNC}</td>
+        <td>${customerName}</td>
         <td>${formatDate(r.IssuedDate)}</td>
         <td><span class="badge ${(r.StatusNC || 'Open') === 'Open' ? 'bg-danger' : 'bg-success'}">${r.StatusNC || 'Open'}</span></td>
       </tr>
