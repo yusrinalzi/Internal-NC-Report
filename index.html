@@ -263,7 +263,7 @@
     // =========================================================
     // TEMPELKAN URL /EXEC GOOGLE APPS SCRIPT KAMU DI SINI!
     // =========================================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxoLUnQlJBYyzCDRvdeni9eVEzha9SFfv99Lg3se7xPieFa66wTATl-uCVtUhKPKVhI/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwjo7CsEbcUIcJ4Rxar1HG1g3Xurq8GkozjJqfTVIKT_sy1_JyCiWGT2fWF3M7qZYVN/exec';
 
     let rawDataNCR = [];
     let auditorList = [];
@@ -515,46 +515,107 @@
       } catch(e) { alert("Failed to update D progress: " + e); }
     }
 
-    // CHART GENERATION INITIATION (MOCK TREND)
+    // CHART GENERATION INITIATION - WITH REAL DATA
     let trendChartInstance = null;
     let paretoChartInstance = null;
 
     function initCharts(data) {
+      // Destroy existing charts if they exist
       if(trendChartInstance) trendChartInstance.destroy();
       if(paretoChartInstance) paretoChartInstance.destroy();
-
+      
+      // ========== 1. TREND CHART ==========
+      const monthlyData = {};
+      
+      data.forEach(item => {
+        if (item.IssuedDate) {
+          let date = new Date(item.IssuedDate);
+          if (!isNaN(date.getTime())) {
+            const monthYear = date.toLocaleString('default', { month: 'short' }) + ' ' + date.getFullYear();
+            const ncrType = item.Type || item.NCRType || 'PDR';
+            
+            if (!monthlyData[monthYear]) {
+              monthlyData[monthYear] = { PDR: 0, NCMR: 0, '8D': 0 };
+            }
+            if (monthlyData[monthYear][ncrType] !== undefined) {
+              monthlyData[monthYear][ncrType]++;
+            } else {
+              monthlyData[monthYear]['PDR']++;
+            }
+          }
+        }
+      });
+      
+      const sortedMonths = Object.keys(monthlyData).sort().slice(-6);
+      const pdrData = sortedMonths.map(m => monthlyData[m].PDR);
+      const ncmrData = sortedMonths.map(m => monthlyData[m].NCMR);
+      const eightDData = sortedMonths.map(m => monthlyData[m]['8D']);
+      
+      // Trend Chart
       const ctxTrend = document.getElementById('trendChart').getContext('2d');
       trendChartInstance = new Chart(ctxTrend, {
         type: 'bar',
         data: {
-          labels: ['Jan-26', 'Feb-26', 'Mar-26', 'Apr-26', 'May-26'],
+          labels: sortedMonths.length ? sortedMonths : ['No Data'],
           datasets: [
-            { label: 'PDR', data: [15, 20, 25, 30, 40], backgroundColor: '#4fc3f7' },
-            { label: 'NCMR', data: [10, 14, 18, 22, 35], backgroundColor: '#81c784' },
-            { label: '8D', data: [5, 8, 12, 15, 20], backgroundColor: '#ba68c8' }
+            { label: 'PDR', data: sortedMonths.length ? pdrData : [0], backgroundColor: '#4fc3f7' },
+            { label: 'NCMR', data: sortedMonths.length ? ncmrData : [0], backgroundColor: '#81c784' },
+            { label: '8D', data: sortedMonths.length ? eightDData : [0], backgroundColor: '#ba68c8' }
           ]
         },
-        options: { responsive: true, plugins: { title: { display: true, text: 'NCR Trend Analysis' } } }
+        options: { responsive: true, maintainAspectRatio: true }
       });
-
+      
+      // ========== 2. PARETO CHART ==========
+      const defectCounts = {};
+      data.forEach(item => {
+        let defect = item.NCCategory || item['NCCatagory'] || 'Others';
+        if (defect === 'Reject Hi pot Test') defect = 'Reject Hi-pot';
+        if (defect === 'Dimension Out of Specification') defect = 'Dimension OoS';
+        if (defect === 'Wrong Do Assembly/Process') defect = 'Wrong Assembly';
+        if (defect === 'Product Damage/Broken') defect = 'Product Damage';
+        if (defect.length > 20) defect = defect.substring(0, 17) + '...';
+        defectCounts[defect] = (defectCounts[defect] || 0) + 1;
+      });
+      
+      const sortedDefects = Object.entries(defectCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const labels = sortedDefects.map(([name]) => name);
+      const frequencies = sortedDefects.map(([, count]) => count);
+      
+      // Pareto Chart
       const ctxPareto = document.getElementById('paretoChart').getContext('2d');
       paretoChartInstance = new Chart(ctxPareto, {
         type: 'bar',
         data: {
-          labels: ['Reject Hipot', 'Dim Out Spec', 'WI missing', 'Wrong Process'],
-          datasets: [{ label: 'Defect Frequency', data: [45, 25, 15, 10], backgroundColor: '#ffb74d' }]
+          labels: labels.length ? labels : ['No Data'],
+          datasets: [{ 
+            label: 'Frequency', 
+            data: labels.length ? frequencies : [0], 
+            backgroundColor: '#ffb74d' 
+          }]
         },
-        options: { responsive: true, plugins: { title: { display: true, text: 'NC Pareto Analysis' } } }
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: true,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.raw} cases (${((ctx.raw / data.length) * 100).toFixed(1)}%)`
+              }
+            }
+          }
+        }
       });
     }
 
     function filterDashboard(cat) {
-      if(cat === 'All') { renderDashboard(rawDataNCR); }
-      else {
-        const filtered = rawDataNCR.filter(r => r['Product Category'] === cat || r.NCRType === cat);
+      if(cat === 'All') { 
+        renderDashboard(rawDataNCR); 
+      } else {
+        const filtered = rawDataNCR.filter(r => r['Product Category'] === cat || r.Type === cat);
         renderDashboard(filtered);
       }
-    }
-  </script>
+    } 
+ </script>
 </body>
 </html>
