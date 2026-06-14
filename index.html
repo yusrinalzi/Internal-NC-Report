@@ -351,7 +351,7 @@ input[readonly] {
 
 <script>
   // ========== CONFIG ==========
-  const API_URL = 'https://script.google.com/macros/s/AKfycbyUhZeIxtG7yuq6c2082wuyLptxhaCeswhgeurBi1NoDNp7UpSmkGi7vVSIiYHF8tap/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwgnuCU9ClKZoD_ruTpyqjVZCZLZi8NA15V1gLg409gGLVt-UCd0wcbvXkMHnhFrsLX/exec';
   let rawDataNCR = [];
   let currentUser = null;
 
@@ -466,7 +466,7 @@ function doGuestLogin() {
 
   const tbody = document.getElementById('ncrTableBody');
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">No active report found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-3">No active report found.</td></tr>';
     return;
   }
 
