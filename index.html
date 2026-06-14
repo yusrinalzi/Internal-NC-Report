@@ -9,98 +9,188 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { background-color: #fbfdf0; font-family: 'Segoe UI', sans-serif; color: #333; }
-    .navbar-custom { background-color: #004d40; color: white; }
-    .card-custom { background-color: #ffffe0; border: 1px solid #dcdcdc; border-radius: 8px; }
-    .header-title { background-color: #e57373; color: white; padding: 12px; font-weight: bold; border-radius: 5px; text-align: center; font-size: 1.2rem; }
-    .input-yellow { background-color: #ffff00 !important; color: black !important; }
-    .input-green { background-color: #ccffcc !important; color: black !important; }
+    :root {
+      --primary: #02453c;
+      --primary-light: #035a4e;
+      --primary-dark: #012e28;
+      --accent: #04a086;
+      --bg: #f0f5f4;
+      --text: #1a2e2b;
+      --shadow: 0 2px 12px rgba(2,69,60,0.10);
+      --shadow-lg: 0 8px 32px rgba(2,69,60,0.18);
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    
+    /* ========== LOGIN PAGE ========== */
+    .page { display: none; min-height: 100vh; }
+    .page.active { display: flex; flex-direction: column; }
+    
+    #loginPage { 
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--accent) 100%); 
+      justify-content: center; 
+      align-items: center; 
+      padding: 20px; 
+    }
+    
+    .login-card { 
+      background: white; 
+      border-radius: 20px; 
+      padding: 48px 40px; 
+      max-width: 420px; 
+      width: 100%; 
+      box-shadow: var(--shadow-lg); 
+    }
+    
+    .login-logo { text-align: center; margin-bottom: 32px; }
+    .login-logo h1 { font-size: 26px; font-weight: 700; color: var(--primary); }
+    .login-logo p { color: #5a7570; font-size: 13px; margin-top: 4px; }
+    
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 6px; }
+    .form-group input { width: 100%; padding: 12px 16px; border: 2px solid #c0d8d4; border-radius: 10px; }
+    .btn-login { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; }
+    .guest-link { text-align: center; margin-top: 18px; }
+    .guest-link a { color: var(--accent); text-decoration: none; }
+    .login-error { color: #c0392b; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+    
+    /* ========== MAIN APP ========== */
+    #appShell { display: none; }
+    #appShell.active { display: flex; flex-direction: column; }
+    
+    /* Navbar */
+    .navbar { background: var(--primary); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+    .navbar-brand { color: white; font-size: 18px; font-weight: 700; }
+    .navbar-nav { display: flex; flex-direction: row; gap: 8px; align-items: center; }
+    .nav-user { display: flex; align-items: center; gap: 12px; color: white; }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .btn-logout { background: none; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 5px 12px; color: white; cursor: pointer; }
+    .btn-logout:hover { background: rgba(255,255,255,0.15); }
+    
+    /* Content Pages */
+    .page-content { display: none; flex: 1; padding: 28px 32px; max-width: 1400px; width: 100%; margin: 0 auto; }
+    #sectionDashboard { display: block; }
+    
+    /* KPI Cards */
+    .kpi-card { border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; padding: 15px; font-weight: bold; color: white; cursor: pointer; transition: transform 0.2s; }
+    .kpi-card:hover { transform: translateY(-3px); }
+    
+    /* Form */
+    .input-green { background-color: #ccffcc !important; }
     .btn-custom { background-color: #1a237e; color: white; font-weight: bold; }
     .btn-custom:hover { background-color: #0d1b60; color: white; }
-    .page-section { display: none; }
-    .page-section.active { display: block; }
-    .kpi-card { border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; padding: 15px; font-weight: bold; color: white; }
-    .img-placeholder { width: 100%; height: 180px; background-color: #e0e0e0; display: flex; align-items: center; justify-content: center; color: #757575; border-radius: 5px; }
+    .img-placeholder { width: 100%; height: 180px; background-color: #e0e0e0; display: flex; align-items: center; justify-content: center; border-radius: 5px; }
+    
+    /* Loading */
+    .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; }
+    .loading-spinner { background: white; padding: 24px 32px; border-radius: 16px; text-align: center; }
+    .spinner { width: 40px; height: 40px; border: 4px solid #e4eeed; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-  <!-- NAVBAR UTAMA -->
-  <nav class="navbar navbar-custom py-2 px-3 mb-4 shadow-sm">
-    <div class="container-fluid d-flex justify-content-between">
-      <span class="navbar-brand mb-0 h1 text-white">⚙️ Internal NC Report System</span>
-      <div>
-        <button class="btn btn-sm btn-outline-light me-2" onclick="showPage('dashboardPage')">📊 Dashboard</button>
-        <button class="btn btn-sm btn-warning text-dark fw-bold" onclick="openCreateForm()">➕ Create New NCR</button>
-      </div>
+<!-- ========== LOGIN PAGE ========== -->
+<div id="loginPage" class="page active">
+  <div class="login-card">
+    <div class="login-logo">
+      <h1>⚙️ Internal Nonconformity<br>Management System</h1>
+      <p>NCMR, PDR & 8D</p>
+    </div>
+    <div class="form-group">
+      <label>User Name</label>
+      <input type="text" id="loginName" placeholder="Enter your name" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>ID Number</label>
+      <input type="password" id="loginId" placeholder="Enter your ID number" autocomplete="off">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError">Name / ID does not match. Please try again.</div>
+    <div class="guest-link">
+      <a href="#" onclick="doGuestLogin()">👤 Continue as Guest (View Only)</a>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MAIN APP ========== -->
+<div id="appShell" class="page">
+  
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-brand">⚙️ Internal NC Report System</div>
+    <div class="navbar-nav">
+      <button class="btn btn-sm btn-outline-light" onclick="showDashboard()">📊 Dashboard</button>
+      <button class="btn btn-sm btn-warning text-dark fw-bold" onclick="openCreateForm()">➕ Create New NCR</button>
+    </div>
+    <div class="nav-user">
+      <div class="avatar" id="navAvatar">G</div>
+      <span id="navUserName">Guest</span>
+      <button class="btn-logout" onclick="doLogout()">Logout</button>
     </div>
   </nav>
 
-  <div class="container mb-5">
+  <!-- ========== DASHBOARD PAGE ========== -->
+  <div id="sectionDashboard" class="page-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3>📊 Dashboard Overview</h3>
+      <button class="btn btn-sm btn-secondary" onclick="loadAllData()">🔄 Refresh</button>
+    </div>
 
-    <!-- ========================================== -->
-    <!-- TAB 1: DASHBOARD OVERVIEW                 -->
-    <!-- ========================================== -->
-    <div id="dashboardPage" class="page-section active">
-      <div class="row mb-4 align-items-center">
-        <div class="col-auto"><h6 class="text-muted mb-0 fw-bold">Filter by product category:</h6></div>
-        <div class="col">
-          <button class="btn btn-sm btn-primary px-3 me-1" onclick="filterDashboard('EV')">EV</button>
-          <button class="btn btn-sm btn-info text-white px-3 me-1" onclick="filterDashboard('PWC')">PWC</button>
-          <button class="btn btn-sm btn-success px-3 me-1" onclick="filterDashboard('ICA')">ICA</button>
-          <button class="btn btn-sm btn-dark px-3 me-1" onclick="filterDashboard('Cable-PVC')">Cable-PVC</button>
-          <button class="btn btn-sm btn-secondary px-3" onclick="filterDashboard('All')">All</button>
-        </div>
-      </div>
-
-      <!-- KPI CARDS -->
-      <div class="row g-3 mb-4">
-        <div class="col-md-3"><div class="kpi-card" style="background-color: #e57373;"> <h3 id="kpi-total">0</h3> TOTAL NC </div></div>
-        <div class="col-md-3"><div class="kpi-card" style="background-color: #4fc3f7;"> <h3 id="kpi-pdr">0</h3> Total PDR </div></div>
-        <div class="col-md-3"><div class="kpi-card" style="background-color: #81c784;"> <h3 id="kpi-ncmr">0</h3> Total NCMR </div></div>
-        <div class="col-md-3"><div class="kpi-card" style="background-color: #ba68c8;"> <h3 id="kpi-8d">0</h3> Total 8D </div></div>
-      </div>
-
-      <!-- GRAFIK TREND DAN PARETO -->
-      <div class="row mb-4 g-3">
-        <div class="col-md-8">
-          <div class="card p-3 shadow-sm border-0"><canvas id="trendChart" height="140"></canvas></div>
-        </div>
-        <div class="col-md-4">
-          <div class="card p-3 shadow-sm border-0"><canvas id="paretoChart" height="280"></canvas></div>
-        </div>
-      </div>
-
-      <!-- TABEL DAFTAR DATA NCR -->
-      <div class="card p-3 shadow-sm border-0">
-        <h5 class="fw-bold text-dark mb-3">Active NCR List (Click row to follow-up 8D report)</h5>
-        <div class="table-responsive">
-          <table class="table table-hover border align-middle">
-            <thead class="table-dark">
-              <tr>
-                <th>ID No.</th>
-                <th>Type</th>
-                <th>Category</th>
-                <th>Issued By</th>
-                <th>Issued Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="ncrTableBody">
-              <tr><td colspan="6" class="text-center py-4">Loading database from Google Sheet...</td></tr>
-            </tbody>
-          </table>
-        </div>
+    <!-- Filter -->
+    <div class="row mb-4 align-items-center">
+      <div class="col-auto"><h6 class="text-muted mb-0 fw-bold">Filter by product category:</h6></div>
+      <div class="col">
+        <button class="btn btn-sm btn-secondary px-3" onclick="filterDashboard('All')">All</button>
+        <button class="btn btn-sm btn-primary px-3 me-1" onclick="filterDashboard('EV')">EV</button>
+        <button class="btn btn-sm btn-info text-white px-3 me-1" onclick="filterDashboard('PWC')">PWC</button>
+        <button class="btn btn-sm btn-success px-3 me-1" onclick="filterDashboard('ICA')">ICA</button>
+        <button class="btn btn-sm btn-dark px-3 me-1" onclick="filterDashboard('Cable-PVC')">Cable-PVC</button>
       </div>
     </div>
 
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3"><div class="kpi-card" style="background-color: #e57373;"><h3 id="kpi-total">0</h3>TOTAL NC</div></div>
+      <div class="col-md-3"><div class="kpi-card" style="background-color: #4fc3f7;"><h3 id="kpi-pdr">0</h3>Total PDR</div></div>
+      <div class="col-md-3"><div class="kpi-card" style="background-color: #81c784;"><h3 id="kpi-ncmr">0</h3>Total NCMR</div></div>
+      <div class="col-md-3"><div class="kpi-card" style="background-color: #ba68c8;"><h3 id="kpi-8d">0</h3>Total 8D</div></div>
+    </div>
 
-    <!-- ========================================== -->
-    <!-- TAB 2: FORM CREATE NCR (D1 & D2)          -->
-    <!-- ========================================== -->
-    <div id="ncrFormPage" class="page-section">
-      <div class="card card-custom p-4 shadow mx-auto" style="max-width: 850px;">
-        <div class="header-title mb-4">NON-CONFORMITY REPORT</div>
+    <!-- Charts -->
+    <div class="row mb-4 g-3">
+      <div class="col-md-8">
+        <div class="card p-3 shadow-sm border-0"><canvas id="trendChart" height="140"></canvas></div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-3 shadow-sm border-0"><canvas id="paretoChart" height="280"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card p-3 shadow-sm border-0">
+      <h5 class="fw-bold text-dark mb-3">Active NCR List (Click row to follow-up 8D report)</h5>
+      <div class="table-responsive">
+        <table class="table table-hover border align-middle">
+          <thead class="table-dark">
+            <tr><th>ID No.</th><th>Type</th><th>Category</th><th>Issued By</th><th>Issued Date</th><th>Status</th></tr>
+          </thead>
+          <tbody id="ncrTableBody">
+            <tr><td colspan="6" class="text-center py-4">Loading database from Google Sheet...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== CREATE NCR FORM ========== -->
+  <div id="ncrFormPage" class="page-content">
+    <div class="card shadow mx-auto" style="max-width: 900px;">
+      <div class="card-header" style="background: var(--primary); color: white;">
+        <h4 class="mb-0">📝 NON-CONFORMITY REPORT</h4>
+      </div>
+      <div class="card-body">
         <form id="formD1D2" onsubmit="submitD1D2(event)">
           <div class="row g-3">
             <div class="col-md-6">
@@ -122,57 +212,32 @@
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold">Issued By</label>
-              <input type="text" id="issuedBy" class="form-control" value="Yusrizal" readonly>
+              <input type="text" id="issuedBy" class="form-control" readonly>
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold">ID No. (Auto)</label>
-              <input type="text" id="idNo" class="form-control" placeholder="Automatic system check" readonly>
+              <input type="text" id="idNo" class="form-control" readonly>
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold">Part No / Name</label>
-              <input type="text" id="partNo" class="form-control input-green" placeholder="e.g. 121314243 Line 8" required>
+              <input type="text" id="partNo" class="form-control input-green" required>
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold">Location / Area</label>
-              <input type="text" id="location" class="form-control input-green" placeholder="e.g. Station Testing" required>
+              <input type="text" id="location" class="form-control input-green" required>
             </div>
             <div class="col-md-4">
               <label class="form-label fw-bold">Affected Qty</label>
               <input type="number" id="affectedQty" class="form-control input-green" required>
             </div>
             <div class="col-md-4">
-              <label class="form-label fw-bold">Smpl Qty</label>
+              <label class="form-label fw-bold">Sample Qty</label>
               <input type="number" id="smplQty" class="form-control input-green" required>
             </div>
             <div class="col-md-4">
-              <label class="form-label fw-bold">Intl NC Qty</label>
+              <label class="form-label fw-bold">NC Qty</label>
               <input type="number" id="intlNcQty" class="form-control input-green" required>
             </div>
-
-            <div class="col-md-6">
-              <label class="form-label fw-bold">Sorting?</label>
-              <select id="sortingReq" class="form-select input-green" onchange="toggleSortingPic()">
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-              </select>
-            </div>
-            <div class="col-md-6" id="sortingPicDiv" style="display:none;">
-              <label class="form-label fw-bold">Select Sorting PIC</label>
-              <select id="sortingPic" class="form-select auditor-list input-green"></select>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label fw-bold">Notice Next PIC?</label>
-              <select id="noticeNext" class="form-select input-green" onchange="toggleInterimPic()">
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-              </select>
-            </div>
-            <div class="col-md-6" id="interimPicDiv" style="display:none;">
-              <label class="form-label fw-bold">Select Interim PIC (D3)</label>
-              <select id="interimPic" class="form-select auditor-list input-green"></select>
-            </div>
-
             <div class="col-md-6">
               <label class="form-label fw-bold">NC Mode</label>
               <select id="ncMode" class="form-select input-green" required>
@@ -186,436 +251,348 @@
               <label class="form-label fw-bold">NC Category</label>
               <select id="ncCategory" class="form-select input-green" required>
                 <option value="Reject Hi pot Test">Reject Hi pot Test</option>
-                <option value="Actual Process Not Updated in WI/Procedure">Actual Process Not Updated in WI/Procedure</option>
-                <option value="Dimension Out of Specification">Dimension Out of Specification</option>
-                <option value="Misalign process/drawing vs BOM">Misalign process/drawing vs BOM</option>
-                <option value="Not Follow WI/Procedure">Not Follow WI/Procedure</option>
-                <option value="No Preventive Maintenance">No Preventive Maintenance</option>
                 <option value="Product Damage/Broken">Product Damage/Broken</option>
-                <option value="Skip Process">Skip Process</option>
-                <option value="WI not Available">WI not Available</option>
                 <option value="Wrong Do Assembly/Process">Wrong Do Assembly/Process</option>
+                <option value="Dimension Out of Specification">Dimension Out of Specification</option>
+                <option value="Not Follow WI/Procedure">Not Follow WI/Procedure</option>
               </select>
             </div>
-
-            <div class="col-md-8">
+            <div class="col-12">
               <label class="form-label fw-bold">How it detected?</label>
-              <textarea id="howDetected" class="form-control input-green" rows="2" placeholder="Inspector got notice from operator..." required></textarea>
-              <label class="form-label fw-bold mt-2">Interim Act / Containment Action</label>
-              <textarea id="interimAct" class="form-control input-green" rows="3" placeholder="Segregate the affected lot..." required></textarea>
+              <textarea id="howDetected" class="form-control input-green" rows="2" required></textarea>
             </div>
-            <div class="col-md-4 d-flex align-items-center">
-              <div class="img-placeholder">📸 Image Area</div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Interim Act / Containment Action</label>
+              <textarea id="interimAct" class="form-control input-green" rows="2" required></textarea>
             </div>
-
-            <!-- D1-D8 TEAM PIC CONFIGURATION -->
-            <div class="col-12 mt-4 border-top pt-3">
-              <h6 class="fw-bold text-dark mb-3">🎯 Define Team Assignment (D1 - D8 PIC)</h6>
-              <div class="row g-2 text-center row-cols-2 row-cols-sm-4 row-cols-md-8">
-                <div class="col"><label class="small fw-bold">D1</label><input type="text" class="form-control form-control-sm" value="Yusrizal" readonly></div>
-                <div class="col"><label class="small fw-bold">D2</label><input type="text" class="form-control form-control-sm" value="Yusrizal" readonly></div>
-                <div class="col"><label class="small fw-bold">D3 (Interim)</label><select id="picD3" class="form-select form-select-sm auditor-list"></select></div>
-                <div class="col"><label class="small fw-bold">D4 (RootC)</label><select id="picD4" class="form-select form-select-sm auditor-list"></select></div>
-                <div class="col"><label class="small fw-bold">D5 (CA)</label><select id="picD5" class="form-select form-select-sm auditor-list"></select></div>
-                <div class="col"><label class="small fw-bold">D6 (Valid)</label><select id="picD6" class="form-select form-select-sm auditor-list"></select></div>
-                <div class="col"><label class="small fw-bold">D7 (PA)</label><select id="picD7" class="form-select form-select-sm auditor-list"></select></div>
-                <div class="col"><label class="small fw-bold">D8 (Approve)</label><select id="picD8" class="form-select form-select-sm auditor-list"></select></div>
-              </div>
-            </div>
-
             <div class="col-12 text-center mt-4">
-              <button type="submit" class="btn btn-custom px-5 py-2">Submit Report</button>
+              <button type="button" class="btn btn-secondary px-4 me-2" onclick="showDashboard()">Cancel</button>
+              <button type="submit" class="btn btn-custom px-4">Submit Report</button>
             </div>
           </div>
         </form>
       </div>
     </div>
-
-
-    <!-- ========================================== -->
-    <!-- TAB 3: FOLLOW UP PROGRESS (D3 - D8)        -->
-    <!-- ========================================== -->
-    <div id="followUpPage" class="page-section">
-      <div class="card card-custom p-4 shadow mx-auto" style="max-width: 850px;">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <button class="btn btn-sm btn-secondary fw-bold" onclick="showPage('dashboardPage')">⬅️ Back Dashboard</button>
-          <h4 class="fw-bold text-dark mb-0" id="followUpTitle">NCR Process</h4>
-        </div>
-        
-        <!-- Tab Bar navigasi D3-D8 -->
-        <ul class="nav nav-tabs mb-4" id="disciplineTabs">
-          <li class="nav-item"><a class="nav-link active fw-bold" href="#" onclick="switchDTab(3)">D3</a></li>
-          <li class="nav-item"><a class="nav-link fw-bold" href="#" onclick="switchDTab(4)">D4</a></li>
-          <li class="nav-item"><a class="nav-link fw-bold" href="#" onclick="switchDTab(5)">D5</a></li>
-          <li class="nav-item"><a class="nav-link fw-bold" href="#" onclick="switchDTab(6)">D6</a></li>
-          <li class="nav-item"><a class="nav-link fw-bold" href="#" onclick="switchDTab(7)">D7</a></li>
-          <li class="nav-item"><a class="nav-link fw-bold" href="#" onclick="switchDTab(8)">D8</a></li>
-        </ul>
-
-        <!-- Form Update Dinamis -->
-        <div id="disciplineFormContainer"></div>
-      </div>
-    </div>
-
   </div>
 
-  <script>
-    // =========================================================
-    // TEMPELKAN URL /EXEC GOOGLE APPS SCRIPT KAMU DI SINI!
-    // =========================================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwjo7CsEbcUIcJ4Rxar1HG1g3Xurq8GkozjJqfTVIKT_sy1_JyCiWGT2fWF3M7qZYVN/exec';
+</div>
 
-    let rawDataNCR = [];
-    let auditorList = [];
-    let selectedNCRId = null;
+<script>
+  // ========== CONFIG ==========
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwjo7CsEbcUIcJ4Rxar1HG1g3Xurq8GkozjJqfTVIKT_sy1_JyCiWGT2fWF3M7qZYVN/exec';
+  let rawDataNCR = [];
+  let currentUser = null;
 
-    window.onload = function() {
-      loadAuditors();
-      loadDashboardData();
+  // ========== LOGIN SYSTEM ==========
+  function doLogin() {
+    const name = document.getElementById('loginName').value.trim();
+    const id = document.getElementById('loginId').value.trim();
+    
+    if (name && id) {
+      currentUser = { name: name, id: id, isGuest: false };
+      document.getElementById('navUserName').innerText = name;
+      document.getElementById('navAvatar').innerText = name.charAt(0).toUpperCase();
+      
+      document.getElementById('loginPage').classList.remove('active');
+      document.getElementById('appShell').classList.add('active');
+      
+      loadAllData();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  }
+
+  function doGuestLogin() {
+    currentUser = { name: 'Guest', id: 'GUEST', isGuest: true };
+    document.getElementById('navUserName').innerText = 'Guest';
+    document.getElementById('navAvatar').innerText = '👤';
+    
+    document.getElementById('loginPage').classList.remove('active');
+    document.getElementById('appShell').classList.add('active');
+    
+    loadAllData();
+  }
+
+  function doLogout() {
+    currentUser = null;
+    document.getElementById('appShell').classList.remove('active');
+    document.getElementById('loginPage').classList.add('active');
+    document.getElementById('loginName').value = '';
+    document.getElementById('loginId').value = '';
+    document.getElementById('loginError').style.display = 'none';
+  }
+
+  // ========== NAVIGATION ==========
+  function showDashboard() {
+    document.getElementById('sectionDashboard').style.display = 'block';
+    document.getElementById('ncrFormPage').style.display = 'none';
+  }
+
+  function openCreateForm() {
+    document.getElementById('sectionDashboard').style.display = 'none';
+    document.getElementById('ncrFormPage').style.display = 'block';
+    
+    if (currentUser) {
+      document.getElementById('issuedBy').value = currentUser.name;
+    }
+    
+    document.getElementById('formD1D2').reset();
+    generateIDNo();
+  }
+
+  // ========== DATA FUNCTIONS ==========
+  async function loadAllData() {
+    await loadDashboardData();
+  }
+
+  async function loadDashboardData() {
+    try {
+      const response = await fetch(`${API_URL}?action=getSummary`);
+      const res = await response.json();
+      if (res.status === 'ok') {
+        rawDataNCR = res.rows;
+        renderDashboard(rawDataNCR);
+        initCharts(rawDataNCR);
+      }
+    } catch(e) { 
+      console.error("Error loading data:", e);
+      document.getElementById('ncrTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-danger">Failed to load data. Check console.</td></tr>';
+    }
+  }
+
+ function renderDashboard(data) {
+  document.getElementById('kpi-total').innerText = data.length;
+  document.getElementById('kpi-pdr').innerText = data.filter(r => r.Type === 'PDR').length;
+  document.getElementById('kpi-ncmr').innerText = data.filter(r => r.Type === 'NCMR').length;
+  document.getElementById('kpi-8d').innerText = data.filter(r => r.Type === '8D').length;
+
+  const tbody = document.getElementById('ncrTableBody');
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">No active report found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(r => {
+    // Category = EV/PWC/ICA (bukan NCCatagory)
+    const productCategory = r.Category || '-';
+    
+    return `
+      <tr style="cursor:pointer;" onclick="openFollowUp('${r['ID No.']}')">
+        <td><strong>${r['ID No.'] || '-'}</strong></td>
+        <td><span class="badge bg-secondary">${r.Type || 'PDR'}</span></td>
+        <td>${productCategory}</td>
+        <td>${r.IssuedBy || '-'}</td>
+        <td>${formatDate(r.IssuedDate)}</td>
+        <td><span class="badge ${(r.StatusNC || 'Open') === 'Open' ? 'bg-danger' : 'bg-success'}">${r.StatusNC || 'Open'}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// Fungsi bantu format tanggal
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  
+  try {
+    // Cek format DD/MM/YYYY (contoh: 22/5/2026 atau 28/05/2026)
+    if (typeof dateStr === 'string' && dateStr.includes('/')) {
+      const parts = dateStr.split('/');
+      if (parts.length === 3) {
+        const day = parts[0].padStart(2, '0');
+        const month = parts[1].padStart(2, '0');
+        const year = parts[2];
+        return `${day}/${month}/${year}`;
+      }
+    }
+    
+    // Cek format ISO (2026-05-11T17:00:00.000Z)
+    const date = new Date(dateStr);
+    if (!isNaN(date.getTime())) {
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+  } catch(e) {
+    console.error("Error parsing date:", dateStr);
+  }
+  
+  return dateStr; // fallback
+}
+
+  function generateIDNo() {
+    const cat = document.getElementById('prodCategory').value;
+    const nextNum = rawDataNCR.length + 1;
+    document.getElementById('idNo').value = cat + "-" + String(nextNum).padStart(4, '0');
+  }
+
+  async function submitD1D2(e) {
+    e.preventDefault();
+    
+    const payload = {
+      action: 'appendNCR',
+      data: {
+        'NCRType': document.getElementById('ncrType').value,
+        'Product Category': document.getElementById('prodCategory').value,
+        'IssuedBy': document.getElementById('issuedBy').value,
+        'PartNo': document.getElementById('partNo').value,
+        'Location': document.getElementById('location').value,
+        'AffectedQty': document.getElementById('affectedQty').value,
+        'SmplQty': document.getElementById('smplQty').value,
+        'IntlNcQty': document.getElementById('intlNcQty').value,
+        'HowDetected': document.getElementById('howDetected').value,
+        'NCMode': document.getElementById('ncMode').value,
+        'NCCategory': document.getElementById('ncCategory').value,
+        'InterimAct': document.getElementById('interimAct').value,
+        'IssuedDate': new Date().toISOString().split('T')[0]
+      }
     };
 
-    function showPage(pageId) {
-      document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-      document.getElementById(pageId).classList.add('active');
+    try {
+      const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+      const res = await response.json();
+      alert(res.message || 'NCR Created Successfully!');
+      showDashboard();
+      loadAllData();
+    } catch(err) { 
+      alert("Submission failed: " + err);
     }
+  }
 
-    function openCreateForm() {
-      showPage('ncrFormPage');
-      generateIDNo();
-    }
+function filterDashboard(cat) {
+  if (cat === 'All') {
+    renderDashboard(rawDataNCR);
+    initCharts(rawDataNCR);
+  } else {
+    // Filter berdasarkan kolom 'Category'
+    const filtered = rawDataNCR.filter(r => r.Category === cat);
+    renderDashboard(filtered);
+    initCharts(filtered);
+  }
+}
 
-    function toggleSortingPic() {
-      const show = document.getElementById('sortingReq').value === 'Yes';
-      document.getElementById('sortingPicDiv').style.display = show ? 'block' : 'none';
-    }
+  // ========== CHARTS ==========
+  let trendChartInstance = null;
+  let paretoChartInstance = null;
 
-    function toggleInterimPic() {
-      const show = document.getElementById('noticeNext').value === 'Yes';
-      document.getElementById('interimPicDiv').style.display = show ? 'block' : 'none';
-    }
+  function initCharts(data) {
+  if (trendChartInstance) trendChartInstance.destroy();
+  if (paretoChartInstance) paretoChartInstance.destroy();
 
-    function generateIDNo() {
-      const cat = document.getElementById('prodCategory').value;
-      const nextNum = rawDataNCR.length + 1;
-      document.getElementById('idNo').value = cat + "-" + String(nextNum).padStart(4, '0');
-    }
-
-    async function loadAuditors() {
-      try {
-        const response = await fetch(`${API_URL}?action=getAuditors`);
-        const res = await response.json();
-        if(res.status === 'ok') {
-          auditorList = res.rows;
-          document.querySelectorAll('.auditor-list').forEach(select => {
-            select.innerHTML = auditorList.map(a => `<option value="${a.AuditorName || a.Nama}">${a.AuditorName || a.Nama}</option>`).join('');
-          });
+  // ========== 1. TREND CHART (dari data real) ==========
+  const monthlyData = {};
+  
+  data.forEach(item => {
+    if (item.IssuedDate) {
+      let date = parseDate(item.IssuedDate);
+      if (date) {
+        const monthYear = date.toLocaleString('default', { month: 'short' }) + ' ' + date.getFullYear();
+        const ncrType = item.Type || 'PDR';
+        
+        if (!monthlyData[monthYear]) {
+          monthlyData[monthYear] = { PDR: 0, NCMR: 0, '8D': 0 };
         }
-      } catch(e) { console.error("Gagal memuat list auditor/PIC", e); }
-    }
-
-    async function loadDashboardData() {
-      try {
-        const response = await fetch(`${API_URL}?action=getSummary`);
-        const res = await response.json();
-        if(res.status === 'ok') {
-          rawDataNCR = res.rows;
-          renderDashboard(rawDataNCR);
+        if (monthlyData[monthYear][ncrType] !== undefined) {
+          monthlyData[monthYear][ncrType]++;
+        } else {
+          monthlyData[monthYear]['PDR']++;
         }
-      } catch(e) { console.error("Gagal sinkronisasi data dari cloud", e); }
-    }
-
-    function renderDashboard(data) {
-      document.getElementById('kpi-total').innerText = data.length;
-      document.getElementById('kpi-pdr').innerText = data.filter(r => r.NCRType === 'PDR').length;
-      document.getElementById('kpi-ncmr').innerText = data.filter(r => r.NCRType === 'NCMR').length;
-      document.getElementById('kpi-8d').innerText = data.filter(r => r.NCRType === '8D').length;
-
-      const tbody = document.getElementById('ncrTableBody');
-      if(data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-3">No active report inside Google Sheet database.</td></tr>`;
-        return;
       }
-
-      tbody.innerHTML = data.map(r => `
-        <tr style="cursor:pointer;" onclick="openFollowUp('${r['ID No.']}')">
-          <td><strong>${r['ID No.']}</strong></td>
-          <td><span class="badge bg-secondary">${r.NCRType || 'PDR'}</span></td>
-          <td>${r.NCCategory || '-'}</td>
-          <td>${r.IssuedBy || '-'}</td>
-          <td>${r.IssuedDate || '-'}</td>
-          <td><span class="badge ${r.StatusNC === 'Open' ? 'bg-danger' : 'bg-success'}">${r.StatusNC || 'Open'}</span></td>
-        </tr>
-      `).join('');
-
-      initCharts(data);
     }
-
-    async function submitD1D2(e) {
-      e.preventDefault();
-      const payload = {
-        action: 'appendNCR',
-        data: {
-          'NCRType': document.getElementById('ncrType').value,
-          'Product Category': document.getElementById('prodCategory').value,
-          'IssuedBy': document.getElementById('issuedBy').value,
-          'PartNo': document.getElementById('partNo').value,
-          'Location': document.getElementById('location').value,
-          'AffectedQty': document.getElementById('affectedQty').value,
-          'SmplQty': document.getElementById('smplQty').value,
-          'IntlNcQty': document.getElementById('intlNcQty').value,
-          'SortingReq': document.getElementById('sortingReq').value,
-          'SortingPIC': document.getElementById('sortingReq').value === 'Yes' ? document.getElementById('sortingPic').value : '',
-          'NoticeNext': document.getElementById('noticeNext').value,
-          'InterimPic': document.getElementById('noticeNext').value === 'Yes' ? document.getElementById('interimPic').value : '',
-          'HowDetected': document.getElementById('howDetected').value,
-          'NCMode': document.getElementById('ncMode').value,
-          'NCCategory': document.getElementById('ncCategory').value,
-          'InterimAct': document.getElementById('interimAct').value,
-          'IssuedDate': new Date().toISOString().split('T')[0],
-          'D1': document.getElementById('issuedBy').value,
-          'D2': document.getElementById('issuedBy').value,
-          'D3': document.getElementById('picD3').value,
-          'D4': document.getElementById('picD4').value,
-          'D5': document.getElementById('picD5').value,
-          'D6': document.getElementById('picD6').value,
-          'D7': document.getElementById('picD7').value,
-          'D8': document.getElementById('picD8').value
-        }
-      };
-
-      try {
-        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        const res = await response.json();
-        if(res.status === 'ok') {
-          alert(res.message);
-          document.getElementById('formD1D2').reset();
-          loadDashboardData();
-          showPage('dashboardPage');
-        }
-      } catch(err) { alert("Submission failed: " + err); }
-    }
-
-    function openFollowUp(idNo) {
-      selectedNCRId = idNo;
-      document.getElementById('followUpTitle').innerText = `Follow Up Progress: ${idNo}`;
-      showPage('followUpPage');
-      switchDTab(3);
-    }
-
-    function switchDTab(dNum) {
-      document.querySelectorAll('#disciplineTabs .nav-link').forEach((l, idx) => {
-        l.classList.toggle('active', idx === (dNum - 3));
-      });
-      renderDisciplineForm(dNum);
-    }
-
-    function renderDisciplineForm(dNum) {
-      const container = document.getElementById('disciplineFormContainer');
-      const item = rawDataNCR.find(r => r['ID No.'] === selectedNCRId) || {};
-      
-      let refHeader = `
-        <div class="p-3 border rounded mb-3 text-white" style="background-color: #4db6ac;">
-          <h6 class="mb-1"><strong>Description of NC (D2 Reference): ${item['ID No.']}</strong></h6>
-          <small>Problem: ${item.NCMode || 'N/A'} | Category: ${item.NCCategory || 'N/A'} | Qty: ${item.AffectedQty || 0}</small>
-        </div>
-      `;
-
-      let html = refHeader;
-
-      if(dNum === 3) {
-        html += `
-          <div class="p-3 border rounded bg-light">
-            <h5 class="fw-bold text-success">Interim/Containment Action (D3)</h5>
-            <div class="row g-2 mb-3">
-              <div class="col-6"><label class="small fw-bold">Interim act by:</label><input id="d3By" class="form-control form-control-sm" value="${item.D3 || 'Yusrizal'}" readonly></div>
-              <div class="col-6"><label class="small fw-bold">Interim Act Date:</label><input type="date" id="d3Date" class="form-control form-control-sm" value="${new Date().toISOString().split('T')[0]}"></div>
-            </div>
-            <div class="mb-3"><label class="form-label fw-bold">Interim Act Remarks:</label><textarea id="d3Remarks" class="form-control input-yellow" required>${item.InterimActRemarks || ''}</textarea></div>
-            <div class="row g-2 mb-3">
-              <div class="col-4"><label class="small fw-bold">Qty Ok after sort:</label><input type="number" id="d3Ok" class="form-control input-yellow" value="${item.QtyOkAfterSort || 0}"></div>
-              <div class="col-4"><label class="small fw-bold">Qty Reject Final:</label><input type="number" id="d3Rej" class="form-control input-yellow" value="${item.QtyRejectFinal || 0}"></div>
-              <div class="col-4"><label class="small fw-bold">Total Man-Hours:</label><input type="number" id="d3Mh" class="form-control input-yellow" value="${item.TotalManHours || 0}"></div>
-            </div>
-            <div class="form-check mb-3"><input type="checkbox" id="d3Notice" class="form-check-input"><label class="form-check-label small fw-bold">Notice D3 PIC</label></div>
-            <button class="btn btn-success fw-bold w-100" onclick="submitDProgress(3)">Submit D3</button>
-          </div>
-        `;
-      } else if(dNum === 4) {
-        html += `
-          <div class="p-3 border rounded bg-light">
-            <h5 class="fw-bold text-primary">Identify, Analysis and Verify The Root Cause (D4)</h5>
-            <div class="mb-3"><label class="form-label fw-bold">A. Root-Cause (Occurrence):</label><textarea id="d4Occ" class="form-control input-yellow" required>${item['RC-AnalysisOcc'] || ''}</textarea></div>
-            <div class="mb-3"><label class="form-label fw-bold">B. Root-Cause (Skip):</label><textarea id="d4Skip" class="form-control input-yellow" required>${item['RC-AnalysisSkip'] || ''}</textarea></div>
-            <div class="row g-3 mb-3">
-              <div class="col-md-6">
-                <label class="form-label fw-bold">RC Factor (5M+E):</label>
-                <select id="d4Factor" class="form-select input-yellow">
-                  <option value="Man">Man</option><option value="Method">Method</option><option value="Material">Material</option><option value="Machine">Machine</option><option value="Measurement">Measurement</option><option value="Environment">Environment</option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label fw-bold">RC analysis by:</label><input id="d4By" class="form-control" value="${item.D4 || 'Denny'}" readonly>
-              </div>
-            </div>
-            <button class="btn btn-primary fw-bold w-100" onclick="submitDProgress(4)">Submit D4</button>
-          </div>
-        `;
-      } else if(dNum === 8) {
-        html += `
-          <div class="p-3 border rounded bg-light">
-            <h5 class="fw-bold text-danger">Closure & Validation (D8)</h5>
-            <div class="mb-3"><label class="form-label fw-bold">Congratulation Message:</label><textarea id="d8Msg" class="form-control input-yellow" rows="3" placeholder="Thank you for completing the 8D report..."></textarea></div>
-            <div class="mb-3">
-              <label class="form-label fw-bold">Validation Result status:</label>
-              <select id="d8Status" class="form-select input-yellow">
-                <option value="Open">Open</option><option value="Close">Close</option><option value="Reject">Reject</option>
-              </select>
-            </div>
-            <button class="btn btn-danger fw-bold w-100" onclick="submitDProgress(8)">Complete Report Summary</button>
-          </div>
-        `;
-      } else {
-        html += `
-          <div class="p-3 border rounded bg-light text-center">
-            <h5>Discipline ${dNum} Form Integration</h5>
-            <p class="text-muted small">This module links dynamic 8D inputs direct to your row headers.</p>
-            <button class="btn btn-secondary px-5" onclick="submitDProgress(${dNum})">Submit D${dNum} Data</button>
-          </div>
-        `;
+  });
+  
+  // Ambil 6 bulan terakhir
+  const sortedMonths = Object.keys(monthlyData).sort().slice(-6);
+  const pdrData = sortedMonths.map(m => monthlyData[m].PDR);
+  const ncmrData = sortedMonths.map(m => monthlyData[m].NCMR);
+  const eightDData = sortedMonths.map(m => monthlyData[m]['8D']);
+  
+  // Trend Chart
+  const ctxTrend = document.getElementById('trendChart').getContext('2d');
+  trendChartInstance = new Chart(ctxTrend, {
+    type: 'bar',
+    data: {
+      labels: sortedMonths.length ? sortedMonths : ['No Data'],
+      datasets: [
+        { label: 'PDR', data: sortedMonths.length ? pdrData : [0], backgroundColor: '#4fc3f7' },
+        { label: 'NCMR', data: sortedMonths.length ? ncmrData : [0], backgroundColor: '#81c784' },
+        { label: '8D', data: sortedMonths.length ? eightDData : [0], backgroundColor: '#ba68c8' }
+      ]
+    },
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: true,
+      plugins: {
+        title: { display: true, text: 'NCR Trend by Month' }
       }
-      container.innerHTML = html;
     }
+  });
 
-    async function submitDProgress(dNum) {
-      let dData = { 'ID No.': selectedNCRId };
-      
-      if(dNum === 3) {
-        dData['InterimActRemarks'] = document.getElementById('d3Remarks').value;
-        dData['QtyOkAfterSort'] = document.getElementById('d3Ok').value;
-        dData['QtyRejectFinal'] = document.getElementById('d3Rej').value;
-        dData['TotalManHours'] = document.getElementById('d3Mh').value;
-        dData['InterimActDate'] = document.getElementById('d3Date').value;
-      } else if(dNum === 4) {
-        dData['RC-AnalysisOcc'] = document.getElementById('d4Occ').value;
-        dData['RC-AnalysisSkip'] = document.getElementById('d4Skip').value;
-        dData['RCFactor'] = document.getElementById('d4Factor').value;
-        dData['RC-AnalysisBy'] = document.getElementById('d4By').value;
-        dData['RC-AnalysisDate'] = new Date().toISOString().split('T')[0];
-      } else if(dNum === 8) {
-        dData['StatusNC'] = document.getElementById('d8Status').value;
-      }
-
-      const payload = { action: `updateD${dNum}`, data: dData };
-      try {
-        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        const res = await response.json();
-        alert(res.message);
-        loadDashboardData();
-        showPage('dashboardPage');
-      } catch(e) { alert("Failed to update D progress: " + e); }
-    }
-
-    // CHART GENERATION INITIATION - WITH REAL DATA
-    let trendChartInstance = null;
-    let paretoChartInstance = null;
-
-    function initCharts(data) {
-      // Destroy existing charts if they exist
-      if(trendChartInstance) trendChartInstance.destroy();
-      if(paretoChartInstance) paretoChartInstance.destroy();
-      
-      // ========== 1. TREND CHART ==========
-      const monthlyData = {};
-      
-      data.forEach(item => {
-        if (item.IssuedDate) {
-          let date = new Date(item.IssuedDate);
-          if (!isNaN(date.getTime())) {
-            const monthYear = date.toLocaleString('default', { month: 'short' }) + ' ' + date.getFullYear();
-            const ncrType = item.Type || item.NCRType || 'PDR';
-            
-            if (!monthlyData[monthYear]) {
-              monthlyData[monthYear] = { PDR: 0, NCMR: 0, '8D': 0 };
-            }
-            if (monthlyData[monthYear][ncrType] !== undefined) {
-              monthlyData[monthYear][ncrType]++;
-            } else {
-              monthlyData[monthYear]['PDR']++;
-            }
+  // ========== 2. PARETO CHART (dari NCCatagory) ==========
+  const defectCounts = {};
+  data.forEach(item => {
+    let defect = item.NCCatagory || item.NCCategory || 'Others';
+    if (defect === 'Reject Hi pot Test') defect = 'Reject Hi-pot';
+    if (defect === 'Dimension Out of Specification') defect = 'Dimension OoS';
+    if (defect === 'Wrong Do Assembly/Process') defect = 'Wrong Assembly';
+    if (defect === 'Product Damage/Broken') defect = 'Product Damage';
+    if (defect.length > 20) defect = defect.substring(0, 17) + '...';
+    defectCounts[defect] = (defectCounts[defect] || 0) + 1;
+  });
+  
+  const sortedDefects = Object.entries(defectCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const labels = sortedDefects.map(([name]) => name);
+  const frequencies = sortedDefects.map(([, count]) => count);
+  
+  const ctxPareto = document.getElementById('paretoChart').getContext('2d');
+  paretoChartInstance = new Chart(ctxPareto, {
+    type: 'bar',
+    data: {
+      labels: labels.length ? labels : ['No Data'],
+      datasets: [{ 
+        label: 'Frequency', 
+        data: labels.length ? frequencies : [0], 
+        backgroundColor: '#ffb74d' 
+      }]
+    },
+    options: { 
+      responsive: true,
+      plugins: {
+        title: { display: true, text: 'Top NC Categories (Pareto)' },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.raw} cases (${((ctx.raw / data.length) * 100).toFixed(1)}%)`
           }
         }
-      });
-      
-      const sortedMonths = Object.keys(monthlyData).sort().slice(-6);
-      const pdrData = sortedMonths.map(m => monthlyData[m].PDR);
-      const ncmrData = sortedMonths.map(m => monthlyData[m].NCMR);
-      const eightDData = sortedMonths.map(m => monthlyData[m]['8D']);
-      
-      // Trend Chart
-      const ctxTrend = document.getElementById('trendChart').getContext('2d');
-      trendChartInstance = new Chart(ctxTrend, {
-        type: 'bar',
-        data: {
-          labels: sortedMonths.length ? sortedMonths : ['No Data'],
-          datasets: [
-            { label: 'PDR', data: sortedMonths.length ? pdrData : [0], backgroundColor: '#4fc3f7' },
-            { label: 'NCMR', data: sortedMonths.length ? ncmrData : [0], backgroundColor: '#81c784' },
-            { label: '8D', data: sortedMonths.length ? eightDData : [0], backgroundColor: '#ba68c8' }
-          ]
-        },
-        options: { responsive: true, maintainAspectRatio: true }
-      });
-      
-      // ========== 2. PARETO CHART ==========
-      const defectCounts = {};
-      data.forEach(item => {
-        let defect = item.NCCategory || item['NCCatagory'] || 'Others';
-        if (defect === 'Reject Hi pot Test') defect = 'Reject Hi-pot';
-        if (defect === 'Dimension Out of Specification') defect = 'Dimension OoS';
-        if (defect === 'Wrong Do Assembly/Process') defect = 'Wrong Assembly';
-        if (defect === 'Product Damage/Broken') defect = 'Product Damage';
-        if (defect.length > 20) defect = defect.substring(0, 17) + '...';
-        defectCounts[defect] = (defectCounts[defect] || 0) + 1;
-      });
-      
-      const sortedDefects = Object.entries(defectCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-      const labels = sortedDefects.map(([name]) => name);
-      const frequencies = sortedDefects.map(([, count]) => count);
-      
-      // Pareto Chart
-      const ctxPareto = document.getElementById('paretoChart').getContext('2d');
-      paretoChartInstance = new Chart(ctxPareto, {
-        type: 'bar',
-        data: {
-          labels: labels.length ? labels : ['No Data'],
-          datasets: [{ 
-            label: 'Frequency', 
-            data: labels.length ? frequencies : [0], 
-            backgroundColor: '#ffb74d' 
-          }]
-        },
-        options: { 
-          responsive: true, 
-          maintainAspectRatio: true,
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: (ctx) => `${ctx.raw} cases (${((ctx.raw / data.length) * 100).toFixed(1)}%)`
-              }
-            }
-          }
-        }
-      });
-    }
-
-    function filterDashboard(cat) {
-      if(cat === 'All') { 
-        renderDashboard(rawDataNCR); 
-      } else {
-        const filtered = rawDataNCR.filter(r => r['Product Category'] === cat || r.Type === cat);
-        renderDashboard(filtered);
       }
-    } 
- </script>
+    }
+  });
+}
+
+// Fungsi bantu parsing tanggal
+function parseDate(dateStr) {
+  if (!dateStr) return null;
+  
+  // Coba parse format DD/MM/YYYY
+  if (typeof dateStr === 'string' && dateStr.includes('/')) {
+    const parts = dateStr.split('/');
+    if (parts.length === 3 && parts[0].length <= 2 && parts[1].length <= 2) {
+      // DD/MM/YYYY -> MM/DD/YYYY
+      return new Date(`${parts[1]}/${parts[0]}/${parts[2]}`);
+    }
+  }
+  
+  const date = new Date(dateStr);
+  return isNaN(date.getTime()) ? null : date;
+}
+
+ 
+
+  // ========== INIT ==========
+  window.onload = function() {
+    document.getElementById('loginPage').classList.add('active');
+    document.getElementById('appShell').classList.remove('active');
+  };
+</script>
 </body>
 </html>
