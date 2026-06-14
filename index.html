@@ -189,7 +189,7 @@ input[readonly] {
       <div class="table-responsive">
         <table class="table table-hover border align-middle">
           <thead class="table-dark">
-            <tr><th>ID No.</th><th>Type</th><th>Category</th><th>Issued By</th><th>Issued Date</th><th>Status</th></tr>
+            <tr><th>ID No.</th><th>Type</th><th>Category</th><th>Issued By</th><th>DetailNC</th><th>CustomerName</th><th>Issued Date</th><th>Status</th></tr>
           </thead>
           <tbody id="ncrTableBody">
             <tr><td colspan="6" class="text-center py-4">Loading database from Google Sheet...</td></tr>
@@ -238,6 +238,14 @@ input[readonly] {
               <input type="text" id="partNo" class="form-control input-green" required>
             </div>
             <div class="col-md-6">
+              <label class="form-label fw-bold">Shift/Time</label>
+              <input type="text" id="ShiftTime" class="form-control input-green" required>
+            </div>
+             <div class="col-md-6">
+              <label class="form-label fw-bold">Customer Name</label>
+              <input type="text" id="CustomerName" class="form-control input-green" required>
+            </div>
+            <div class="col-md-6">
               <label class="form-label fw-bold">Location / Area</label>
               <input type="text" id="location" class="form-control input-green" required>
             </div>
@@ -253,6 +261,13 @@ input[readonly] {
               <label class="form-label fw-bold">NC Qty</label>
               <input type="number" id="intlNcQty" class="form-control input-green" required>
             </div>
+             <div class="col-md-6">
+              <label class="form-label fw-bold">Is sorting, repair or rework required?</label>
+              <select id="SortingRepairReworkRequired" class="form-select input-green" required>
+                <option value="-Please Select yes or no-">Please Select yes or no</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
             <div class="col-md-6">
               <label class="form-label fw-bold">NC Mode</label>
               <select id="ncMode" class="form-select input-green" required>
@@ -271,6 +286,10 @@ input[readonly] {
                 <option value="Dimension Out of Specification">Dimension Out of Specification</option>
                 <option value="Not Follow WI/Procedure">Not Follow WI/Procedure</option>
               </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Details NC</label>
+              <textarea id="DetailNC" class="form-control input-green" rows="2" required></textarea>
             </div>
             <div class="col-12">
               <label class="form-label fw-bold">How it detected?</label>
@@ -518,15 +537,22 @@ function formatDate(dateStr) {
       'Type': document.getElementById('ncrType').value,
       'Category': document.getElementById('prodCategory').value,
       'IssuedDate': new Date().toLocaleDateString('en-GB'),
+      'ShiftTime': document.getElementById('ShiftTime').value, 
       'PartNo': document.getElementById('partNo').value,
+      'CustomerName': document.getElementById('CustomerName').value,
       'DetectionLocation': document.getElementById('location').value,
       'AffectedQty': document.getElementById('affectedQty').value,
       'SamplingQty': document.getElementById('smplQty').value,
       'RejectQtyDeclated': document.getElementById('intlNcQty').value,
       'NCMode': document.getElementById('ncMode').value,
       'NCCatagory': document.getElementById('ncCategory').value,
+      'DetailNC': document.getElementById('DetailNC').value,
       'HowItDetected': document.getElementById('howDetected').value,
       'InterimAction': document.getElementById('interimAct').value,
+      'SortingRepairReworkRequired': document.getElementById('SortingRepairReworkRequired').value,
+      'SortingReworkPIC': document.getElementById('picD3').value,
+      'Period': new Date().toLocaleDateString('en-GB'),
+      
       
       // 8D Assignment (mapping ke kolom Google Sheet)
       'IssuedBy': document.getElementById('issuedBy').value,           // D1 & D2
