@@ -173,15 +173,44 @@ input[readonly] {
       <div class="col-md-3"><div class="kpi-card" style="background-color: #ba68c8;"><h3 id="kpi-8d">0</h3>Total 8D</div></div>
     </div>
 
-    <!-- Charts -->
-    <div class="row mb-4 g-3">
-      <div class="col-md-8">
-        <div class="card p-3 shadow-sm border-0"><canvas id="trendChart" height="140"></canvas></div>
+  <!-- Charts -->
+<div class="row mb-4 g-3">
+  <div class="col-md-8">
+    <div class="card p-3 shadow-sm border-0">
+      <div class="fw-bold mb-1" style="font-size:14px;">NCR Trend by Month</div>
+      <div style="display:flex; gap:14px; margin-bottom:10px;">
+        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
+          <span style="width:10px;height:10px;border-radius:2px;background:#378ADD;display:inline-block;"></span>PDR
+        </span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
+          <span style="width:10px;height:10px;border-radius:2px;background:#639922;display:inline-block;"></span>NCMR
+        </span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
+          <span style="width:10px;height:10px;border-radius:2px;background:#7F77DD;display:inline-block;"></span>8D
+        </span>
       </div>
-      <div class="col-md-4">
-        <div class="card p-3 shadow-sm border-0"><canvas id="paretoChart" height="280"></canvas></div>
+      <div style="position:relative; width:100%; height:240px;">
+        <canvas id="trendChart"></canvas>
       </div>
     </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm border-0">
+      <div class="fw-bold mb-1" style="font-size:14px;">Top NC Categories (Pareto)</div>
+      <div style="display:flex; gap:14px; margin-bottom:10px;">
+        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
+          <span style="width:10px;height:10px;border-radius:2px;background:#EF9F27;display:inline-block;"></span>Frekuensi
+        </span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
+          <span style="width:10px;height:3px;border-top:2px dashed #A32D2D;display:inline-block;"></span>&nbsp;Kumulatif %
+        </span>
+      </div>
+      <div style="position:relative; width:100%; height:240px;">
+        <canvas id="paretoChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
 
     <!-- Table -->
     <div class="card p-3 shadow-sm border-0">
@@ -538,9 +567,9 @@ function formatDate(dateStr) {
 }
 
   function generateIDNo() {
-    const cat = document.getElementById('prodCategory').value;
+    const cat = document.getElementById('ncrType').value;
     const nextNum = rawDataNCR.length + 1;
-    document.getElementById('idNo').value = cat + "-" + String(nextNum).padStart(4, '0');
+    document.getElementById('idNo').value = cat + "-" + String(nextNum).padStart(3, '0');
   }
 
  async function submitD1D2(e) {
@@ -674,91 +703,84 @@ function setFallbackAuditors() {
   if (trendChartInstance) trendChartInstance.destroy();
   if (paretoChartInstance) paretoChartInstance.destroy();
 
-  // ========== 1. TREND CHART (dari data real) ==========
+  // ===== TREND CHART =====
   const monthlyData = {};
-  
   data.forEach(item => {
     if (item.IssuedDate) {
       let date = parseDate(item.IssuedDate);
       if (date) {
         const monthYear = date.toLocaleString('default', { month: 'short' }) + ' ' + date.getFullYear();
         const ncrType = item.Type || 'PDR';
-        
-        if (!monthlyData[monthYear]) {
-          monthlyData[monthYear] = { PDR: 0, NCMR: 0, '8D': 0 };
-        }
-        if (monthlyData[monthYear][ncrType] !== undefined) {
-          monthlyData[monthYear][ncrType]++;
-        } else {
-          monthlyData[monthYear]['PDR']++;
-        }
-      }
-    }
-  });
-  
-  // Ambil 6 bulan terakhir
-  const sortedMonths = Object.keys(monthlyData).sort().slice(-6);
-  const pdrData = sortedMonths.map(m => monthlyData[m].PDR);
-  const ncmrData = sortedMonths.map(m => monthlyData[m].NCMR);
-  const eightDData = sortedMonths.map(m => monthlyData[m]['8D']);
-  
-  // Trend Chart
-  const ctxTrend = document.getElementById('trendChart').getContext('2d');
-  trendChartInstance = new Chart(ctxTrend, {
-    type: 'bar',
-    data: {
-      labels: sortedMonths.length ? sortedMonths : ['No Data'],
-      datasets: [
-        { label: 'PDR', data: sortedMonths.length ? pdrData : [0], backgroundColor: '#4fc3f7' },
-        { label: 'NCMR', data: sortedMonths.length ? ncmrData : [0], backgroundColor: '#81c784' },
-        { label: '8D', data: sortedMonths.length ? eightDData : [0], backgroundColor: '#ba68c8' }
-      ]
-    },
-    options: { 
-      responsive: true, 
-      maintainAspectRatio: true,
-      plugins: {
-        title: { display: true, text: 'NCR Trend by Month' }
+        if (!monthlyData[monthYear]) monthlyData[monthYear] = { PDR: 0, NCMR: 0, '8D': 0 };
+        if (monthlyData[monthYear][ncrType] !== undefined) monthlyData[monthYear][ncrType]++;
+        else monthlyData[monthYear]['PDR']++;
       }
     }
   });
 
-  // ========== 2. PARETO CHART (dari NCCatagory) ==========
+  const sortedMonths = Object.keys(monthlyData).sort().slice(-6);
+  const pdrData   = sortedMonths.map(m => monthlyData[m].PDR);
+  const ncmrData  = sortedMonths.map(m => monthlyData[m].NCMR);
+  const eightDData = sortedMonths.map(m => monthlyData[m]['8D']);
+
+  trendChartInstance = new Chart(document.getElementById('trendChart'), {
+    type: 'bar',
+    data: {
+      labels: sortedMonths.length ? sortedMonths : ['No Data'],
+      datasets: [
+        { label:'PDR',  data: sortedMonths.length ? pdrData : [0],    backgroundColor:'#378ADD', borderRadius:4, borderSkipped:false },
+        { label:'NCMR', data: sortedMonths.length ? ncmrData : [0],   backgroundColor:'#639922', borderRadius:4, borderSkipped:false },
+        { label:'8D',   data: sortedMonths.length ? eightDData : [0], backgroundColor:'#7F77DD', borderRadius:4, borderSkipped:false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { mode:'index', intersect:false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font:{size:11}, color:'#888', autoSkip: false, maxRotation: 35 } },
+        y: { beginAtZero: true, grid: { color:'rgba(0,0,0,0.06)' }, ticks: { precision:0, font:{size:11}, color:'#888' } }
+      }
+    }
+  });
+
+  // ===== PARETO CHART =====
   const defectCounts = {};
   data.forEach(item => {
     let defect = item.NCCatagory || item.NCCategory || 'Others';
-    if (defect === 'Reject Hi pot Test') defect = 'Reject Hi-pot';
+    if (defect === 'Reject Hi pot Test')            defect = 'Reject Hi-pot';
     if (defect === 'Dimension Out of Specification') defect = 'Dimension OoS';
-    if (defect === 'Wrong Do Assembly/Process') defect = 'Wrong Assembly';
-    if (defect === 'Product Damage/Broken') defect = 'Product Damage';
-    if (defect.length > 20) defect = defect.substring(0, 17) + '...';
+    if (defect === 'Wrong Do Assembly/Process')      defect = 'Wrong Assembly';
+    if (defect === 'Product Damage/Broken')          defect = 'Product Damage';
+    if (defect === 'Not Follow WI/Procedure')        defect = 'Not Follow WI';
     defectCounts[defect] = (defectCounts[defect] || 0) + 1;
   });
-  
-  const sortedDefects = Object.entries(defectCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-  const labels = sortedDefects.map(([name]) => name);
-  const frequencies = sortedDefects.map(([, count]) => count);
-  
-  const ctxPareto = document.getElementById('paretoChart').getContext('2d');
-  paretoChartInstance = new Chart(ctxPareto, {
+
+  const sortedDefects = Object.entries(defectCounts).sort((a,b) => b[1]-a[1]).slice(0,5);
+  const labels      = sortedDefects.map(([name]) => name);
+  const frequencies = sortedDefects.map(([,count]) => count);
+  const total       = frequencies.reduce((a,b) => a+b, 0) || 1;
+  const cumPct      = frequencies.reduce((acc, v, i) => {
+    const prev = i === 0 ? 0 : acc[i-1];
+    acc.push(Math.round((prev + v/total*100)*10)/10);
+    return acc;
+  }, []);
+
+  paretoChartInstance = new Chart(document.getElementById('paretoChart'), {
     type: 'bar',
     data: {
       labels: labels.length ? labels : ['No Data'],
-      datasets: [{ 
-        label: 'Frequency', 
-        data: labels.length ? frequencies : [0], 
-        backgroundColor: '#ffb74d' 
-      }]
+      datasets: [
+        { type:'bar',  label:'Frekuensi',   data: labels.length ? frequencies : [0], backgroundColor:'#EF9F27', borderRadius:4, borderSkipped:false, yAxisID:'y' },
+        { type:'line', label:'Kumulatif %', data: labels.length ? cumPct : [0],      borderColor:'#A32D2D', borderDash:[5,3], borderWidth:2, pointBackgroundColor:'#A32D2D', pointRadius:3, fill:false, tension:0, yAxisID:'y2' }
+      ]
     },
-    options: { 
-      responsive: true,
-      plugins: {
-        title: { display: true, text: 'Top NC Categories (Pareto)' },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `${ctx.raw} cases (${((ctx.raw / data.length) * 100).toFixed(1)}%)`
-          }
-        }
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { mode:'index', intersect:false } },
+      scales: {
+        x:  { grid:{ display:false }, ticks:{ font:{size:10}, color:'#888', maxRotation:35, autoSkip:false } },
+        y:  { beginAtZero:true, grid:{ color:'rgba(0,0,0,0.06)' }, ticks:{ precision:0, font:{size:11}, color:'#888' } },
+        y2: { position:'right', min:0, max:100, grid:{ display:false }, ticks:{ callback: v => v+'%', font:{size:11}, color:'#888' } }
       }
     }
   });
