@@ -8,6 +8,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --primary: #02453c;
@@ -62,7 +64,7 @@
     /* Navbar */
     .navbar { background: var(--primary); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
     .navbar-brand { color: white; font-size: 18px; font-weight: 700; }
-    .navbar-nav { display: flex; flex-direction: row; gap: 8px; align-items: center; }
+    .navbar-nav { display: flex; flex-direction: row; gap: 8px; align-items: center; flex-wrap: wrap; }
     .nav-user { display: flex; align-items: center; gap: 12px; color: white; }
     .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: bold; }
     .btn-logout { background: none; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 5px 12px; color: white; cursor: pointer; }
@@ -88,20 +90,131 @@
     .spinner { width: 40px; height: 40px; border: 4px solid #e4eeed; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px auto; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    * Fix untuk input readonly */
-input[readonly] {
-  background-color: #e8f0fe !important;
-  color: #1a2e2b !important;
-  border: 1px solid #c0d8d4 !important;
-}
+    /* Fix untuk input readonly */
+    input[readonly] {
+      background-color: #e8f0fe !important;
+      color: #1a2e2b !important;
+      border: 1px solid #c0d8d4 !important;
+    }
 
-/* Atau khusus untuk issued by */
-#issuedBy {
-  background-color: #e8f0fe !important;
-  color: #1a2e2b !important;
-  font-weight: 500;
-}
-    
+    #issuedBy {
+      background-color: #e8f0fe !important;
+      color: #1a2e2b !important;
+      font-weight: 500;
+    }
+
+    /* Follow-up Page Styles */
+    .followup-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--primary);
+    }
+
+    .followup-section h5 {
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .followup-section h5 .badge-d {
+      background: var(--primary);
+      color: white;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+
+    .followup-section .form-label {
+      font-weight: 600;
+      font-size: 13px;
+      color: #2c3e50;
+    }
+
+    .followup-section .form-control, 
+    .followup-section .form-select {
+      border: 1px solid #dce4e3;
+    }
+
+    .followup-section .form-control:focus,
+    .followup-section .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.2rem rgba(2,69,60,0.15);
+    }
+
+    .highlight-area {
+      background-color: #fff9c4;
+      border: 2px dashed #f9a825;
+      padding: 12px;
+      border-radius: 8px;
+      min-height: 60px;
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 2px dashed #dce4e3;
+      margin: 30px 0;
+    }
+
+    .btn-submit-d {
+      background: var(--primary);
+      color: white;
+      padding: 8px 30px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-submit-d:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-submit-d:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-open { background: #ffcdd2; color: #c62828; }
+    .status-progress { background: #fff3e0; color: #e65100; }
+    .status-done { background: #c8e6c9; color: #2e7d32; }
+
+    .nav-link-custom {
+      color: white !important;
+      opacity: 0.7;
+      transition: all 0.2s;
+    }
+
+    .nav-link-custom:hover {
+      opacity: 1;
+    }
+
+    .nav-link-custom.active {
+      opacity: 1;
+      background: rgba(255,255,255,0.15);
+      border-radius: 6px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .page-content { padding: 16px; }
+      .navbar-nav .btn { font-size: 12px; padding: 4px 8px; }
+      .followup-section { padding: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -136,13 +249,20 @@ input[readonly] {
   <nav class="navbar">
     <div class="navbar-brand">⚙️ Internal NC Report System</div>
     <div class="navbar-nav">
-      <button class="btn btn-sm btn-outline-light" onclick="showDashboard()">📊 Dashboard</button>
-      <button class="btn btn-sm btn-warning text-dark fw-bold" onclick="openCreateForm()">➕ Create New NCR</button>
+      <button class="btn btn-sm btn-outline-light nav-link-custom" onclick="showDashboard()">
+        <i class="fas fa-chart-bar"></i> Dashboard
+      </button>
+      <button class="btn btn-sm btn-warning text-dark fw-bold" onclick="openCreateForm()">
+        <i class="fas fa-plus"></i> Create NCR
+      </button>
+      <button class="btn btn-sm btn-info text-white nav-link-custom" onclick="openFollowUp()">
+        <i class="fas fa-clipboard-list"></i> Follow-up NC
+      </button>
     </div>
     <div class="nav-user">
       <div class="avatar" id="navAvatar">G</div>
       <span id="navUserName">Guest</span>
-      <button class="btn-logout" onclick="doLogout()">Logout</button>
+      <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
   </nav>
 
@@ -150,7 +270,7 @@ input[readonly] {
   <div id="sectionDashboard" class="page-content">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3>📊 Dashboard Overview</h3>
-      <button class="btn btn-sm btn-secondary" onclick="loadAllData()">🔄 Refresh</button>
+      <button class="btn btn-sm btn-secondary" onclick="loadAllData()"><i class="fas fa-sync"></i> Refresh</button>
     </div>
 
     <!-- Filter -->
@@ -173,44 +293,44 @@ input[readonly] {
       <div class="col-md-3"><div class="kpi-card" style="background-color: #ba68c8;"><h3 id="kpi-8d">0</h3>Total 8D</div></div>
     </div>
 
-  <!-- Charts -->
-<div class="row mb-4 g-3">
-  <div class="col-md-8">
-    <div class="card p-3 shadow-sm border-0">
-      <div class="fw-bold mb-1" style="font-size:14px;">NCR Trend by Month</div>
-      <div style="display:flex; gap:14px; margin-bottom:10px;">
-        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
-          <span style="width:10px;height:10px;border-radius:2px;background:#378ADD;display:inline-block;"></span>PDR
-        </span>
-        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
-          <span style="width:10px;height:10px;border-radius:2px;background:#639922;display:inline-block;"></span>NCMR
-        </span>
-        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
-          <span style="width:10px;height:10px;border-radius:2px;background:#7F77DD;display:inline-block;"></span>8D
-        </span>
+    <!-- Charts -->
+    <div class="row mb-4 g-3">
+      <div class="col-md-8">
+        <div class="card p-3 shadow-sm border-0">
+          <div class="fw-bold mb-1" style="font-size:14px;">NCR Trend by Month</div>
+          <div style="display:flex; gap:14px; margin-bottom:10px;">
+            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
+              <span style="width:10px;height:10px;border-radius:2px;background:#378ADD;display:inline-block;"></span>PDR
+            </span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
+              <span style="width:10px;height:10px;border-radius:2px;background:#639922;display:inline-block;"></span>NCMR
+            </span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
+              <span style="width:10px;height:10px;border-radius:2px;background:#7F77DD;display:inline-block;"></span>8D
+            </span>
+          </div>
+          <div style="position:relative; width:100%; height:240px;">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
       </div>
-      <div style="position:relative; width:100%; height:240px;">
-        <canvas id="trendChart"></canvas>
+      <div class="col-md-4">
+        <div class="card p-3 shadow-sm border-0">
+          <div class="fw-bold mb-1" style="font-size:14px;">Top NC Categories (Pareto)</div>
+          <div style="display:flex; gap:14px; margin-bottom:10px;">
+            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
+              <span style="width:10px;height:10px;border-radius:2px;background:#EF9F27;display:inline-block;"></span>Frekuensi
+            </span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
+              <span style="width:10px;height:3px;border-top:2px dashed #A32D2D;display:inline-block;"></span>&nbsp;Kumulatif %
+            </span>
+          </div>
+          <div style="position:relative; width:100%; height:240px;">
+            <canvas id="paretoChart"></canvas>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card p-3 shadow-sm border-0">
-      <div class="fw-bold mb-1" style="font-size:14px;">Top NC Categories (Pareto)</div>
-      <div style="display:flex; gap:14px; margin-bottom:10px;">
-        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
-          <span style="width:10px;height:10px;border-radius:2px;background:#EF9F27;display:inline-block;"></span>Frekuensi
-        </span>
-        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#666;">
-          <span style="width:10px;height:3px;border-top:2px dashed #A32D2D;display:inline-block;"></span>&nbsp;Kumulatif %
-        </span>
-      </div>
-      <div style="position:relative; width:100%; height:240px;">
-        <canvas id="paretoChart"></canvas>
-      </div>
-    </div>
-  </div>
-</div>
 
     <!-- Table -->
     <div class="card p-3 shadow-sm border-0">
@@ -227,10 +347,11 @@ input[readonly] {
               <th>CustomerName</th>
               <th>Issued Date</th>
               <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody id="ncrTableBody">
-            <tr><td colspan="6" class="text-center py-4">Loading database from Google Sheet...</td></tr>
+            <tr><td colspan="9" class="text-center py-4">Loading database from Google Sheet...</td></tr>
           </tbody>
         </table>
       </div>
@@ -337,48 +458,49 @@ input[readonly] {
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
               </select>
+            </div>
 
-<!-- D1-D8 TEAM PIC CONFIGURATION -->
-<div class="col-12 mt-4 border-top pt-3">
-  <h6 class="fw-bold text-dark mb-3">🎯 Define Team Assignment (D1 - D8 PIC)</h6>
-  <div class="row g-2 text-center row-cols-2 row-cols-sm-4 row-cols-md-8">
-    <div class="col">
-      <label class="small fw-bold">D1</label>
-      <input type="text" class="form-control form-control-sm" value="Yusrizal" readonly>
-    </div>
-    <div class="col">
-      <label class="small fw-bold">D2</label>
-      <input type="text" class="form-control form-control-sm" value="Yusrizal" readonly>
-    </div>
-    <div class="col">
-      <label class="small fw-bold">D3 (Interim)</label>
-      <select id="picD3" class="form-select form-select-sm auditor-list"></select>
-    </div>
-    <div class="col">
-      <label class="small fw-bold">D4 (RootC)</label>
-      <select id="picD4" class="form-select form-select-sm auditor-list"></select>
-    </div>
-    <div class="col">
-      <label class="small fw-bold">D5 (CA)</label>
-      <select id="picD5" class="form-select form-select-sm auditor-list"></select>
-    </div>
-    <div class="col">
-      <label class="small fw-bold">D6 (Valid)</label>
-      <select id="picD6" class="form-select form-select-sm auditor-list"></select>
-    </div>
-    <div class="col">
-      <label class="small fw-bold">D7 (PA)</label>
-      <select id="picD7" class="form-select form-select-sm auditor-list"></select>
-    </div>
-    <div class="col">
-      <label class="small fw-bold">D8 (Approve)</label>
-      <select id="picD8" class="form-select form-select-sm auditor-list"></select>
-    </div>
-  </div>
-</div>
-    <div class="col-12 text-center mt-4">
+            <!-- D1-D8 TEAM PIC CONFIGURATION -->
+            <div class="col-12 mt-4 border-top pt-3">
+              <h6 class="fw-bold text-dark mb-3">🎯 Define Team Assignment (D1 - D8 PIC)</h6>
+              <div class="row g-2 text-center row-cols-2 row-cols-sm-4 row-cols-md-8">
+                <div class="col">
+                  <label class="small fw-bold">D1</label>
+                  <input type="text" class="form-control form-control-sm" value="Yusrizal" readonly>
+                </div>
+                <div class="col">
+                  <label class="small fw-bold">D2</label>
+                  <input type="text" class="form-control form-control-sm" value="Yusrizal" readonly>
+                </div>
+                <div class="col">
+                  <label class="small fw-bold">D3 (Interim)</label>
+                  <select id="picD3" class="form-select form-select-sm auditor-list"></select>
+                </div>
+                <div class="col">
+                  <label class="small fw-bold">D4 (RootC)</label>
+                  <select id="picD4" class="form-select form-select-sm auditor-list"></select>
+                </div>
+                <div class="col">
+                  <label class="small fw-bold">D5 (CA)</label>
+                  <select id="picD5" class="form-select form-select-sm auditor-list"></select>
+                </div>
+                <div class="col">
+                  <label class="small fw-bold">D6 (Valid)</label>
+                  <select id="picD6" class="form-select form-select-sm auditor-list"></select>
+                </div>
+                <div class="col">
+                  <label class="small fw-bold">D7 (PA)</label>
+                  <select id="picD7" class="form-select form-select-sm auditor-list"></select>
+                </div>
+                <div class="col">
+                  <label class="small fw-bold">D8 (Approve)</label>
+                  <select id="picD8" class="form-select form-select-sm auditor-list"></select>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 text-center mt-4">
               <button type="button" class="btn btn-secondary px-4 me-2" onclick="showDashboard()">Cancel</button>
-              <button type="submit" class="btn btn-custom px-4">Submit Report</button>
+              <button type="submit" class="btn btn-custom px-4"><i class="fas fa-paper-plane"></i> Submit Report</button>
             </div>
           </div>
         </form>
@@ -386,16 +508,354 @@ input[readonly] {
     </div>
   </div>
 
+  <!-- ========== FOLLOW-UP PAGE ========== -->
+  <div id="followUpPage" class="page-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3><i class="fas fa-clipboard-list text-primary"></i> Follow-up NC Report</h3>
+      <button class="btn btn-secondary btn-sm" onclick="showDashboard()">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </button>
+    </div>
+
+    <!-- Info NCR yang sedang di-follow-up -->
+    <div class="alert alert-info">
+      <div class="row">
+        <div class="col-md-3"><strong>ID No:</strong> <span id="followUpId">-</span></div>
+        <div class="col-md-3"><strong>Type:</strong> <span id="followUpType">-</span></div>
+        <div class="col-md-3"><strong>Category:</strong> <span id="followUpCategory">-</span></div>
+        <div class="col-md-3"><strong>Status:</strong> <span id="followUpStatus" class="badge status-open">Open</span></div>
+      </div>
+    </div>
+
+    <!-- ===== D1-D2 (Summary Info) ===== -->
+    <div class="followup-section">
+      <h5><span class="badge-d">D1-D2</span> Report Summary</h5>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Issued By</label>
+          <input type="text" id="fuIssuedBy" class="form-control" readonly>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Issued Date</label>
+          <input type="text" id="fuIssuedDate" class="form-control" readonly>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Part No / Name</label>
+          <input type="text" id="fuPartNo" class="form-control" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Detail NC</label>
+          <textarea id="fuDetailNC" class="form-control" rows="2" readonly></textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Interim Act / Containment Action</label>
+          <textarea id="fuInterimAct" class="form-control" rows="2" readonly></textarea>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ===== D3 - Interim/Containment Action ===== -->
+    <div class="followup-section" style="border-left-color: #ff9800;">
+      <h5><span class="badge-d" style="background:#ff9800;">D3</span> Interim/Containment Action</h5>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Interim act by</label>
+          <select id="fuPicD3" class="form-select auditor-list">
+            <option value="">-- Select PIC --</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Interim Act Date</label>
+          <input type="date" id="fuInterimDate" class="form-control">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Interim Act Remarks</label>
+          <textarea id="fuInterimRemarks" class="form-control highlight-area" rows="3" placeholder="Describe interim containment actions..."></textarea>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Qty Ok after sort</label>
+          <input type="number" id="fuQtyOk" class="form-control" value="0">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Qty Reject Final</label>
+          <input type="number" id="fuQtyReject" class="form-control" value="0">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Total Man-Hours</label>
+          <input type="number" id="fuManHours" class="form-control" value="0">
+        </div>
+        <div class="col-12 mt-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <input type="checkbox" id="fuNoticeD3">
+              <label for="fuNoticeD3" class="ms-1">Notice D3 PIC</label>
+            </div>
+            <button class="btn-submit-d" onclick="submitD3()">
+              <i class="fas fa-check-circle"></i> Submit D3
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== D4 - Root Cause Analysis ===== -->
+    <div class="followup-section" style="border-left-color: #9c27b0;">
+      <h5><span class="badge-d" style="background:#9c27b0;">D4</span> Identify, Analysis and Verify The Root Cause</h5>
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">A. Root-Cause (Occurrence)</label>
+          <textarea id="fuRootCauseOcc" class="form-control highlight-area" rows="2" placeholder="Describe occurrence root cause..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label">B. Root-Cause (Skip)</label>
+          <textarea id="fuRootCauseSkip" class="form-control highlight-area" rows="2" placeholder="Describe skip root cause..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label">RC Factor (5M+E)</label>
+          <textarea id="fuRCFactor" class="form-control highlight-area" rows="2" placeholder="Man, Machine, Material, Method, Measurement, Environment"></textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">RC analysis by</label>
+          <select id="fuPicD4" class="form-select auditor-list">
+            <option value="">-- Select PIC --</option>
+          </select>
+        </div>
+        <div class="col-md-6 d-flex align-items-center gap-3">
+          <label class="form-label mb-0">RC Factor (5M+E):</label>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="fuRCFactorMan">
+            <label class="form-check-label" for="fuRCFactorMan">Man</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="fuRCFactorDenny">
+            <label class="form-check-label" for="fuRCFactorDenny">Denny</label>
+          </div>
+        </div>
+        <div class="col-12 mt-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <input type="checkbox" id="fuNoticeD4">
+              <label for="fuNoticeD4" class="ms-1">Notice D4 PIC</label>
+            </div>
+            <button class="btn-submit-d" onclick="submitD4()">
+              <i class="fas fa-check-circle"></i> Submit D4
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== D5 - Corrective Action ===== -->
+    <div class="followup-section" style="border-left-color: #2196f3;">
+      <h5><span class="badge-d" style="background:#2196f3;">D5</span> Corrective Action</h5>
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">A. Corrective action (Occurrence)</label>
+          <textarea id="fuCAOcc" class="form-control highlight-area" rows="2" placeholder="Describe corrective action for occurrence..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label">B. Corrective action (Skip)</label>
+          <textarea id="fuCASkip" class="form-control highlight-area" rows="2" placeholder="Describe corrective action for skip..."></textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Corrective Action by</label>
+          <select id="fuPicD5" class="form-select auditor-list">
+            <option value="">-- Select PIC --</option>
+          </select>
+        </div>
+        <div class="col-12 mt-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <input type="checkbox" id="fuNoticeD5">
+              <label for="fuNoticeD5" class="ms-1">Notice D5 PIC</label>
+            </div>
+            <button class="btn-submit-d" onclick="submitD5()">
+              <i class="fas fa-check-circle"></i> Submit D5
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== D6 - Verify Corrective Action ===== -->
+    <div class="followup-section" style="border-left-color: #4caf50;">
+      <h5><span class="badge-d" style="background:#4caf50;">D6</span> Verify Corrective Action</h5>
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">A. Verification result of Corrective action (Occurrence)</label>
+          <textarea id="fuVerOcc" class="form-control highlight-area" rows="2" placeholder="Verification result for occurrence..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label">B. Verification result of Corrective action (Skip)</label>
+          <textarea id="fuVerSkip" class="form-control highlight-area" rows="2" placeholder="Verification result for skip..."></textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Verify Corrective Action by</label>
+          <select id="fuPicD6" class="form-select auditor-list">
+            <option value="">-- Select PIC --</option>
+          </select>
+        </div>
+        <div class="col-12 mt-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <input type="checkbox" id="fuNoticeD6">
+              <label for="fuNoticeD6" class="ms-1">Notice D6 PIC</label>
+            </div>
+            <button class="btn-submit-d" onclick="submitD6()">
+              <i class="fas fa-check-circle"></i> Submit D6
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== D7 - Preventive Action ===== -->
+    <div class="followup-section" style="border-left-color: #ff5722;">
+      <h5><span class="badge-d" style="background:#ff5722;">D7</span> Preventive Action</h5>
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">A. Preventive action (Occurrence)</label>
+          <textarea id="fuPAOcc" class="form-control highlight-area" rows="2" placeholder="Describe preventive action for occurrence..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label">B. Preventive action (Skip)</label>
+          <textarea id="fuPASkip" class="form-control highlight-area" rows="2" placeholder="Describe preventive action for skip..."></textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Preventive Action by</label>
+          <select id="fuPicD7" class="form-select auditor-list">
+            <option value="">-- Select PIC --</option>
+          </select>
+        </div>
+        <div class="col-12 mt-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <input type="checkbox" id="fuNoticeD7">
+              <label for="fuNoticeD7" class="ms-1">Notice D7 PIC</label>
+            </div>
+            <button class="btn-submit-d" onclick="submitD7()">
+              <i class="fas fa-check-circle"></i> Submit D7
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== D8 - Closure & Validation ===== -->
+    <div class="followup-section" style="border-left-color: #e91e63;">
+      <h5><span class="badge-d" style="background:#e91e63;">D8</span> Closure & Validation</h5>
+      <div class="row g-3">
+        <div class="col-12">
+          <div class="alert alert-success">
+            <i class="fas fa-trophy me-2"></i>
+            <strong>Congratulations!</strong> Thank you for completing the 8D report. Your team's effort is appreciated.
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Validation Result status</label>
+          <select id="fuValidationStatus" class="form-select">
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Closed">Closed</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Approved by (D8 PIC)</label>
+          <select id="fuPicD8" class="form-select auditor-list">
+            <option value="">-- Select PIC --</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Complete Report Summary</label>
+          <textarea id="fuReportSummary" class="form-control highlight-area" rows="3" placeholder="Summary of the entire 8D process..."></textarea>
+        </div>
+        <div class="col-12 mt-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <input type="checkbox" id="fuNoticeD8">
+              <label for="fuNoticeD8" class="ms-1">Notice D8 PIC</label>
+            </div>
+            <div>
+              <button class="btn btn-secondary me-2" onclick="showDashboard()">
+                <i class="fas fa-times"></i> Cancel
+              </button>
+              <button class="btn-submit-d" onclick="submitD8()" style="background:#e91e63;">
+                <i class="fas fa-check-circle"></i> Complete 8D Report
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
-  // ========== CONFIG ==========
-  const API_URL = 'https://script.google.com/macros/s/AKfycbwgnuCU9ClKZoD_ruTpyqjVZCZLZi8NA15V1gLg409gGLVt-UCd0wcbvXkMHnhFrsLX/exec';
-  let rawDataNCR = [];
-  let currentUser = null;
+  // ==========================================
+// 1. KONFIGURASI & VARIABEL
+// ==========================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbwgnuCU9ClKZoD_ruTpyqjVZCZLZi8NA15V1gLg409gGLVt-UCd0wcbvXkMHnhFrsLX/exec';
+let rawDataNCR = [];
+let currentUser = null;
+let currentFollowUpId = null;
+let auditorList = [];
 
-  // ========== LOGIN SYSTEM ==========
-  function doLogin() {
+// ==========================================
+// 2. MAPPING KOLOM GOOGLE SHEETS
+// ==========================================
+const columnMapping = {
+  'D3': {
+    'fuPicD3': 'InterimActBy',
+    'fuInterimDate': 'InterimActionDate',
+    'fuInterimRemarks': 'InterimRemarks',
+    'fuQtyOk': 'QtyOkAfterSort',
+    'fuQtyReject': 'FinalRejectQty',
+    'fuManHours': 'TotalManHour',
+    'fuNoticeD3': 'NoticeD3'
+  },
+  'D4': {
+    'fuRootCauseOcc': 'RootCauseOcc',
+    'fuRootCauseSkip': 'RootCause(Escape)',
+    'fuRCFactor': '5M1E-Factor',
+    'fuPicD4': 'RC-AnalysisBy',
+    'fuRCFactorMan': 'RCFactorMan',
+    'fuRCFactorDenny': 'RCFactorDenny',
+    'fuNoticeD4': 'NoticeD4'
+  },
+  'D5': {
+    'fuCAOcc': 'CorrectiveActOccur',
+    'fuCASkip': 'CorrectiveActSkip',
+    'fuPicD5': 'CABy',
+    'fuNoticeD5': 'NoticeD5'
+  },
+  'D6': {
+    'fuVerOcc': 'VerOcc',
+    'fuVerSkip': 'VerSkip',
+    'fuPicD6': 'ValidateCAPABy',
+    'fuNoticeD6': 'NoticeD6'
+  },
+  'D7': {
+    'fuPAOcc': 'PAOcc',
+    'fuPASkip': 'PASkip',
+    'fuPicD7': 'PABy',
+    'fuNoticeD7': 'NoticeD7'
+  },
+  'D8': {
+    'fuValidationStatus': 'ValidationResult',
+    'fuPicD8': 'ApprovedBy',
+    'fuReportSummary': 'ReportSummary',
+    'fuNoticeD8': 'NoticeD8',
+    'fuStatusNC': 'StatusNC'
+  }
+};
+
+// ==========================================
+// 3. FUNGSI LOGIN
+// ==========================================
+function doLogin() {
   const name = document.getElementById('loginName').value.trim();
   const id = document.getElementById('loginId').value.trim();
   
@@ -403,7 +863,7 @@ input[readonly] {
     currentUser = { name: name, id: id, isGuest: false };
     document.getElementById('navUserName').innerText = name;
     document.getElementById('navAvatar').innerText = name.charAt(0).toUpperCase();
-  
+    localStorage.setItem('lastUser', name);
   
     document.getElementById('loginPage').classList.remove('active');
     document.getElementById('appShell').classList.add('active');
@@ -418,7 +878,6 @@ function doGuestLogin() {
   currentUser = { name: 'Guest', id: 'GUEST', isGuest: true };
   document.getElementById('navUserName').innerText = 'Guest';
   document.getElementById('navAvatar').innerText = '👤';
-  
  
   document.getElementById('loginPage').classList.remove('active');
   document.getElementById('appShell').classList.add('active');
@@ -426,132 +885,166 @@ function doGuestLogin() {
   loadAllData();
 }
 
-  function doLogout() {
-    currentUser = null;
-    document.getElementById('appShell').classList.remove('active');
-    document.getElementById('loginPage').classList.add('active');
-    document.getElementById('loginName').value = '';
-    document.getElementById('loginId').value = '';
-    document.getElementById('loginError').style.display = 'none';
-  }
+function doLogout() {
+  currentUser = null;
+  document.getElementById('appShell').classList.remove('active');
+  document.getElementById('loginPage').classList.add('active');
+  document.getElementById('loginName').value = '';
+  document.getElementById('loginId').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
 
-  // ========== NAVIGATION ==========
-  function showDashboard() {
-    document.getElementById('sectionDashboard').style.display = 'block';
-    document.getElementById('ncrFormPage').style.display = 'none';
-  }
+// ==========================================
+// 4. FUNGSI NAVIGASI
+// ==========================================
+function showDashboard() {
+  document.getElementById('sectionDashboard').style.display = 'block';
+  document.getElementById('ncrFormPage').style.display = 'none';
+  document.getElementById('followUpPage').style.display = 'none';
+  currentFollowUpId = null;
+}
 
- function openCreateForm() {
-  console.log("openCreateForm called");
-  console.log("currentUser:", currentUser);
-  
-  // Tampilkan form
+function openCreateForm() {
   document.getElementById('sectionDashboard').style.display = 'none';
   document.getElementById('ncrFormPage').style.display = 'block';
+  document.getElementById('followUpPage').style.display = 'none';
   
-  // Reset form
   const form = document.getElementById('formD1D2');
   if (form) form.reset();
   
-  // Set IssuedBy - PASTIKAN TERISI
   const issuedByField = document.getElementById('issuedBy');
   if (issuedByField) {
-    // Coba dari currentUser
     if (currentUser && currentUser.name) {
       issuedByField.value = currentUser.name;
-    } 
-    // Coba dari localStorage
-    else if (localStorage.getItem('lastUser')) {
+    } else if (localStorage.getItem('lastUser')) {
       issuedByField.value = localStorage.getItem('lastUser');
-    }
-    // Fallback terakhir
-    else {
+    } else {
       issuedByField.value = 'SiAnu';
     }
-    
-    console.log("IssuedBy value after set:", issuedByField.value);
-  } else {
-    console.error("issuedBy field not found!");
   }
-  
   generateIDNo();
 }
-  // ========== DATA FUNCTIONS ==========
-  async function loadAllData() {
-    await loadDashboardData();
-    await loadAuditors();
-  }
 
-  async function loadDashboardData() {
-    try {
-      const response = await fetch(`${API_URL}?action=getSummary`);
-      const res = await response.json();
-      if (res.status === 'ok') {
-        rawDataNCR = res.rows;
-        renderDashboard(rawDataNCR);
-        initCharts(rawDataNCR);
-      }
-    } catch(e) { 
-      console.error("Error loading data:", e);
-      document.getElementById('ncrTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-danger">Failed to load data. Check console.</td></tr>';
+function openFollowUp() {
+  document.getElementById('sectionDashboard').style.display = 'none';
+  document.getElementById('ncrFormPage').style.display = 'none';
+  document.getElementById('followUpPage').style.display = 'block';
+  
+  loadAuditors();
+  
+  if (!currentFollowUpId) {
+    document.getElementById('followUpId').textContent = 'Please select an NCR from dashboard';
+    document.getElementById('followUpType').textContent = '-';
+    document.getElementById('followUpCategory').textContent = '-';
+    document.getElementById('followUpStatus').textContent = 'Select NCR';
+  }
+}
+
+function openFollowUpFromRow(idNo) {
+  currentFollowUpId = idNo;
+  openFollowUp();
+  
+  const ncr = rawDataNCR.find(r => r['ID No.'] === idNo);
+  if (ncr) {
+    document.getElementById('followUpId').textContent = ncr['ID No.'] || '-';
+    document.getElementById('followUpType').textContent = ncr.Type || '-';
+    document.getElementById('followUpCategory').textContent = ncr.Category || '-';
+    
+    const status = ncr.StatusNC || 'Open';
+    const statusEl = document.getElementById('followUpStatus');
+    statusEl.textContent = status;
+    statusEl.className = 'badge ' + (status === 'Closed' ? 'status-done' : status === 'In Progress' ? 'status-progress' : 'status-open');
+    
+    // Fill D1-D2 info
+    document.getElementById('fuIssuedBy').value = ncr.IssuedBy || '-';
+    document.getElementById('fuIssuedDate').value = ncr.IssuedDate || '-';
+    document.getElementById('fuPartNo').value = ncr.PartNo || '-';
+    document.getElementById('fuDetailNC').value = ncr.DetailNC || ncr.NCMode || '-';
+    document.getElementById('fuInterimAct').value = ncr.InterimAction || '-';
+    
+    // Pre-fill PICs dari data existing
+    if (ncr.InterimActBy) document.getElementById('fuPicD3').value = ncr.InterimActBy;
+    if (ncr['RC-AnalysisBy']) document.getElementById('fuPicD4').value = ncr['RC-AnalysisBy'];
+    if (ncr.CABy) document.getElementById('fuPicD5').value = ncr.CABy;
+    if (ncr.ValidateCAPABy) document.getElementById('fuPicD6').value = ncr.ValidateCAPABy;
+    if (ncr.PABy) document.getElementById('fuPicD7').value = ncr.PABy;
+    if (ncr.ApprovedBy) document.getElementById('fuPicD8').value = ncr.ApprovedBy;
+  }
+}
+
+// ==========================================
+// 5. FUNGSI DATA
+// ==========================================
+async function loadAllData() {
+  await loadDashboardData();
+  await loadAuditors();
+}
+
+async function loadDashboardData() {
+  try {
+    const response = await fetch(`${API_URL}?action=getSummary`);
+    const res = await response.json();
+    if (res.status === 'ok') {
+      rawDataNCR = res.rows;
+      renderDashboard(rawDataNCR);
+      initCharts(rawDataNCR);
     }
+  } catch(e) { 
+    console.error("Error loading data:", e);
+    document.getElementById('ncrTableBody').innerHTML = '<tr><td colspan="9" class="text-center text-danger">Failed to load data. Check console.</td></tr>';
   }
+}
 
- function renderDashboard(data) {
-  // Update KPI Cards
+function renderDashboard(data) {
+  // Update KPI
   document.getElementById('kpi-total').innerText = data.length;
   document.getElementById('kpi-pdr').innerText = data.filter(r => r.Type === 'PDR').length;
   document.getElementById('kpi-ncmr').innerText = data.filter(r => r.Type === 'NCMR').length;
   document.getElementById('kpi-8d').innerText = data.filter(r => r.Type === '8D').length;
 
+  // Update Table
   const tbody = document.getElementById('ncrTableBody');
   if (data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-3">No active report found.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="text-center py-3">No active report found.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = data.map(r => {
-    const productCategory = r.Category || '-';
-    
-    // Batasi panjang DetailNC agar tidak terlalu panjang
     let detailNC = r.DetailNC || r.NCMode || '-';
     if (detailNC.length > 50) detailNC = detailNC.substring(0, 47) + '...';
     
-    let customerName = r.CustomerName || '-';
-    if (customerName.length > 30) customerName = customerName.substring(0, 27) + '...';
+    const status = r.StatusNC || 'Open';
+    const statusBadge = status === 'Closed' ? 'bg-success' : status === 'In Progress' ? 'bg-warning' : 'bg-danger';
     
     return `
-      <tr style="cursor:pointer;" onclick="openFollowUp('${r['ID No.']}')">
+      <tr>
         <td><strong>${r['ID No.'] || '-'}</strong></td>
         <td><span class="badge bg-secondary">${r.Type || 'PDR'}</span></td>
-        <td>${productCategory}</td>
+        <td>${r.Category || '-'}</td>
         <td>${r.IssuedBy || '-'}</td>
         <td>${detailNC}</td>
-        <td>${customerName}</td>
+        <td>${r.CustomerName || '-'}</td>
         <td>${formatDate(r.IssuedDate)}</td>
-        <td><span class="badge ${(r.StatusNC || 'Open') === 'Open' ? 'bg-danger' : 'bg-success'}">${r.StatusNC || 'Open'}</span></td>
+        <td><span class="badge ${statusBadge}">${status}</span></td>
+        <td>
+          <button class="btn btn-sm btn-primary" onclick="openFollowUpFromRow('${r['ID No.']}')">
+            <i class="fas fa-pen"></i> Follow-up
+          </button>
+        </td>
       </tr>
     `;
   }).join('');
 }
 
-// Fungsi bantu format tanggal
 function formatDate(dateStr) {
   if (!dateStr) return '-';
-  
   try {
-    // Cek format DD/MM/YYYY (contoh: 22/5/2026 atau 28/05/2026)
     if (typeof dateStr === 'string' && dateStr.includes('/')) {
       const parts = dateStr.split('/');
       if (parts.length === 3) {
-        const day = parts[0].padStart(2, '0');
-        const month = parts[1].padStart(2, '0');
-        const year = parts[2];
-        return `${day}/${month}/${year}`;
+        return `${parts[0].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[2]}`;
       }
     }
-    
-    // Cek format ISO (2026-05-11T17:00:00.000Z)
     const date = new Date(dateStr);
     if (!isNaN(date.getTime())) {
       const day = date.getDate().toString().padStart(2, '0');
@@ -559,109 +1052,39 @@ function formatDate(dateStr) {
       const year = date.getFullYear();
       return `${day}/${month}/${year}`;
     }
-  } catch(e) {
-    console.error("Error parsing date:", dateStr);
-  }
-  
-  return dateStr; // fallback
+  } catch(e) {}
+  return dateStr;
 }
 
-  function generateIDNo() {
-    const cat = document.getElementById('ncrType').value;
-    const nextNum = rawDataNCR.length + 1;
-    document.getElementById('idNo').value = cat + "-" + String(nextNum).padStart(3, '0');
-  }
-
- async function submitD1D2(e) {
-  e.preventDefault();
-  
-  // Siapkan data sesuai mapping yang benar
-  const formData = {
-    action: 'appendNCR',
-    timestamp: new Date().toISOString(),
-    data: {
-      // Data dasar
-      'ID No.': document.getElementById('idNo').value,
-      'Type': document.getElementById('ncrType').value,
-      'Category': document.getElementById('prodCategory').value,
-      'IssuedDate': new Date().toLocaleDateString('en-GB'),
-      'ShiftTime': document.getElementById('ShiftTime').value, 
-      'PartNo': document.getElementById('partNo').value,
-      'CustomerName': document.getElementById('CustomerName').value,
-      'DetectionLocation': document.getElementById('location').value,
-      'AffectedQty': document.getElementById('affectedQty').value,
-      'SamplingQty': document.getElementById('smplQty').value,
-      'RejectQtyDeclated': document.getElementById('intlNcQty').value,
-      'NCMode': document.getElementById('ncMode').value,
-      'NCCatagory': document.getElementById('ncCategory').value,
-      'DetailNC': document.getElementById('DetailNC').value,
-      'HowItDetected': document.getElementById('howDetected').value,
-      'InterimAction': document.getElementById('interimAct').value,
-      'SortingRepairReworkRequired': document.getElementById('SortingRepairReworkRequired').value,
-      'SortingReworkPIC': document.getElementById('picD3').value,
-      'Period': new Date().toLocaleDateString('en-GB'),
-      
-      
-      // 8D Assignment (mapping ke kolom Google Sheet)
-      'IssuedBy': document.getElementById('issuedBy').value,           // D1 & D2
-      'InterimActBy': document.getElementById('picD3').value,         // D3
-      'RC-AnalysisBy': document.getElementById('picD4').value,        // D4
-      'CABy': document.getElementById('picD5').value,                 // D5
-      'ValidateCAPABy': document.getElementById('picD6').value,       // D6
-      'PABy': document.getElementById('picD7').value,                 // D7
-      'ApprovedBy': document.getElementById('picD8').value,           // D8
-      
-      // Status awal
-      'StatusNC': 'Open'
-    }
-  };
-
-  console.log("Submitting:", formData);
-
-  try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData)
-    });
-    
-    alert('NCR Submitted Successfully!');
-    showDashboard();
-    loadAllData();
-    
-  } catch(err) { 
-    console.error("Submission error:", err);
-    alert("Submission failed: " + err.message);
-  }
+function generateIDNo() {
+  const cat = document.getElementById('ncrType').value;
+  const nextNum = rawDataNCR.length + 1;
+  document.getElementById('idNo').value = cat + "-" + String(nextNum).padStart(3, '0');
 }
+
 function filterDashboard(cat) {
   if (cat === 'All') {
     renderDashboard(rawDataNCR);
     initCharts(rawDataNCR);
   } else {
-    // Filter berdasarkan kolom 'Category'
     const filtered = rawDataNCR.filter(r => r.Category === cat);
     renderDashboard(filtered);
     initCharts(filtered);
   }
 }
 
-
- async function loadAuditors() {
+// ==========================================
+// 6. FUNGSI AUDITOR
+// ==========================================
+async function loadAuditors() {
   try {
     const response = await fetch(`${API_URL}?action=getAuditors`);
     const res = await response.json();
     
-    console.log("Auditor response:", res);
-    
     if (res.status === 'ok' && res.rows && res.rows.length > 0) {
       auditorList = res.rows;
-      
-      // Field yang tersedia adalah "AuditorName"
-      const dropdowns = ['picD3', 'picD4', 'picD5', 'picD6', 'picD7', 'picD8'];
+      const dropdowns = ['picD3', 'picD4', 'picD5', 'picD6', 'picD7', 'picD8', 
+                         'fuPicD3', 'fuPicD4', 'fuPicD5', 'fuPicD6', 'fuPicD7', 'fuPicD8'];
       
       dropdowns.forEach(dropdownId => {
         const select = document.getElementById(dropdownId);
@@ -679,10 +1102,10 @@ function filterDashboard(cat) {
   }
 }
 
-// Fungsi fallback jika API gagal
 function setFallbackAuditors() {
   const fallbackNames = ['Yusrizal', 'Emilia', 'Panal', 'Firdaus', 'Sulastri', 'Ridwan', 'Denny', 'Jos', 'Hafizh', 'Junianto', 'Kharismaadil'];
-  const dropdowns = ['picD3', 'picD4', 'picD5', 'picD6', 'picD7', 'picD8'];
+  const dropdowns = ['picD3', 'picD4', 'picD5', 'picD6', 'picD7', 'picD8',
+                     'fuPicD3', 'fuPicD4', 'fuPicD5', 'fuPicD6', 'fuPicD7', 'fuPicD8'];
   
   dropdowns.forEach(dropdownId => {
     const select = document.getElementById(dropdownId);
@@ -692,10 +1115,180 @@ function setFallbackAuditors() {
     }
   });
 }
-  
 
+// ==========================================
+// 7. FUNGSI SUBMIT NCR (CREATE)
+// ==========================================
+async function submitD1D2(e) {
+  e.preventDefault();
   
-  // ========== CHARTS ==========
+  const formData = {
+    action: 'appendNCR',
+    timestamp: new Date().toISOString(),
+    data: {
+      'ID No.': document.getElementById('idNo').value,
+      'Type': document.getElementById('ncrType').value,
+      'Category': document.getElementById('prodCategory').value,
+      'IssuedDate': new Date().toLocaleDateString('en-GB'),
+      'ShiftTime': document.getElementById('ShiftTime').value,
+      'PartNo': document.getElementById('partNo').value,
+      'CustomerName': document.getElementById('CustomerName').value,
+      'DetectionLocation': document.getElementById('location').value,
+      'AffectedQty': document.getElementById('affectedQty').value,
+      'SamplingQty': document.getElementById('smplQty').value,
+      'RejectQtyDeclated': document.getElementById('intlNcQty').value,
+      'NCMode': document.getElementById('ncMode').value,
+      'NCCatagory': document.getElementById('ncCategory').value,
+      'DetailNC': document.getElementById('DetailNC').value,
+      'HowItDetected': document.getElementById('howDetected').value,
+      'InterimAction': document.getElementById('interimAct').value,
+      'SortingRepairReworkRequired': document.getElementById('SortingRepairReworkRequired').value,
+      'SortingReworkPIC': document.getElementById('picD3').value,
+      'Period': new Date().toLocaleDateString('en-GB'),
+      'IssuedBy': document.getElementById('issuedBy').value,
+      'InterimActBy': document.getElementById('picD3').value,
+      'RC-AnalysisBy': document.getElementById('picD4').value,
+      'CABy': document.getElementById('picD5').value,
+      'ValidateCAPABy': document.getElementById('picD6').value,
+      'PABy': document.getElementById('picD7').value,
+      'ApprovedBy': document.getElementById('picD8').value,
+      'StatusNC': 'Open'
+    }
+  };
+
+  try {
+    await fetch(API_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+    
+    alert('✅ NCR Submitted Successfully!');
+    showDashboard();
+    loadAllData();
+  } catch(err) { 
+    console.error("Submission error:", err);
+    alert("❌ Submission failed: " + err.message);
+  }
+}
+
+// ==========================================
+// 8. FUNGSI FOLLOW-UP (UPDATE D3-D8)
+// ==========================================
+function getFormDataByStep(step) {
+  const mapping = columnMapping[step];
+  if (!mapping) {
+    console.error('Step tidak ditemukan:', step);
+    return null;
+  }
+
+  const data = {};
+  for (const [fieldId, columnName] of Object.entries(mapping)) {
+    const element = document.getElementById(fieldId);
+    if (element) {
+      if (element.type === 'checkbox') {
+        data[fieldId] = element.checked ? 'Yes' : 'No';
+      } else {
+        data[fieldId] = element.value || '';
+      }
+    } else {
+      console.warn('Element tidak ditemukan:', fieldId);
+    }
+  }
+  return data;
+}
+
+async function submitFollowUp(step) {
+  // Validasi
+  if (!currentFollowUpId) {
+    alert('⚠️ Please select an NCR first!');
+    return;
+  }
+  
+  // Ambil data dari form
+  const formData = getFormDataByStep(step);
+  if (!formData) {
+    alert('❌ Error: Data form tidak ditemukan');
+    return;
+  }
+  
+  // Siapkan payload
+  const payload = {
+    action: 'updateNCR',
+    idNo: currentFollowUpId,
+    step: step,
+    data: formData,
+    timestamp: new Date().toISOString(),
+    updatedBy: currentUser ? currentUser.name : 'Guest'
+  };
+  
+  console.log(`📤 Submitting ${step}:`, payload);
+  
+  try {
+    // Kirim ke API
+    await fetch(API_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    alert(`✅ ${step} submitted successfully!`);
+    
+    // Update status lokal
+    const ncr = rawDataNCR.find(r => r['ID No.'] === currentFollowUpId);
+    if (ncr) {
+      if (step === 'D8') {
+        const status = document.getElementById('fuValidationStatus').value;
+        ncr.StatusNC = status === 'Closed' ? 'Closed' : 'In Progress';
+      } else {
+        ncr.StatusNC = 'In Progress';
+      }
+      renderDashboard(rawDataNCR);
+    }
+    
+    // Refresh data
+    await loadDashboardData();
+    
+  } catch(err) {
+    console.error(`❌ Error submitting ${step}:`, err);
+    alert(`❌ Failed to submit ${step}: ${err.message}`);
+  }
+}
+
+// ==========================================
+// 9. FUNGSI SUBMIT D3 - D8
+// ==========================================
+async function submitD3() {
+  await submitFollowUp('D3');
+}
+
+async function submitD4() {
+  await submitFollowUp('D4');
+}
+
+async function submitD5() {
+  await submitFollowUp('D5');
+}
+
+async function submitD6() {
+  await submitFollowUp('D6');
+}
+
+async function submitD7() {
+  await submitFollowUp('D7');
+}
+
+async function submitD8() {
+  await submitFollowUp('D8');
+}
+
+// ==========================================
+// 10. FUNGSI CHARTS
+// ==========================================
 let trendChartInstance = null;
 let paretoChartInstance = null;
 
@@ -703,7 +1296,7 @@ function initCharts(data) {
   if (trendChartInstance) trendChartInstance.destroy();
   if (paretoChartInstance) paretoChartInstance.destroy();
 
-  // ===== TREND CHART =====
+  // TREND CHART
   const monthlyData = {};
   data.forEach(item => {
     if (item.IssuedDate) {
@@ -718,13 +1311,12 @@ function initCharts(data) {
     }
   });
 
-  // ===== PERBAIKAN: Urutkan berdasarkan tanggal =====
   const sortedMonths = Object.keys(monthlyData)
     .sort((a, b) => monthlyData[a].dateObj - monthlyData[b].dateObj)
-    .slice(-6); // Ambil 6 bulan terakhir
+    .slice(-6);
 
-  const pdrData   = sortedMonths.map(m => monthlyData[m].PDR);
-  const ncmrData  = sortedMonths.map(m => monthlyData[m].NCMR);
+  const pdrData = sortedMonths.map(m => monthlyData[m].PDR);
+  const ncmrData = sortedMonths.map(m => monthlyData[m].NCMR);
   const eightDData = sortedMonths.map(m => monthlyData[m]['8D']);
 
   trendChartInstance = new Chart(document.getElementById('trendChart'), {
@@ -732,9 +1324,9 @@ function initCharts(data) {
     data: {
       labels: sortedMonths.length ? sortedMonths : ['No Data'],
       datasets: [
-        { label:'PDR',  data: sortedMonths.length ? pdrData : [0],    backgroundColor:'#378ADD', borderRadius:4, borderSkipped:false },
-        { label:'NCMR', data: sortedMonths.length ? ncmrData : [0],   backgroundColor:'#639922', borderRadius:4, borderSkipped:false },
-        { label:'8D',   data: sortedMonths.length ? eightDData : [0], backgroundColor:'#7F77DD', borderRadius:4, borderSkipped:false }
+        { label:'PDR', data: sortedMonths.length ? pdrData : [0], backgroundColor:'#378ADD', borderRadius:4, borderSkipped:false },
+        { label:'NCMR', data: sortedMonths.length ? ncmrData : [0], backgroundColor:'#639922', borderRadius:4, borderSkipped:false },
+        { label:'8D', data: sortedMonths.length ? eightDData : [0], backgroundColor:'#7F77DD', borderRadius:4, borderSkipped:false }
       ]
     },
     options: {
@@ -747,23 +1339,23 @@ function initCharts(data) {
     }
   });
 
-  // ===== PARETO CHART =====
+  // PARETO CHART
   const defectCounts = {};
   data.forEach(item => {
     let defect = item.NCCatagory || item.NCCategory || 'Others';
-    if (defect === 'Reject Hi pot Test')            defect = 'Reject Hi-pot';
+    if (defect === 'Reject Hi pot Test') defect = 'Reject Hi-pot';
     if (defect === 'Dimension Out of Specification') defect = 'Dimension OoS';
-    if (defect === 'Wrong Do Assembly/Process')      defect = 'Wrong Assembly';
-    if (defect === 'Product Damage/Broken')          defect = 'Product Damage';
-    if (defect === 'Not Follow WI/Procedure')        defect = 'Not Follow WI';
+    if (defect === 'Wrong Do Assembly/Process') defect = 'Wrong Assembly';
+    if (defect === 'Product Damage/Broken') defect = 'Product Damage';
+    if (defect === 'Not Follow WI/Procedure') defect = 'Not Follow WI';
     defectCounts[defect] = (defectCounts[defect] || 0) + 1;
   });
 
   const sortedDefects = Object.entries(defectCounts).sort((a,b) => b[1]-a[1]).slice(0,5);
-  const labels      = sortedDefects.map(([name]) => name);
+  const labels = sortedDefects.map(([name]) => name);
   const frequencies = sortedDefects.map(([,count]) => count);
-  const total       = frequencies.reduce((a,b) => a+b, 0) || 1;
-  const cumPct      = frequencies.reduce((acc, v, i) => {
+  const total = frequencies.reduce((a,b) => a+b, 0) || 1;
+  const cumPct = frequencies.reduce((acc, v, i) => {
     const prev = i === 0 ? 0 : acc[i-1];
     acc.push(Math.round((prev + v/total*100)*10)/10);
     return acc;
@@ -774,46 +1366,42 @@ function initCharts(data) {
     data: {
       labels: labels.length ? labels : ['No Data'],
       datasets: [
-        { type:'bar',  label:'Frekuensi',   data: labels.length ? frequencies : [0], backgroundColor:'#EF9F27', borderRadius:4, borderSkipped:false, yAxisID:'y' },
-        { type:'line', label:'Kumulatif %', data: labels.length ? cumPct : [0],      borderColor:'#A32D2D', borderDash:[5,3], borderWidth:2, pointBackgroundColor:'#A32D2D', pointRadius:3, fill:false, tension:0, yAxisID:'y2' }
+        { type:'bar', label:'Frekuensi', data: labels.length ? frequencies : [0], backgroundColor:'#EF9F27', borderRadius:4, borderSkipped:false, yAxisID:'y' },
+        { type:'line', label:'Kumulatif %', data: labels.length ? cumPct : [0], borderColor:'#A32D2D', borderDash:[5,3], borderWidth:2, pointBackgroundColor:'#A32D2D', pointRadius:3, fill:false, tension:0, yAxisID:'y2' }
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false }, tooltip: { mode:'index', intersect:false } },
       scales: {
-        x:  { grid:{ display:false }, ticks:{ font:{size:10}, color:'#888', maxRotation:35, autoSkip:false } },
-        y:  { beginAtZero:true, grid:{ color:'rgba(0,0,0,0.06)' }, ticks:{ precision:0, font:{size:11}, color:'#888' } },
+        x: { grid:{ display:false }, ticks:{ font:{size:10}, color:'#888', maxRotation:35, autoSkip:false } },
+        y: { beginAtZero:true, grid:{ color:'rgba(0,0,0,0.06)' }, ticks:{ precision:0, font:{size:11}, color:'#888' } },
         y2: { position:'right', min:0, max:100, grid:{ display:false }, ticks:{ callback: v => v+'%', font:{size:11}, color:'#888' } }
       }
     }
   });
 }
 
-// Fungsi bantu parsing tanggal
 function parseDate(dateStr) {
   if (!dateStr) return null;
-  
-  // Coba parse format DD/MM/YYYY
   if (typeof dateStr === 'string' && dateStr.includes('/')) {
     const parts = dateStr.split('/');
     if (parts.length === 3 && parts[0].length <= 2 && parts[1].length <= 2) {
-      // DD/MM/YYYY -> MM/DD/YYYY
       return new Date(`${parts[1]}/${parts[0]}/${parts[2]}`);
     }
   }
-  
   const date = new Date(dateStr);
   return isNaN(date.getTime()) ? null : date;
 }
 
- 
+// ==========================================
+// 11. INIT - DIJALANKAN SAAT HALAMAN LOAD
+// ==========================================
+window.onload = function() {
+  document.getElementById('loginPage').classList.add('active');
+  document.getElementById('appShell').classList.remove('active');
+};
 
-  // ========== INIT ==========
-  window.onload = function() {
-    document.getElementById('loginPage').classList.add('active');
-    document.getElementById('appShell').classList.remove('active');
-  };
 </script>
 </body>
 </html>
