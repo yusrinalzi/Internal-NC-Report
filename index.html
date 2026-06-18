@@ -696,10 +696,10 @@ function setFallbackAuditors() {
 
   
   // ========== CHARTS ==========
-  let trendChartInstance = null;
-  let paretoChartInstance = null;
+let trendChartInstance = null;
+let paretoChartInstance = null;
 
-  function initCharts(data) {
+function initCharts(data) {
   if (trendChartInstance) trendChartInstance.destroy();
   if (paretoChartInstance) paretoChartInstance.destroy();
 
@@ -711,14 +711,18 @@ function setFallbackAuditors() {
       if (date) {
         const monthYear = date.toLocaleString('default', { month: 'short' }) + ' ' + date.getFullYear();
         const ncrType = item.Type || 'PDR';
-        if (!monthlyData[monthYear]) monthlyData[monthYear] = { PDR: 0, NCMR: 0, '8D': 0 };
+        if (!monthlyData[monthYear]) monthlyData[monthYear] = { PDR: 0, NCMR: 0, '8D': 0, dateObj: date };
         if (monthlyData[monthYear][ncrType] !== undefined) monthlyData[monthYear][ncrType]++;
         else monthlyData[monthYear]['PDR']++;
       }
     }
   });
 
-  const sortedMonths = Object.keys(monthlyData).sort().slice(-6);
+  // ===== PERBAIKAN: Urutkan berdasarkan tanggal =====
+  const sortedMonths = Object.keys(monthlyData)
+    .sort((a, b) => monthlyData[a].dateObj - monthlyData[b].dateObj)
+    .slice(-6); // Ambil 6 bulan terakhir
+
   const pdrData   = sortedMonths.map(m => monthlyData[m].PDR);
   const ncmrData  = sortedMonths.map(m => monthlyData[m].NCMR);
   const eightDData = sortedMonths.map(m => monthlyData[m]['8D']);
