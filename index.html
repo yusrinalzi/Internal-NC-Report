@@ -1894,9 +1894,6 @@ function assignFollowUpPIC() {
     infoEl.className = 'alert alert-warning py-1 mb-2 small';
   }
   
-// ✅ Auto-sync D3 Interim act by dari D1 Assignment
-const d3PicValue = document.getElementById('fuPicD3').value;
-document.getElementById('fuInterimActBy').value = d3PicValue;
 }
 
   // ==========================================
@@ -2042,7 +2039,6 @@ function loadNCRViewData(ncr) {
   document.getElementById('fuViewInterimAct').value = ncr.InterimAction || '-';
   document.getElementById('fuViewSortingRequired').value = ncr.SortingRepairReworkRequired || '-';
   document.getElementById('fuViewSortingPIC').value = ncr.SortingReworkPIC || '-';
-}
   
 // Auto-fill D3 PIC dari data InterimActBy atau dari D1 Assignment
 const d3Pic = ncr['InterimActBy'] || ncr['SortingReworkPIC'] || '';
@@ -2054,6 +2050,7 @@ setTimeout(() => {
 const d3DateEl = document.getElementById('fuInterimDate');
 if (d3DateEl && !d3DateEl.value) {
   d3DateEl.value = new Date().toISOString().split('T')[0];
+}
 }
   
 // ==========================================
@@ -2136,6 +2133,16 @@ function prefillD3toD8(ncr) {
     setDropdown('fuPicD6', ncr['ValidateCAPABy'] || '');
     setDropdown('fuPicD7', ncr['PABy']           || '');
     setDropdown('fuPicD8', ncr['ApprovedBy']     || '');
+
+    // ✅ TAMBAHKAN INI - sync fuInterimActBy setelah dropdown terisi
+    const d3Val = document.getElementById('fuPicD3').value;
+    document.getElementById('fuInterimActBy').value = d3Val;
+    
+    // ✅ Auto-fill tanggal jika kosong
+    const d3DateEl = document.getElementById('fuInterimDate');
+    if (d3DateEl && !d3DateEl.value) {
+      d3DateEl.value = new Date().toISOString().split('T')[0];
+    }
   }, 500);
 }
   
