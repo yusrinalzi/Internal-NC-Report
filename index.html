@@ -652,7 +652,8 @@
       </div>
       <div class="col">
         <label class="small fw-bold">D4 (RCA by)</label>
-        <select id="fuPicD4" class="form-select form-select-sm auditor-list"></select>
+        <select id="fuPicD4" class="form-select form-select-sm auditor-list"
+          onchange="document.getElementById('fuPicD4').value = this.value"> ></select>
       </div>
       <div class="col">
         <label class="small fw-bold">D5 (CA by)</label>
@@ -834,16 +835,13 @@
           <input type="number" id="fuManHours" class="form-control" value="0">
         </div>
         <div class="col-12 mt-3">
-          <div class="d-flex justify-content-between align-items-center">
-           <div class="d-flex justify-content-between align-items-center">
-  <div class="d-flex gap-3 align-items-center">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex gap-3 align-items-center">
+          
     <!-- Toggle Edit/View D3 -->
     <div class="form-check form-switch mb-0">
-      <input class="form-check-input" type="checkbox" id="toggleD3Edit"
-             onchange="toggleD3Mode(this.checked)">
-      <label class="form-check-label small" for="toggleD3Edit" id="labelD3Mode">
-        VIEW ONLY
-      </label>
+      <input class="form-check-input" type="checkbox" id="toggleD3Edit" onchange="toggleD3Mode(this.checked)">
+      <label class="form-check-label small" for="toggleD3Edit" id="labelD3Mode">VIEW ONLY</label>
     </div>
     <!-- Notice PIC Button -->
     <button class="btn btn-outline-primary btn-sm" onclick="noticePICD3()">
@@ -865,74 +863,78 @@
     </div>
   </div>    
 </div> 
-    <!-- ===== D4 - Root Cause Analysis ===== -->
-    <div class="followup-section" style="border-left-color: #9c27b0;">
-      <h5><span class="badge-d" style="background:#9c27b0;">D4</span> Identify, Analysis and Verify The Root Cause</h5>
-     <div class="col-md-6">
-          <label class="form-label">RC analysis by</label>
-           <input type="text" id="fuPicD4" class="form-control" readonly 
-       style="background:#e8f0fe;">
-              </div>  
-        <div class="col-md-6">
-          <label class="form-label">RC-Analysis Date</label>
-          <input type="date" id="fuRCAdate" class="form-control">
-        </div>
-      
-      <div class="row g-3">
-        <div class="col-12">
-          <label class="form-label">A. Root-Cause (Occurrence)</label>
-          <textarea id="fuRootCauseOcc" class="form-control highlight-area" rows="2" placeholder="Describe occurrence root cause..."></textarea>
-        </div>
-        <div class="col-12">
-          <label class="form-label">B. Root-Cause (Skip)</label>
-          <textarea id="fuRootCauseSkip" class="form-control highlight-area" rows="2" placeholder="Describe skip root cause..."></textarea>
-        </div>
-       <div class="col-12">
-          <label class="form-label">RC Factor (5M+E)</label>
-              <select id="fuRCFactor" class="form-select">
-                  <option value="Man">Man</option>
-                  <option value="Machine">Machine</option>
-                  <option value="Material">Material</option>
-                  <option value="Method">Method</option>
-                  <option value="Measurement">Measurement</option>
-                  <option value="Environment">Environment</option>
-            </select>
+  
 
-  <small class="text-muted">Hold Ctrl/Cmd to select multiple items</small>
-</div>
- <div class="col-12 mt-3">
-          <div class="d-flex justify-content-between align-items-center">
-           <div class="d-flex justify-content-between align-items-center">
-  <div class="d-flex gap-3 align-items-center">
-    <!-- Toggle Edit/View D4 -->
-    <div class="form-check form-switch mb-0">
-      <input class="form-check-input" type="checkbox" id="toggleD4Edit"
-             onchange="toggleD4Mode(this.checked)">
-      <label class="form-check-label small" for="toggleD4Edit" id="labelD4Mode">
-        VIEW ONLY
-      </label>
+<!-- ===== D4 - Root Cause Analysis ===== -->
+<div class="followup-section" style="border-left-color: #9c27b0;">
+  <h5><span class="badge-d" style="background:#9c27b0;">D4</span> Identify, Analysis and Verify The Root Cause</h5>
+  
+  <div class="row g-3">
+    <!-- Row 1: RC analysis by & RC-Analysis Date -->
+    <div class="col-md-6">
+      <label class="form-label">RC analysis by</label>
+      <input type="text" id="fuPicD4" class="form-control" readonly style="background:#e8f0fe;">
     </div>
-    <!-- Notice PIC Button -->
-    <button class="btn btn-outline-primary btn-sm" onclick="noticePICD4()">
-      <i class="fas fa-envelope"></i> Notice PIC D4
-    </button>
-  </div>
-  <!-- Submit D4 dengan Spinner -->
-  <button class="btn-submit-d" onclick="submitD4()" id="btnSubmitD4">
-    <span id="btnSubmitD3Text">
-      <i class="fas fa-check-circle"></i> Submit D4
-    </span>
-    <span id="btnSubmitD4Spinner" class="spinner-container">
-      <span class="spinner-border spinner-border-sm text-light"></span>
-      <span class="text-light ms-1">Saving...</span>
-    </span>
-  </button>
+    <div class="col-md-6">
+      <label class="form-label">RC-Analysis Date</label>
+      <input type="date" id="fuRCAdate" class="form-control">
+    </div>
+    
+    <!-- Row 2: Root Cause Occurrence -->
+    <div class="col-12">
+      <label class="form-label">A. Root-Cause (Occurrence)</label>
+      <textarea id="fuRootCauseOcc" class="form-control highlight-area" rows="2" placeholder="Describe occurrence root cause..."></textarea>
+    </div>
+    
+    <!-- Row 3: Root Cause Skip -->
+    <div class="col-12">
+      <label class="form-label">B. Root-Cause (Skip)</label>
+      <textarea id="fuRootCauseSkip" class="form-control highlight-area" rows="2" placeholder="Describe skip root cause..."></textarea>
+    </div>
+    
+    <!-- Row 4: RC Factor (5M+E) - SINGLE SELECTION -->
+    <div class="col-12">
+      <label class="form-label">RC Factor (5M+E)</label>
+      <select id="fuRCFactor" class="form-select highlight-area">
+        <option value="">-- Select 5M+E Factor --</option>
+        <option value="Man">Man</option>
+        <option value="Machine">Machine</option>
+        <option value="Material">Material</option>
+        <option value="Method">Method</option>
+        <option value="Measurement">Measurement</option>
+        <option value="Environment">Environment</option>
+      </select>
+    </div>
+    
+    <!-- Row 5: Tombol Notice & Submit -->
+    <div class="col-12 mt-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex gap-3 align-items-center">
+          <!-- Toggle Edit/View D4 -->
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" id="toggleD4Edit" onchange="toggleD4Mode(this.checked)">
+            <label class="form-check-label small" for="toggleD4Edit" id="labelD4Mode">VIEW ONLY</label>
+          </div>
+          <!-- Notice PIC Button -->
+          <button class="btn btn-outline-primary btn-sm" onclick="noticePICD4()">
+            <i class="fas fa-envelope"></i> Notice PIC D4
+          </button>
         </div>
+        <!-- Submit D4 dengan Spinner -->
+        <button class="btn-submit-d" onclick="submitD4()" id="btnSubmitD4">
+          <span id="btnSubmitD4Text">
+            <i class="fas fa-check-circle"></i> Submit D4
+          </span>
+          <span id="btnSubmitD4Spinner" class="spinner-container">
+            <span class="spinner-border spinner-border-sm text-light"></span>
+            <span class="text-light ms-1">Saving...</span>
+          </span>
+        </button>
       </div>
     </div>
-  </div>    
-</div> 
-
+  </div> <!-- end row -->
+</div> <!-- end followup-section -->
+ 
 
     <!-- ===== D5 - Corrective Action ===== -->
     <div class="followup-section" style="border-left-color: #2196f3;">
