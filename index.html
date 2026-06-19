@@ -216,27 +216,26 @@
       .followup-section { padding: 16px; }
     }
 /* ========== SPINNER / LOADING ========== */
+/* ========== SPINNER INLINE ========== */
 .spinner-container {
   display: none;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 8px 16px;
+  gap: 6px;
 }
 
 .spinner-container.active {
   display: inline-flex;
 }
 
-.spinner-border-sm {
-  width: 1.2rem;
-  height: 1.2rem;
-  border-width: 0.2em;
-}
-
 .btn-loading {
   opacity: 0.7;
   pointer-events: none;
+  cursor: not-allowed;
+}
+
+.btn-submit-d:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
@@ -678,15 +677,15 @@
 
    <!-- Tombol Update PIC dengan Spinner -->
 <div class="d-flex justify-content-end">
-  <button class="btn-submit-d" onclick="updatePIC()" id="btnUpdatePIC" style="background: var(--primary); min-width: 150px;">
-    <span id="btnUpdatePICText">
-      <i class="fas fa-sync-alt"></i> Update PIC
-    </span>
-    <span id="btnUpdatePICSpinner" class="spinner-container">
-      <span class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true"></span>
-      <span class="text-light ms-1">Updating...</span>
-    </span>
-  </button>
+<button class="btn-submit-d" onclick="updatePIC()" id="btnUpdatePIC" style="background: var(--primary); min-width: 150px;">
+  <span id="btnUpdatePICText">
+    <i class="fas fa-sync-alt"></i> Update PIC
+  </span>
+  <span id="btnUpdatePICSpinner" class="spinner-container">
+    <span class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true"></span>
+    <span class="text-light ms-1">Updating...</span>
+  </span>
+</button>
 </div>
 
   <!-- ===== D2: NON-CONFORMITY REPORT (View Only) ===== -->
@@ -1184,12 +1183,24 @@ function openFollowUp() {
   }
 }
 
-function openFollowUpFromRow(idNo) {
+async function openFollowUpFromRow(idNo) {
   currentFollowUpId = idNo;
+  
+  // Simpan ke localStorage untuk restore setelah reload
+  localStorage.setItem('currentFollowUpId', idNo);
+  
+  // Tampilkan halaman follow-up
   openFollowUp();
   
+  // ===== LOAD DATA FRESH DARI GOOGLE SHEET =====
+  await loadDashboardData();  // Reload semua data NCR dari GS
+  await loadPICData();        // Reload data PIC dari GS
+  
+  // Cari NCR yang sudah di-load
   const ncr = rawDataNCR.find(r => r['ID No.'] === idNo);
+  
   if (ncr) {
+    // Update header info
     document.getElementById('followUpId').textContent = ncr['ID No.'] || '-';
     document.getElementById('followUpType').textContent = ncr.Type || '-';
     document.getElementById('followUpCategory').textContent = ncr.Category || '-';
@@ -1199,20 +1210,60 @@ function openFollowUpFromRow(idNo) {
     statusEl.textContent = status;
     statusEl.className = 'badge ' + (status === 'Closed' ? 'status-done' : status === 'In Progress' ? 'status-progress' : 'status-open');
     
-    // Fill D1-D2 info
-    document.getElementById('fuIssuedBy').value = ncr.IssuedBy || '-';
-    document.getElementById('fuIssuedDate').value = ncr.IssuedDate || '-';
-    document.getElementById('fuPartNo').value = ncr.PartNo || '-';
-    document.getElementById('fuDetailNC').value = ncr.DetailNC || ncr.NCMode || '-';
-    document.getElementById('fuInterimAct').value = ncr.InterimAction || '-';
+    // ===== LOAD D2: View Data =====
+    loadNCRViewData(ncr);
     
-    // Pre-fill PICs dari data existing
-    if (ncr.InterimActBy) document.getElementById('fuPicD3').value = ncr.InterimActBy;
-    if (ncr['RC-AnalysisBy']) document.getElementById('fuPicD4').value = ncr['RC-AnalysisBy'];
-    if (ncr.CABy) document.getElementById('fuPicD5').value = ncr.CABy;
-    if (ncr.ValidateCAPABy) document.getElementById('fuPicD6').value = ncr.ValidateCAPABy;
-    if (ncr.PABy) document.getElementById('fuPicD7').value = ncr.PABy;
-    if (ncr.ApprovedBy) document.getElementById('fuPicD8').value = ncr.ApprovedBy;
+    // ===== LOAD D1: PIC Data =====
+    assignFollowUpPIC();
+    
+    // ===== LOAD D3-D8: Pre-fill dari data NCR =====
+    // Tunggu sebentar agar dropdown terisi
+    setTimeout(() => {
+      // D3 - InterimActBy
+      const d3Val = ncr.InterimActBy || '';
+      if (d3Val) {
+        const el = document.getElementById('fuPicD3');
+        if (el) el.value = d3Val;
+      }
+      
+      // D4 - RC-AnalysisBy
+      const d4Val = ncr['RC-AnalysisBy'] || '';
+      if (d4Val) {
+        const el = document.getElementById('fuPicD4');
+        if (el) el.value = d4Val;
+      }
+      
+      // D5 - CABy
+      const d5Val = ncr.CABy || '';
+      if (d5Val) {
+        const el = document.getElementById('fuPicD5');
+        if (el) el.value = d5Val;
+      }
+      
+      // D6 - ValidateCAPABy
+      const d6Val = ncr.ValidateCAPABy || '';
+      if (d6Val) {
+        const el = document.getElementById('fuPicD6');
+        if (el) el.value = d6Val;
+      }
+      
+      // D7 - PABy
+      const d7Val = ncr.PABy || '';
+      if (d7Val) {
+        const el = document.getElementById('fuPicD7');
+        if (el) el.value = d7Val;
+      }
+      
+      // D8 - ApprovedBy
+      const d8Val = ncr.ApprovedBy || '';
+      if (d8Val) {
+        const el = document.getElementById('fuPicD8');
+        if (el) el.value = d8Val;
+      }
+    }, 300);
+    
+  } else {
+    alert('⚠️ NCR with ID ' + idNo + ' not found!');
   }
 }
 
@@ -1220,9 +1271,41 @@ function openFollowUpFromRow(idNo) {
 // 5. FUNGSI DATA
 // ==========================================
 async function loadAllData() {
-  await loadDashboardData();
-  await loadAuditors();
-  await loadPICData(); // <-- TAMBAHKAN INI
+  showLoadingOverlay('Loading data from Google Sheet...');
+  
+  try {
+    await loadDashboardData();  // Load semua NCR dari GS
+    await loadAuditors();       // Load daftar auditor dari GS
+    await loadPICData();        // Load data PIC dari GS
+    
+    // ===== CEK APAKAH ADA FOLLOW-UP YANG AKTIF =====
+    const savedId = localStorage.getItem('currentFollowUpId');
+    if (savedId && document.getElementById('followUpPage').style.display === 'block') {
+      // Refresh follow-up view dengan data terbaru
+      const ncr = rawDataNCR.find(r => r['ID No.'] === savedId);
+      if (ncr) {
+        loadNCRViewData(ncr);
+        assignFollowUpPIC();
+        
+        // Pre-fill D3-D8
+        setTimeout(() => {
+          if (ncr.InterimActBy) document.getElementById('fuPicD3').value = ncr.InterimActBy;
+          if (ncr['RC-AnalysisBy']) document.getElementById('fuPicD4').value = ncr['RC-AnalysisBy'];
+          if (ncr.CABy) document.getElementById('fuPicD5').value = ncr.CABy;
+          if (ncr.ValidateCAPABy) document.getElementById('fuPicD6').value = ncr.ValidateCAPABy;
+          if (ncr.PABy) document.getElementById('fuPicD7').value = ncr.PABy;
+          if (ncr.ApprovedBy) document.getElementById('fuPicD8').value = ncr.ApprovedBy;
+        }, 300);
+      }
+    }
+    
+    hideLoadingOverlay();
+    
+  } catch(error) {
+    console.error('Error loading data:', error);
+    hideLoadingOverlay();
+    alert('❌ Failed to load data from Google Sheet: ' + error.message);
+  }
 }
 
 async function loadDashboardData() {
@@ -1433,9 +1516,9 @@ async function loadPICData() {
     
     if (res.status === 'ok' && res.data) {
       picDataMap = res.data;
-      console.log('✅ PIC Data loaded:', picDataMap);
+      console.log('✅ PIC Data loaded from Google Sheet:', picDataMap);
       
-      // Assign untuk create form (D1 & D2)
+      // Assign untuk create form
       assignCurrentUserPIC();
       
       // Assign untuk follow-up page (jika sedang di follow-up)
@@ -1443,18 +1526,12 @@ async function loadPICData() {
         assignFollowUpPIC();
       }
     } else {
-      console.warn('⚠️ Gagal load PIC data, menggunakan fallback');
+      console.warn('⚠️ Gagal load PIC data dari Google Sheet');
       setFallbackPIC();
-      if (document.getElementById('followUpPage').style.display === 'block') {
-        setFallbackFollowUpPIC();
-      }
     }
   } catch(e) {
     console.error('❌ Error loading PIC data:', e);
     setFallbackPIC();
-    if (document.getElementById('followUpPage').style.display === 'block') {
-      setFallbackFollowUpPIC();
-    }
   }
 }
 
@@ -1794,16 +1871,53 @@ function assignFollowUpPIC() {
   }
 }
 
+  // ==========================================
+// FUNGSI TOGGLE SPINNER UNTUK TOMBOL
+// ==========================================
+
+function toggleButtonSpinner(buttonId, show) {
+  const btn = document.getElementById(buttonId);
+  if (!btn) {
+    console.warn('⚠️ Button not found:', buttonId);
+    return;
+  }
+  
+  const textEl = document.getElementById(buttonId + 'Text');
+  const spinnerEl = document.getElementById(buttonId + 'Spinner');
+  
+  if (show) {
+    // Disable tombol
+    btn.classList.add('btn-loading');
+    btn.disabled = true;
+    
+    // Sembunyikan teks
+    if (textEl) textEl.style.display = 'none';
+    
+    // Tampilkan spinner
+    if (spinnerEl) spinnerEl.classList.add('active');
+  } else {
+    // Enable tombol
+    btn.classList.remove('btn-loading');
+    btn.disabled = false;
+    
+    // Tampilkan teks
+    if (textEl) textEl.style.display = 'inline';
+    
+    // Sembunyikan spinner
+    if (spinnerEl) spinnerEl.classList.remove('active');
+  }
+}
 // ==========================================
 // FUNGSI FOLLOW-UP: UPDATE PIC (D1-D8)
 // ==========================================
+  
 async function updatePIC() {
   if (!currentFollowUpId) {
     alert('⚠️ Please select an NCR first!');
     return;
   }
   
-  // Ambil data PIC
+  // Ambil data PIC dari form
   const picData = {
     D1: document.getElementById('fuPicD1').value,
     D2: document.getElementById('fuPicD2').value,
@@ -1835,6 +1949,7 @@ async function updatePIC() {
   console.log('📤 Updating PIC:', payload);
   
   try {
+    // Kirim ke Google Sheet
     await fetch(API_URL, {
       method: 'POST',
       mode: 'no-cors',
@@ -1847,26 +1962,35 @@ async function updatePIC() {
     
     alert('✅ PIC Updated Successfully!');
     
-    // ===== RELOAD DATA =====
-    await loadDashboardData();    // Reload data NCR
-    await loadPICData();          // Reload PIC data dari Google Sheet
+    // ===== RELOAD DATA FRESH DARI GOOGLE SHEET =====
+    showLoadingOverlay('Refreshing data from Google Sheet...');
     
-    // Refresh follow-up view dengan data terbaru
+    await loadDashboardData();  // Reload semua NCR
+    await loadPICData();        // Reload data PIC
+    
+    // ===== REFRESH FOLLOW-UP VIEW DENGAN DATA TERBARU =====
     const ncr = rawDataNCR.find(r => r['ID No.'] === currentFollowUpId);
     if (ncr) {
       loadNCRViewData(ncr);
-      // Pre-fill D3-D8 dari data terbaru
-      if (ncr.InterimActBy) document.getElementById('fuPicD3').value = ncr.InterimActBy;
-      if (ncr['RC-AnalysisBy']) document.getElementById('fuPicD4').value = ncr['RC-AnalysisBy'];
-      if (ncr.CABy) document.getElementById('fuPicD5').value = ncr.CABy;
-      if (ncr.ValidateCAPABy) document.getElementById('fuPicD6').value = ncr.ValidateCAPABy;
-      if (ncr.PABy) document.getElementById('fuPicD7').value = ncr.PABy;
-      if (ncr.ApprovedBy) document.getElementById('fuPicD8').value = ncr.ApprovedBy;
+      assignFollowUpPIC();
+      
+      // Pre-fill D3-D8 dengan data terbaru
+      setTimeout(() => {
+        if (ncr.InterimActBy) document.getElementById('fuPicD3').value = ncr.InterimActBy;
+        if (ncr['RC-AnalysisBy']) document.getElementById('fuPicD4').value = ncr['RC-AnalysisBy'];
+        if (ncr.CABy) document.getElementById('fuPicD5').value = ncr.CABy;
+        if (ncr.ValidateCAPABy) document.getElementById('fuPicD6').value = ncr.ValidateCAPABy;
+        if (ncr.PABy) document.getElementById('fuPicD7').value = ncr.PABy;
+        if (ncr.ApprovedBy) document.getElementById('fuPicD8').value = ncr.ApprovedBy;
+      }, 300);
     }
+    
+    hideLoadingOverlay();
     
   } catch(err) {
     console.error('❌ Error updating PIC:', err);
     toggleButtonSpinner('btnUpdatePIC', false);
+    hideLoadingOverlay();
     alert('❌ Failed to update PIC: ' + err.message);
   }
 }
@@ -1971,6 +2095,44 @@ function hideLoadingOverlay() {
   if (overlay) overlay.classList.remove('active');
 }
 
+// ==========================================
+// REFRESH DATA DARI GOOGLE SHEET
+// ==========================================
+async function refreshDataFromGS() {
+  showLoadingOverlay('Refreshing data from Google Sheet...');
+  
+  try {
+    await loadDashboardData();
+    await loadPICData();
+    
+    // Jika sedang di follow-up, refresh view
+    if (document.getElementById('followUpPage').style.display === 'block' && currentFollowUpId) {
+      const ncr = rawDataNCR.find(r => r['ID No.'] === currentFollowUpId);
+      if (ncr) {
+        loadNCRViewData(ncr);
+        assignFollowUpPIC();
+        
+        setTimeout(() => {
+          if (ncr.InterimActBy) document.getElementById('fuPicD3').value = ncr.InterimActBy;
+          if (ncr['RC-AnalysisBy']) document.getElementById('fuPicD4').value = ncr['RC-AnalysisBy'];
+          if (ncr.CABy) document.getElementById('fuPicD5').value = ncr.CABy;
+          if (ncr.ValidateCAPABy) document.getElementById('fuPicD6').value = ncr.ValidateCAPABy;
+          if (ncr.PABy) document.getElementById('fuPicD7').value = ncr.PABy;
+          if (ncr.ApprovedBy) document.getElementById('fuPicD8').value = ncr.ApprovedBy;
+        }, 300);
+      }
+    }
+    
+    hideLoadingOverlay();
+    alert('✅ Data refreshed successfully!');
+    
+  } catch(err) {
+    console.error('Error refreshing data:', err);
+    hideLoadingOverlay();
+    alert('❌ Failed to refresh data: ' + err.message);
+  }
+}
+  
 </script>
 </body>
 </html>
