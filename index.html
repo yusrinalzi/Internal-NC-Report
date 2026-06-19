@@ -1849,50 +1849,31 @@ function parseDate(dateStr) {
   return isNaN(date.getTime()) ? null : date;
 }
 
-  // ==========================================
+// ==========================================
 // FUNGSI FOLLOW-UP: ASSIGN D1 & D2
 // ==========================================
 function assignFollowUpPIC() {
-  const username = currentUser ? currentUser.name.toLowerCase().trim() : 
-                   (localStorage.getItem('lastUser') || 'guest').toLowerCase().trim();
+  // Ambil data NCR yang sedang di-follow-up
+  const ncr = rawDataNCR.find(r => r['ID No.'] === currentFollowUpId);
   
-  // Update display
-  document.getElementById('followUpLoggedInUser').textContent = username;
+  // D1 dan D2 = IssuedBy dari Google Sheet
+  const issuedBy = ncr?.IssuedBy || '';
   
-  let foundRole = null;
-  let foundFullname = null;
+  // Jika IssuedBy kosong, fallback ke username login
+  const value = issuedBy || currentUser?.name || (localStorage.getItem('lastUser') || 'Guest');
   
-  // Cari user di PIC Data
-  for (const [dKey, pic] of Object.entries(picDataMap)) {
-    if (pic.username.toLowerCase() === username) {
-      foundRole = dKey;
-      foundFullname = pic.fullname;
-      break;
-    }
-  }
-  
-  // D1 dan D2 = nama user yang login
-  if (foundFullname) {
-    document.getElementById('fuPicD1').value = foundFullname;
-    document.getElementById('fuPicD2').value = foundFullname;
-  } else {
-    const loginName = currentUser ? currentUser.name : (localStorage.getItem('lastUser') || 'Guest');
-    document.getElementById('fuPicD1').value = loginName;
-    document.getElementById('fuPicD2').value = loginName;
-  }
+  // Isi D1 dan D2
+  document.getElementById('fuPicD1').value = value;
+  document.getElementById('fuPicD2').value = value;
   
   // Tampilkan info user
   const infoEl = document.getElementById('followUpPICInfo');
   infoEl.style.display = 'block';
   
-  if (foundRole) {
-    document.getElementById('followUpUserRole').textContent = `${foundRole} (${foundFullname}) - D1 & D2`;
-    infoEl.className = 'alert alert-success py-1 mb-2 small';
-  } else {
-    document.getElementById('followUpUserRole').textContent = `D1 & D2 = ${username}`;
-    infoEl.className = 'alert alert-warning py-1 mb-2 small';
-  }
-  
+  const username = currentUser ? currentUser.name : (localStorage.getItem('lastUser') || 'Guest');
+  document.getElementById('followUpLoggedInUser').textContent = username;
+  document.getElementById('followUpUserRole').textContent = `D1: ${value} | D2: ${value} (dari IssuedBy)`;
+  infoEl.className = 'alert alert-success py-1 mb-2 small';
 }
 
   // ==========================================
@@ -1941,7 +1922,6 @@ async function updatePIC() {
     return;
   }
   
-  // Ambil data PIC dari form
   const picData = {
     D1: document.getElementById('fuPicD1').value,
     D2: document.getElementById('fuPicD2').value,
@@ -1953,13 +1933,11 @@ async function updatePIC() {
     D8: document.getElementById('fuPicD8').value
   };
   
-  // Validasi
   if (!picData.D1 || !picData.D2) {
     alert('⚠️ D1 and D2 must be filled!');
     return;
   }
   
-  // Tampilkan spinner
   toggleButtonSpinner('btnUpdatePIC', true);
   
   const payload = {
@@ -1970,10 +1948,7 @@ async function updatePIC() {
     updatedBy: currentUser ? currentUser.name : 'Guest'
   };
   
-  console.log('📤 Updating PIC:', payload);
-  
   try {
-    // Kirim ke Google Sheet
     await fetch(API_URL, {
       method: 'POST',
       mode: 'no-cors',
@@ -1981,24 +1956,17 @@ async function updatePIC() {
       body: JSON.stringify(payload)
     });
     
-    // Sembunyikan spinner
     toggleButtonSpinner('btnUpdatePIC', false);
-    
     alert('✅ PIC Updated Successfully!');
     
-    // ===== RELOAD DATA FRESH DARI GOOGLE SHEET =====
     showLoadingOverlay('Refreshing data from Google Sheet...');
+    await loadDashboardData();
+    await loadPICData();
     
-    await loadDashboardData();  // Reload semua NCR
-    await loadPICData();        // Reload data PIC
-    
-    // ===== REFRESH FOLLOW-UP VIEW DENGAN DATA TERBARU =====
     const ncr = rawDataNCR.find(r => r['ID No.'] === currentFollowUpId);
     if (ncr) {
       loadNCRViewData(ncr);
-      assignFollowUpPIC();
-      
-      // Pre-fill D3-D8 dengan data terbaru
+      assignFollowUpPIC();  // Akan ambil dari IssuedBy
       prefillD3toD8(ncr);
     }
     
