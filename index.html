@@ -673,6 +673,7 @@
       </div>
     </div>
 
+  
    <!-- Tombol Update PIC dengan Spinner -->
 <div class="d-flex justify-content-end">
 <button class="btn-submit-d" onclick="updatePIC()" id="btnUpdatePIC" style="background: var(--primary); min-width: 150px;">
@@ -685,7 +686,8 @@
   </span>
 </button>
 </div>
-
+</div> 
+  
   <!-- ===== D2: NON-CONFORMITY REPORT (View Only) ===== -->
   <div class="followup-section" style="border-left-color: #6c757d;">
     <h5>
@@ -803,9 +805,7 @@
     </div>
   </div>
 
-  <hr class="section-divider">
-
-    <!-- ===== D3 - Interim/Containment Action ===== -->
+      <!-- ===== D3 - Interim/Containment Action ===== -->
     <div class="followup-section" style="border-left-color: #ff9800;">
       <h5><span class="badge-d" style="background:#ff9800;">D3</span> Interim/Containment Action</h5>
       <div class="row g-3">
@@ -862,8 +862,7 @@
       </div>
     </div>
   </div>    
-</div> 
-  
+ 
 
 <!-- ===== D4 - Root Cause Analysis ===== -->
 <div class="followup-section" style="border-left-color: #9c27b0;">
@@ -2104,10 +2103,11 @@ async function refreshDataFromGS() {
     alert('❌ Failed to refresh data: ' + err.message);
   }
 }
-  
+
 function prefillD3toD8(ncr) {
   if (!ncr) return;
   setTimeout(() => {
+    // ===== D3-D8 PIC DROPDOWN =====
     setDropdown('fuPicD3', ncr['InterimActBy']   || '');
     setDropdown('fuPicD4', ncr['RC-AnalysisBy']  || '');
     setDropdown('fuPicD5', ncr['CABy']           || '');
@@ -2115,18 +2115,112 @@ function prefillD3toD8(ncr) {
     setDropdown('fuPicD7', ncr['PABy']           || '');
     setDropdown('fuPicD8', ncr['ApprovedBy']     || '');
 
-    // ✅ TAMBAHKAN INI - sync fuInterimActBy setelah dropdown terisi
+    // ===== D3: Sync Interim Act By =====
     const d3Val = document.getElementById('fuPicD3').value;
     document.getElementById('fuInterimActBy').value = d3Val;
     
-    // ✅ Auto-fill tanggal jika kosong
+    // ===== D3: Interim Date =====
     const d3DateEl = document.getElementById('fuInterimDate');
     if (d3DateEl && !d3DateEl.value) {
       d3DateEl.value = new Date().toISOString().split('T')[0];
     }
+    
+    // ===== TAMBAHKAN: D3 Field Lainnya =====
+    const remarks = document.getElementById('fuInterimRemarks');
+    if (remarks && ncr['InterimRemarks']) {
+      remarks.value = ncr['InterimRemarks'];
+    }
+    
+    const totalOK = document.getElementById('fuTotalOK');
+    if (totalOK && ncr['TotalOK'] !== undefined && ncr['TotalOK'] !== '') {
+      totalOK.value = ncr['TotalOK'];
+    }
+    
+    const qtyReject = document.getElementById('fuQtyReject');
+    if (qtyReject && ncr['FinalRejectQty'] !== undefined && ncr['FinalRejectQty'] !== '') {
+      qtyReject.value = ncr['FinalRejectQty'];
+    }
+    
+    const manHours = document.getElementById('fuManHours');
+    if (manHours && ncr['TotalManHour'] !== undefined && ncr['TotalManHour'] !== '') {
+      manHours.value = ncr['TotalManHour'];
+    }
+    
+    // ===== D4: Root Cause =====
+    const rootOcc = document.getElementById('fuRootCauseOcc');
+    if (rootOcc && ncr['RootCauseOcc']) {
+      rootOcc.value = ncr['RootCauseOcc'];
+    }
+    
+    const rootSkip = document.getElementById('fuRootCauseSkip');
+    if (rootSkip && ncr['RootCause(Escape)']) {
+      rootSkip.value = ncr['RootCause(Escape)'];
+    }
+    
+    const rcFactor = document.getElementById('fuRCFactor');
+    if (rcFactor && ncr['5M1E-Factor']) {
+      rcFactor.value = ncr['5M1E-Factor'];
+    }
+    
+    const rcDate = document.getElementById('fuRCAdate');
+    if (rcDate && ncr['RC-AnalysisDate']) {
+      rcDate.value = ncr['RC-AnalysisDate'];
+    }
+    
+    // D4 Checkboxes
+    const manCheck = document.getElementById('fuRCFactorMan');
+    if (manCheck && ncr['RCFactorMan'] === 'Yes') manCheck.checked = true;
+    
+    const dennyCheck = document.getElementById('fuRCFactorDenny');
+    if (dennyCheck && ncr['RCFactorDenny'] === 'Yes') dennyCheck.checked = true;
+    
+    // ===== D5: Corrective Action =====
+    const caOcc = document.getElementById('fuCAOcc');
+    if (caOcc && ncr['CorrectiveActOccur']) {
+      caOcc.value = ncr['CorrectiveActOccur'];
+    }
+    
+    const caSkip = document.getElementById('fuCASkip');
+    if (caSkip && ncr['CorrectiveActSkip']) {
+      caSkip.value = ncr['CorrectiveActSkip'];
+    }
+    
+    // ===== D6: Verify Corrective Action =====
+    const verOcc = document.getElementById('fuVerOcc');
+    if (verOcc && ncr['VerOcc']) {
+      verOcc.value = ncr['VerOcc'];
+    }
+    
+    const verSkip = document.getElementById('fuVerSkip');
+    if (verSkip && ncr['VerSkip']) {
+      verSkip.value = ncr['VerSkip'];
+    }
+    
+    // ===== D7: Preventive Action =====
+    const paOcc = document.getElementById('fuPAOcc');
+    if (paOcc && ncr['PAOcc']) {
+      paOcc.value = ncr['PAOcc'];
+    }
+    
+    const paSkip = document.getElementById('fuPASkip');
+    if (paSkip && ncr['PASkip']) {
+      paSkip.value = ncr['PASkip'];
+    }
+    
+    // ===== D8: Closure & Validation =====
+    const validationStatus = document.getElementById('fuValidationStatus');
+    if (validationStatus && ncr['ValidationResult']) {
+      validationStatus.value = ncr['ValidationResult'];
+    }
+    
+    const reportSummary = document.getElementById('fuReportSummary');
+    if (reportSummary && ncr['ReportSummary']) {
+      reportSummary.value = ncr['ReportSummary'];
+    }
+    
   }, 500);
-}
-  
+}  
+
 function setDropdown(id, value) {
   const el = document.getElementById(id);
   if (!el) return;
