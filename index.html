@@ -651,7 +651,10 @@
       <!-- D3-D8 dropdown -->
       <div class="col">
         <label class="small fw-bold">D3 (Interim)</label>
-        <select id="fuPicD3" class="form-select form-select-sm auditor-list"></select>
+        <!-- Di D1 section, dropdown D3 -->
+      <select id="fuPicD3" class="form-select form-select-sm auditor-list" 
+        onchange="document.getElementById('fuInterimActBy').value = this.value">
+      </select>
       </div>
       <div class="col">
         <label class="small fw-bold">D4 (RootC)</label>
@@ -690,7 +693,23 @@
 
   <!-- ===== D2: NON-CONFORMITY REPORT (View Only) ===== -->
   <div class="followup-section" style="border-left-color: #6c757d;">
-    <h5><span class="badge-d" style="background:#6c757d;">D2</span> NON-CONFORMITY REPORT (View Only)</h5>
+    <h5>
+  <span class="badge-d" style="background:#6c757d;">D2</span> 
+  NON-CONFORMITY REPORT
+  <div class="ms-auto d-flex align-items-center gap-2">
+    <div class="form-check form-switch mb-0">
+      <input class="form-check-input" type="checkbox" id="toggleD2Edit" 
+             onchange="toggleD2Mode(this.checked)">
+      <label class="form-check-label small" for="toggleD2Edit" id="labelD2Mode">
+        VIEW ONLY
+      </label>
+    </div>
+    <button class="btn-submit-d btn-sm" id="btnUpdateD2" 
+            onclick="submitD2Update()" style="display:none;">
+      <i class="fas fa-save"></i> Update D2
+    </button>
+  </div>
+</h5>
     
     <div class="row g-3">
       <!-- Row 1: Issued By, Issued Date, ID No -->
@@ -797,9 +816,8 @@
       <div class="row g-3">
         <div class="col-md-6">
           <label class="form-label">Interim act by</label>
-          <select id="fuPicD3" class="form-select auditor-list">
-            <option value="">-- Select PIC --</option>
-          </select>
+         <input type="text" id="fuInterimActBy" class="form-control" readonly 
+       style="background:#e8f0fe;">
         </div>
         <div class="col-md-6">
           <label class="form-label">Interim Act Date</label>
@@ -827,13 +845,32 @@
               <input type="checkbox" id="fuNoticeD3">
               <label for="fuNoticeD3" class="ms-1">Notice D3 PIC</label>
             </div>
-            <button class="btn-submit-d" onclick="submitD3()">
-              <i class="fas fa-check-circle"></i> Submit D3
-            </button>
-          </div>
-        </div>
-      </div>
+           <div class="d-flex justify-content-between align-items-center">
+  <div class="d-flex gap-3 align-items-center">
+    <!-- Toggle Edit/View D3 -->
+    <div class="form-check form-switch mb-0">
+      <input class="form-check-input" type="checkbox" id="toggleD3Edit"
+             onchange="toggleD3Mode(this.checked)">
+      <label class="form-check-label small" for="toggleD3Edit" id="labelD3Mode">
+        VIEW ONLY
+      </label>
     </div>
+    <!-- Notice PIC Button -->
+    <button class="btn btn-outline-primary btn-sm" onclick="noticePICD3()">
+      <i class="fas fa-envelope"></i> Notice PIC D3
+    </button>
+  </div>
+  <!-- Submit D3 dengan Spinner -->
+  <button class="btn-submit-d" onclick="submitD3()" id="btnSubmitD3">
+    <span id="btnSubmitD3Text">
+      <i class="fas fa-check-circle"></i> Submit D3
+    </span>
+    <span id="btnSubmitD3Spinner" class="spinner-container">
+      <span class="spinner-border spinner-border-sm text-light"></span>
+      <span class="text-light ms-1">Saving...</span>
+    </span>
+  </button>
+</div>
 
     <!-- ===== D4 - Root Cause Analysis ===== -->
     <div class="followup-section" style="border-left-color: #9c27b0;">
@@ -1032,7 +1069,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbwscEF_ZtJ3MP9_tdF-FdMsIhTo0cUC9QlZNJ3itqzM_wdBO8JM2CsysVXm1zrkFkiD/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbydQKXPJQUxBdmgsDVBirNmK9BgLzYfUuQAL6vSF4LP5ltVbrNte2qH1k3DdeSH-jbl/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
@@ -1042,15 +1079,15 @@ let auditorList = [];
 // 2. MAPPING KOLOM GOOGLE SHEETS
 // ==========================================
 const columnMapping = {
-  'D3': {
-    'fuPicD3': 'InterimActBy',
-    'fuInterimDate': 'InterimActionDate',
-    'fuInterimRemarks': 'InterimRemarks',
-    'fuQtyOk': 'QtyOkAfterSort',
-    'fuQtyReject': 'FinalRejectQty',
-    'fuManHours': 'TotalManHour',
-    'fuNoticeD3': 'NoticeD3'
-  },
+ 'D3': {
+  'fuInterimActBy': 'InterimActBy',  
+  'fuInterimDate': 'InterimActionDate',
+  'fuInterimRemarks': 'InterimRemarks',
+  'fuQtyOk': 'QtyOkAfterSort',
+  'fuQtyReject': 'FinalRejectQty',
+  'fuManHours': 'TotalManHour',
+  'fuNoticeD3': 'NoticeD3'
+},
   'D4': {
     'fuRootCauseOcc': 'RootCauseOcc',
     'fuRootCauseSkip': 'RootCause(Escape)',
@@ -1185,22 +1222,15 @@ function openFollowUp() {
 
 async function openFollowUpFromRow(idNo) {
   currentFollowUpId = idNo;
-  
-  // Simpan ke localStorage untuk restore setelah reload
   localStorage.setItem('currentFollowUpId', idNo);
-  
-  // Tampilkan halaman follow-up
   openFollowUp();
   
-  // ===== LOAD DATA FRESH DARI GOOGLE SHEET =====
-  await loadDashboardData();  // Reload semua data NCR dari GS
-  await loadPICData();        // Reload data PIC dari GS
+  await loadDashboardData();
+  await loadPICData();
   
-  // Cari NCR yang sudah di-load
   const ncr = rawDataNCR.find(r => r['ID No.'] === idNo);
   
   if (ncr) {
-    // Update header info
     document.getElementById('followUpId').textContent = ncr['ID No.'] || '-';
     document.getElementById('followUpType').textContent = ncr.Type || '-';
     document.getElementById('followUpCategory').textContent = ncr.Category || '-';
@@ -1210,63 +1240,20 @@ async function openFollowUpFromRow(idNo) {
     statusEl.textContent = status;
     statusEl.className = 'badge ' + (status === 'Closed' ? 'status-done' : status === 'In Progress' ? 'status-progress' : 'status-open');
     
-    // ===== LOAD D2: View Data =====
     loadNCRViewData(ncr);
-    
-    // ===== LOAD D1: PIC Data =====
     assignFollowUpPIC();
     
-    // ===== LOAD D3-D8: Pre-fill dari data NCR =====
-    // Tunggu sebentar agar dropdown terisi
-    setTimeout(() => {
-      // D3 - InterimActBy
-      const d3Val = ncr.InterimActBy || '';
-      if (d3Val) {
-        const el = document.getElementById('fuPicD3');
-        if (el) el.value = d3Val;
-      }
-      
-      // D4 - RC-AnalysisBy
-      const d4Val = ncr['RC-AnalysisBy'] || '';
-      if (d4Val) {
-        const el = document.getElementById('fuPicD4');
-        if (el) el.value = d4Val;
-      }
-      
-      // D5 - CABy
-      const d5Val = ncr.CABy || '';
-      if (d5Val) {
-        const el = document.getElementById('fuPicD5');
-        if (el) el.value = d5Val;
-      }
-      
-      // D6 - ValidateCAPABy
-      const d6Val = ncr.ValidateCAPABy || '';
-      if (d6Val) {
-        const el = document.getElementById('fuPicD6');
-        if (el) el.value = d6Val;
-      }
-      
-      // D7 - PABy
-      const d7Val = ncr.PABy || '';
-      if (d7Val) {
-        const el = document.getElementById('fuPicD7');
-        if (el) el.value = d7Val;
-      }
-      
-      // D8 - ApprovedBy
-      const d8Val = ncr.ApprovedBy || '';
-      if (d8Val) {
-        const el = document.getElementById('fuPicD8');
-        if (el) el.value = d8Val;
-      }
-    }, 300);
+    // ✅ TAMBAHKAN DI SINI - ganti seluruh blok setTimeout lama
+    prefillD3toD8(ncr);
+
+    // ✅ TAMBAHKAN INI - reset D3 ke VIEW ONLY
+    document.getElementById('toggleD3Edit').checked = false;
+    toggleD3Mode(false);
     
   } else {
     alert('⚠️ NCR with ID ' + idNo + ' not found!');
   }
 }
-
 // ==========================================
 // 5. FUNGSI DATA
 // ==========================================
@@ -1288,14 +1275,7 @@ async function loadAllData() {
         assignFollowUpPIC();
         
         // Pre-fill D3-D8
-        setTimeout(() => {
-          if (ncr.InterimActBy) document.getElementById('fuPicD3').value = ncr.InterimActBy;
-          if (ncr['RC-AnalysisBy']) document.getElementById('fuPicD4').value = ncr['RC-AnalysisBy'];
-          if (ncr.CABy) document.getElementById('fuPicD5').value = ncr.CABy;
-          if (ncr.ValidateCAPABy) document.getElementById('fuPicD6').value = ncr.ValidateCAPABy;
-          if (ncr.PABy) document.getElementById('fuPicD7').value = ncr.PABy;
-          if (ncr.ApprovedBy) document.getElementById('fuPicD8').value = ncr.ApprovedBy;
-        }, 300);
+        prefillD3toD8(ncr);
       }
     }
     
@@ -1694,9 +1674,53 @@ async function submitFollowUp(step) {
 // ==========================================
 // 9. FUNGSI SUBMIT D3 - D8
 // ==========================================
-async function submitD3() {
-  await submitFollowUp('D3');
+// Toggle D3 Edit/View
+function toggleD3Mode(isEdit) {
+  const fields = ['fuInterimDate','fuInterimRemarks','fuQtyOk','fuQtyReject','fuManHours'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.readOnly = !isEdit;
+  });
+  const picD3 = document.getElementById('fuPicD3');
+  if (picD3) picD3.disabled = !isEdit;
+  
+  document.getElementById('labelD3Mode').textContent = isEdit ? 'EDIT MODE' : 'VIEW ONLY';
 }
+
+// Notice PIC D3 via Email
+function noticePICD3() {
+  const picName = document.getElementById('fuPicD3').value;
+  if (!picName) { alert('⚠️ Pilih PIC D3 terlebih dahulu!'); return; }
+  
+  // Cari email dari auditorList
+  const auditor = auditorList.find(a => a.AuditorName === picName);
+  const email = auditor?.Email || '';
+  
+  if (!email) {
+    alert(`⚠️ Email untuk ${picName} tidak ditemukan di NameList.\nPastikan kolom Email terisi di sheet NameList.`);
+    return;
+  }
+  
+  const idNo = currentFollowUpId || '-';
+  const subject = encodeURIComponent(`[Action Required] D3 Interim Action - NCR ${idNo}`);
+  const body = encodeURIComponent(
+    `Dear ${picName},\n\nAnda ditugaskan sebagai PIC D3 (Interim/Containment Action) untuk NCR ID: ${idNo}.\n\nMohon segera lakukan tindakan interim dan update di sistem.\n\nTerima kasih.`
+  );
+  
+  window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
+}
+
+  // Submit D3 dengan loading spinner
+async function submitD3() {
+  toggleButtonSpinner('btnSubmitD3', true);
+  await submitFollowUp('D3');
+  toggleButtonSpinner('btnSubmitD3', false);
+}
+  
+// Set D3 default ke VIEW ONLY
+document.getElementById('toggleD3Edit').checked = false;
+toggleD3Mode(false);
+  
 
 async function submitD4() {
   await submitFollowUp('D4');
@@ -1869,6 +1893,10 @@ function assignFollowUpPIC() {
     document.getElementById('followUpUserRole').textContent = `D1 & D2 = ${username}`;
     infoEl.className = 'alert alert-warning py-1 mb-2 small';
   }
+  
+// ✅ Auto-sync D3 Interim act by dari D1 Assignment
+const d3PicValue = document.getElementById('fuPicD3').value;
+document.getElementById('fuInterimActBy').value = d3PicValue;
 }
 
   // ==========================================
@@ -1975,14 +2003,7 @@ async function updatePIC() {
       assignFollowUpPIC();
       
       // Pre-fill D3-D8 dengan data terbaru
-      setTimeout(() => {
-        if (ncr.InterimActBy) document.getElementById('fuPicD3').value = ncr.InterimActBy;
-        if (ncr['RC-AnalysisBy']) document.getElementById('fuPicD4').value = ncr['RC-AnalysisBy'];
-        if (ncr.CABy) document.getElementById('fuPicD5').value = ncr.CABy;
-        if (ncr.ValidateCAPABy) document.getElementById('fuPicD6').value = ncr.ValidateCAPABy;
-        if (ncr.PABy) document.getElementById('fuPicD7').value = ncr.PABy;
-        if (ncr.ApprovedBy) document.getElementById('fuPicD8').value = ncr.ApprovedBy;
-      }, 300);
+      prefillD3toD8(ncr);
     }
     
     hideLoadingOverlay();
@@ -2022,7 +2043,19 @@ function loadNCRViewData(ncr) {
   document.getElementById('fuViewSortingRequired').value = ncr.SortingRepairReworkRequired || '-';
   document.getElementById('fuViewSortingPIC').value = ncr.SortingReworkPIC || '-';
 }
+  
+// Auto-fill D3 PIC dari data InterimActBy atau dari D1 Assignment
+const d3Pic = ncr['InterimActBy'] || ncr['SortingReworkPIC'] || '';
+setTimeout(() => {
+  setDropdown('fuPicD3', d3Pic);
+}, 500);
 
+// Auto-fill tanggal hari ini jika belum ada
+const d3DateEl = document.getElementById('fuInterimDate');
+if (d3DateEl && !d3DateEl.value) {
+  d3DateEl.value = new Date().toISOString().split('T')[0];
+}
+  
 // ==========================================
 // FUNGSI BANTU: FORMAT DATE
 // ==========================================
@@ -2037,38 +2070,6 @@ function formatDateDisplay(dateStr) {
   return dateStr;
 }
 
-// ==========================================
-// UPDATE: openFollowUpFromRow()
-// ==========================================
-function openFollowUpFromRow(idNo) {
-  currentFollowUpId = idNo;
-  openFollowUp();
-  
-  const ncr = rawDataNCR.find(r => r['ID No.'] === idNo);
-  if (ncr) {
-    document.getElementById('followUpId').textContent = ncr['ID No.'] || '-';
-    document.getElementById('followUpType').textContent = ncr.Type || '-';
-    document.getElementById('followUpCategory').textContent = ncr.Category || '-';
-    
-    const status = ncr.StatusNC || 'Open';
-    const statusEl = document.getElementById('followUpStatus');
-    statusEl.textContent = status;
-    statusEl.className = 'badge ' + (status === 'Closed' ? 'status-done' : status === 'In Progress' ? 'status-progress' : 'status-open');
-    
-    // ===== LOAD DATA =====
-    loadNCRViewData(ncr);        // Load D2 view data
-    loadPICData();               // <-- PASTIKAN INI ADA, reload PIC data dari Google Sheet
-    // assignFollowUpPIC();      // <-- Ini akan dipanggil oleh loadPICData()
-    
-    // Pre-fill D3-D8 dari data existing (jika ada)
-    if (ncr.InterimActBy) document.getElementById('fuPicD3').value = ncr.InterimActBy;
-    if (ncr['RC-AnalysisBy']) document.getElementById('fuPicD4').value = ncr['RC-AnalysisBy'];
-    if (ncr.CABy) document.getElementById('fuPicD5').value = ncr.CABy;
-    if (ncr.ValidateCAPABy) document.getElementById('fuPicD6').value = ncr.ValidateCAPABy;
-    if (ncr.PABy) document.getElementById('fuPicD7').value = ncr.PABy;
-    if (ncr.ApprovedBy) document.getElementById('fuPicD8').value = ncr.ApprovedBy;
-  }
-}
 
   
 // ==========================================
@@ -2112,14 +2113,7 @@ async function refreshDataFromGS() {
         loadNCRViewData(ncr);
         assignFollowUpPIC();
         
-        setTimeout(() => {
-          if (ncr.InterimActBy) document.getElementById('fuPicD3').value = ncr.InterimActBy;
-          if (ncr['RC-AnalysisBy']) document.getElementById('fuPicD4').value = ncr['RC-AnalysisBy'];
-          if (ncr.CABy) document.getElementById('fuPicD5').value = ncr.CABy;
-          if (ncr.ValidateCAPABy) document.getElementById('fuPicD6').value = ncr.ValidateCAPABy;
-          if (ncr.PABy) document.getElementById('fuPicD7').value = ncr.PABy;
-          if (ncr.ApprovedBy) document.getElementById('fuPicD8').value = ncr.ApprovedBy;
-        }, 300);
+       prefillD3toD8(ncr);
       }
     }
     
@@ -2132,6 +2126,104 @@ async function refreshDataFromGS() {
     alert('❌ Failed to refresh data: ' + err.message);
   }
 }
+  
+function prefillD3toD8(ncr) {
+  if (!ncr) return;
+  setTimeout(() => {
+    setDropdown('fuPicD3', ncr['InterimActBy']   || '');
+    setDropdown('fuPicD4', ncr['RC-AnalysisBy']  || '');
+    setDropdown('fuPicD5', ncr['CABy']           || '');
+    setDropdown('fuPicD6', ncr['ValidateCAPABy'] || '');
+    setDropdown('fuPicD7', ncr['PABy']           || '');
+    setDropdown('fuPicD8', ncr['ApprovedBy']     || '');
+  }, 500);
+}
+  
+function setDropdown(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  // Cari option yang match
+  for (let opt of el.options) {
+    if (opt.value === value) {
+      el.value = value;
+      return;
+    }
+  }
+  // Jika tidak ada di list, tambahkan sementara
+  const opt = document.createElement('option');
+  opt.value = value;
+  opt.textContent = value;
+  el.appendChild(opt);
+  el.value = value;
+}
+
+  // Toggle D2 antara VIEW dan EDIT mode
+function toggleD2Mode(isEdit) {
+  const fields = [
+    'fuViewIssuedBy','fuViewIssuedDate','fuViewIdNo','fuViewType',
+    'fuViewCategory','fuViewShiftTime','fuViewPartNo','fuViewCustomerName',
+    'fuViewLocation','fuViewAffectedQty','fuViewSampleQty','fuViewNcQty',
+    'fuViewNcMode','fuViewNcCategory','fuViewDetailNC','fuViewHowDetected',
+    'fuViewInterimAct','fuViewSortingRequired','fuViewSortingPIC'
+  ];
+  
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.readOnly = !isEdit;
+  });
+  
+  document.getElementById('labelD2Mode').textContent = isEdit ? 'EDIT MODE' : 'VIEW ONLY';
+  document.getElementById('btnUpdateD2').style.display = isEdit ? 'inline-block' : 'none';
+}
+
+// Submit update D2 ke Google Sheet
+async function submitD2Update() {
+  if (!currentFollowUpId) { alert('⚠️ Pilih NCR terlebih dahulu!'); return; }
+  
+  const data = {
+    IssuedBy:       document.getElementById('fuViewIssuedBy').value,
+    ShiftTime:      document.getElementById('fuViewShiftTime').value,
+    PartNo:         document.getElementById('fuViewPartNo').value,
+    CustomerName:   document.getElementById('fuViewCustomerName').value,
+    DetectionLocation: document.getElementById('fuViewLocation').value,
+    AffectedQty:    document.getElementById('fuViewAffectedQty').value,
+    SamplingQty:    document.getElementById('fuViewSampleQty').value,
+    RejectQtyDeclated: document.getElementById('fuViewNcQty').value,
+    NCMode:         document.getElementById('fuViewNcMode').value,
+    NCCatagory:     document.getElementById('fuViewNcCategory').value,
+    DetailNC:       document.getElementById('fuViewDetailNC').value,
+    HowItDetected:  document.getElementById('fuViewHowDetected').value,
+    InterimAction:  document.getElementById('fuViewInterimAct').value,
+    SortingRepairReworkRequired: document.getElementById('fuViewSortingRequired').value,
+    SortingReworkPIC: document.getElementById('fuViewSortingPIC').value,
+  };
+  
+  const payload = {
+    action: 'updateNCR',
+    idNo: currentFollowUpId,
+    step: 'D2',
+    data: data,
+    updatedBy: currentUser?.name || 'Guest'
+  };
+  
+  try {
+    showLoadingOverlay('Updating D2...');
+    await fetch(API_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    hideLoadingOverlay();
+    alert('✅ D2 Updated!');
+    // Kembalikan ke view mode
+    document.getElementById('toggleD2Edit').checked = false;
+    toggleD2Mode(false);
+  } catch(err) {
+    hideLoadingOverlay();
+    alert('❌ Gagal update: ' + err.message);
+  }
+}
+
   
 </script>
 </body>
