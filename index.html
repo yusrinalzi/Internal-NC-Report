@@ -462,44 +462,57 @@
               </select>
             </div>
 
-            <!-- D1-D8 TEAM PIC CONFIGURATION -->
-            <div class="col-12 mt-4 border-top pt-3">
-              <h6 class="fw-bold text-dark mb-3">🎯 Define Team Assignment (D1 - D8 PIC)</h6>
-              <div class="row g-2 text-center row-cols-2 row-cols-sm-4 row-cols-md-8">
-                <div class="col">
-                  <label class="small fw-bold">D1</label>
-                  <input type="text" class="form-control form-control-sm" value="Yusrizal" readonly>
-                </div>
-                <div class="col">
-                  <label class="small fw-bold">D2</label>
-                  <input type="text" class="form-control form-control-sm" value="Yusrizal" readonly>
-                </div>
-                <div class="col">
-                  <label class="small fw-bold">D3 (Interim)</label>
-                  <select id="picD3" class="form-select form-select-sm auditor-list"></select>
-                </div>
-                <div class="col">
-                  <label class="small fw-bold">D4 (RootC)</label>
-                  <select id="picD4" class="form-select form-select-sm auditor-list"></select>
-                </div>
-                <div class="col">
-                  <label class="small fw-bold">D5 (CA)</label>
-                  <select id="picD5" class="form-select form-select-sm auditor-list"></select>
-                </div>
-                <div class="col">
-                  <label class="small fw-bold">D6 (Valid)</label>
-                  <select id="picD6" class="form-select form-select-sm auditor-list"></select>
-                </div>
-                <div class="col">
-                  <label class="small fw-bold">D7 (PA)</label>
-                  <select id="picD7" class="form-select form-select-sm auditor-list"></select>
-                </div>
-                <div class="col">
-                  <label class="small fw-bold">D8 (Approve)</label>
-                  <select id="picD8" class="form-select form-select-sm auditor-list"></select>
-                </div>
-              </div>
-            </div>
+            
+         <!-- D1-D8 TEAM PIC CONFIGURATION -->
+<div class="col-12 mt-4 border-top pt-3">
+  <h6 class="fw-bold text-dark mb-3">🎯 Define Team Assignment (D1 - D8 PIC)</h6>
+  
+  <!-- INFO USER LOGIN - BARU -->
+  <div id="userPICInfo" class="alert alert-info py-1 mb-2 small" style="display:none;">
+    👤 Login sebagai: <strong id="loggedInUsernameDisplay">-</strong>
+    → Bertanggung jawab sebagai <strong id="userPICRole">-</strong>
+  </div>
+
+  <div class="row g-2 text-center row-cols-2 row-cols-sm-4 row-cols-md-8">
+    <!-- D1 - BARU (otomatis dari user login) -->
+    <div class="col">
+      <label class="small fw-bold">D1</label>
+      <input type="text" id="picD1" class="form-control form-control-sm" readonly>
+    </div>
+    
+    <!-- D2 - BARU (otomatis dari user login) -->
+    <div class="col">
+      <label class="small fw-bold">D2</label>
+      <input type="text" id="picD2" class="form-control form-control-sm" readonly>
+    </div>
+    
+    <!-- D3-D8 tetap sama (pake select dropdown) -->
+    <div class="col">
+      <label class="small fw-bold">D3 (Interim)</label>
+      <select id="picD3" class="form-select form-select-sm auditor-list"></select>
+    </div>
+    <div class="col">
+      <label class="small fw-bold">D4 (RootC)</label>
+      <select id="picD4" class="form-select form-select-sm auditor-list"></select>
+    </div>
+    <div class="col">
+      <label class="small fw-bold">D5 (CA)</label>
+      <select id="picD5" class="form-select form-select-sm auditor-list"></select>
+    </div>
+    <div class="col">
+      <label class="small fw-bold">D6 (Valid)</label>
+      <select id="picD6" class="form-select form-select-sm auditor-list"></select>
+    </div>
+    <div class="col">
+      <label class="small fw-bold">D7 (PA)</label>
+      <select id="picD7" class="form-select form-select-sm auditor-list"></select>
+    </div>
+    <div class="col">
+      <label class="small fw-bold">D8 (Approve)</label>
+      <select id="picD8" class="form-select form-select-sm auditor-list"></select>
+    </div>
+  </div>
+</div>
             <div class="col-12 text-center mt-4">
               <button type="button" class="btn btn-secondary px-4 me-2" onclick="showDashboard()">Cancel</button>
               <button type="submit" class="btn btn-custom px-4"><i class="fas fa-paper-plane"></i> Submit Report</button>
@@ -799,7 +812,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbw1jo3a_UVTWqLWiFSZvkM5hYhQRN-FypBBCVqpDag9tyQJWboPLdKb-XxMRpep8eHP/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbybnVziDd0YkydI6FzKPApnKVc0_G81qH5WBr25xhG3ym10uh65bODsArNHkmbQeqFd/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
@@ -924,9 +937,17 @@ function openCreateForm() {
       issuedByField.value = 'SiAnu';
     }
   }
+  
+  // TAMBAHKAN INI: Re-assign D1 & D2 setiap kali form dibuka
+  if (picDataMap && Object.keys(picDataMap).length > 0) {
+    assignCurrentUserPIC();
+  } else {
+    loadPICData();
+  }
+  
   generateIDNo();
 }
-
+  
 function openFollowUp() {
   document.getElementById('sectionDashboard').style.display = 'none';
   document.getElementById('ncrFormPage').style.display = 'none';
@@ -980,6 +1001,7 @@ function openFollowUpFromRow(idNo) {
 async function loadAllData() {
   await loadDashboardData();
   await loadAuditors();
+  await loadPICData(); // <-- TAMBAHKAN INI
 }
 
 async function loadDashboardData() {
@@ -1148,6 +1170,9 @@ async function submitD1D2(e) {
       'SortingReworkPIC': document.getElementById('picD3').value,
       'Period': new Date().toLocaleDateString('en-GB'),
       'IssuedBy': document.getElementById('issuedBy').value,
+      // TAMBAHKAN D1 & D2
+      'D1_PIC': document.getElementById('picD1').value,
+      'D2_PIC': document.getElementById('picD2').value,
       'InterimActBy': document.getElementById('picD3').value,
       'RC-AnalysisBy': document.getElementById('picD4').value,
       'CABy': document.getElementById('picD5').value,
@@ -1173,6 +1198,100 @@ async function submitD1D2(e) {
     console.error("Submission error:", err);
     alert("❌ Submission failed: " + err.message);
   }
+}
+
+  // ==========================================
+// FUNGSI BARU: LOAD PIC DATA (D1-D8)
+// ==========================================
+let picDataMap = {};
+
+async function loadPICData() {
+  try {
+    const response = await fetch(`${API_URL}?action=getPICData`);
+    const res = await response.json();
+    
+    if (res.status === 'ok' && res.data) {
+      picDataMap = res.data;
+      console.log('✅ PIC Data loaded:', picDataMap);
+      assignCurrentUserPIC();
+    } else {
+      console.warn('⚠️ Gagal load PIC data, menggunakan fallback');
+      setFallbackPIC();
+    }
+  } catch(e) {
+    console.error('❌ Error loading PIC data:', e);
+    setFallbackPIC();
+  }
+}
+
+function assignCurrentUserPIC() {
+  const username = currentUser ? currentUser.name.toLowerCase().trim() : 
+                   (localStorage.getItem('lastUser') || 'guest').toLowerCase().trim();
+  
+  // Update display
+  document.getElementById('loggedInUsernameDisplay').textContent = username;
+  
+  let foundRole = null;
+  let foundFullname = null;
+  
+  // Cari user di PIC Data
+  for (const [dKey, pic] of Object.entries(picDataMap)) {
+    if (pic.username.toLowerCase() === username) {
+      foundRole = dKey;
+      foundFullname = pic.fullname;
+      break;
+    }
+  }
+  
+  // ==========================================
+  // PERUBAHAN: D1 dan D2 SAMA (siapa yang login)
+  // ==========================================
+  if (foundRole) {
+    // Jika user terdaftar sebagai PIC (D1-D8)
+    // D1 dan D2 diisi dengan nama user yang login
+    document.getElementById('picD1').value = foundFullname;
+    document.getElementById('picD2').value = foundFullname;
+  } else {
+    // Jika user tidak terdaftar sebagai PIC
+    // Gunakan nama user login untuk D1 dan D2
+    const loginName = currentUser ? currentUser.name : (localStorage.getItem('lastUser') || 'Guest');
+    document.getElementById('picD1').value = loginName;
+    document.getElementById('picD2').value = loginName;
+  }
+  
+  // Tampilkan info user
+  const infoEl = document.getElementById('userPICInfo');
+  infoEl.style.display = 'block';
+  
+  if (foundRole) {
+    document.getElementById('userPICRole').textContent = `${foundRole} (${foundFullname}) - D1 & D2`;
+    infoEl.className = 'alert alert-success py-1 mb-2 small';
+  } else {
+    document.getElementById('userPICRole').textContent = `⚠️ Login sebagai: ${username} (D1 & D2 diisi manual)`;
+    infoEl.className = 'alert alert-warning py-1 mb-2 small';
+  }
+}
+
+function setFallbackPIC() {
+  const username = currentUser ? currentUser.name : (localStorage.getItem('lastUser') || 'Guest');
+  
+  // Coba cari di picDataMap dulu
+  if (picDataMap && Object.keys(picDataMap).length > 0) {
+    assignCurrentUserPIC();
+    return;
+  }
+  
+  // ==========================================
+  // PERUBAHAN: D1 dan D2 SAMA (username login)
+  // ==========================================
+  document.getElementById('picD1').value = username;
+  document.getElementById('picD2').value = username;
+  
+  const infoEl = document.getElementById('userPICInfo');
+  infoEl.style.display = 'block';
+  document.getElementById('loggedInUsernameDisplay').textContent = username;
+  document.getElementById('userPICRole').textContent = '⚠️ Menggunakan data lokal (fallback) - D1 & D2 = ' + username;
+  infoEl.className = 'alert alert-warning py-1 mb-2 small';
 }
 
 // ==========================================
