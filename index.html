@@ -215,7 +215,7 @@
       .navbar-nav .btn { font-size: 12px; padding: 4px 8px; }
       .followup-section { padding: 16px; }
     }
-/* ========== SPINNER / LOADING ========== */
+/* ========== SPINNER / ING ========== */
 /* ========== SPINNER INLINE ========== */
 .spinner-container {
   display: none;
@@ -228,7 +228,7 @@
   display: inline-flex;
 }
 
-.btn-loading {
+.btn-ing {
   opacity: 0.7;
   pointer-events: none;
   cursor: not-allowed;
@@ -239,7 +239,7 @@
   cursor: not-allowed;
 }
 
-/* ========== FULL PAGE LOADING OVERLAY ========== */
+/* ========== FULL PAGE ING OVERLAY ========== */
 .spinner-overlay {
   display: none;
   position: fixed;
@@ -1086,7 +1086,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbyZY9FacLtucLWbDJOmyYSydvkrbc5byUblEYd9XHCI-EEBRwqC_esAJAM0JmJQQ2sa/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxFDEmGHO3TaAQmoGfoiNai8Wncv2ZaSsHcvbNlvJuxUChUx1OO4J1dNYhDebIg_o0P/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
@@ -1472,8 +1472,7 @@ async function submitD1D2(e) {
       'Period': new Date().toLocaleDateString('en-GB'),
       'IssuedBy': document.getElementById('issuedBy').value,
       // TAMBAHKAN D1 & D2
-      'D1_PIC': document.getElementById('picD1').value,
-      'D2_PIC': document.getElementById('picD2').value,
+      'IssuedBy': document.getElementById('picD1').value,
       'InterimActBy': document.getElementById('picD3').value,
       'RC-AnalysisBy': document.getElementById('picD4').value,
       'CABy': document.getElementById('picD5').value,
