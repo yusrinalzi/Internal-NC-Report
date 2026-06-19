@@ -823,7 +823,7 @@
         </div>
         <div class="col-md-4">
           <label class="form-label">Qty Ok after sort</label>
-          <input type="number" id="fuQtyOk" class="form-control" value="0">
+          <input type="number" id="fuTotalOK" class="form-control" value="0">
         </div>
         <div class="col-md-4">
           <label class="form-label">Qty Reject Final</label>
@@ -1062,7 +1062,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbydQKXPJQUxBdmgsDVBirNmK9BgLzYfUuQAL6vSF4LP5ltVbrNte2qH1k3DdeSH-jbl/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxlrQ24kaf0dA4r60OB4bQZRYgzx3mvLYVQyKjAYZOPgZ4sMsjGeCN741C2wdvx5sL8/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
@@ -1076,7 +1076,7 @@ const columnMapping = {
   'fuInterimActBy': 'InterimActBy',  
   'fuInterimDate': 'InterimActionDate',
   'fuInterimRemarks': 'InterimRemarks',
-  'fuQtyOk': 'QtyOkAfterSort',
+  'fuTotalOK': 'TotalOK',
   'fuQtyReject': 'FinalRejectQty',
   'fuManHours': 'TotalManHour',
   'fuNoticeD3': 'NoticeD3'
@@ -1512,13 +1512,12 @@ function assignCurrentUserPIC() {
   const username = currentUser ? currentUser.name.toLowerCase().trim() : 
                    (localStorage.getItem('lastUser') || 'guest').toLowerCase().trim();
   
-  // Update display
-  document.getElementById('loggedInUsernameDisplay').textContent = username;
+  const loggedInDisplay = document.getElementById('loggedInUsernameDisplay');
+  if (loggedInDisplay) loggedInDisplay.textContent = username;
   
   let foundRole = null;
   let foundFullname = null;
   
-  // Cari user di PIC Data
   for (const [dKey, pic] of Object.entries(picDataMap)) {
     if (pic.username.toLowerCase() === username) {
       foundRole = dKey;
@@ -1527,35 +1526,39 @@ function assignCurrentUserPIC() {
     }
   }
   
-  // ==========================================
-  // PERUBAHAN: D1 dan D2 SAMA (siapa yang login)
-  // ==========================================
+  const d1El = document.getElementById('picD1');
+  const d2El = document.getElementById('picD2');
+  
   if (foundRole) {
-    // Jika user terdaftar sebagai PIC (D1-D8)
-    // D1 dan D2 diisi dengan nama user yang login
-    document.getElementById('picD1').value = foundFullname;
-    document.getElementById('picD2').value = foundFullname;
+    if (d1El) d1El.value = foundFullname;
+    if (d2El) d2El.value = foundFullname;
   } else {
-    // Jika user tidak terdaftar sebagai PIC
-    // Gunakan nama user login untuk D1 dan D2
     const loginName = currentUser ? currentUser.name : (localStorage.getItem('lastUser') || 'Guest');
-    document.getElementById('picD1').value = loginName;
-    document.getElementById('picD2').value = loginName;
+    if (d1El) d1El.value = loginName;
+    if (d2El) d2El.value = loginName;
   }
   
-  // Tampilkan info user
   const infoEl = document.getElementById('userPICInfo');
-  infoEl.style.display = 'block';
+  const userRoleEl = document.getElementById('userPICRole');
   
-  if (foundRole) {
-    document.getElementById('userPICRole').textContent = `${foundRole} (${foundFullname}) - D1 & D2`;
-    infoEl.className = 'alert alert-success py-1 mb-2 small';
-  } else {
-    document.getElementById('userPICRole').textContent = `⚠️ Login sebagai: ${username} (D1 & D2 diisi manual)`;
-    infoEl.className = 'alert alert-warning py-1 mb-2 small';
+  if (infoEl) {
+    infoEl.style.display = 'block';
+  }
+  
+  if (userRoleEl) {
+    if (foundRole) {
+      userRoleEl.textContent = `${foundRole} (${foundFullname}) - D1 & D2`;
+    } else {
+      userRoleEl.textContent = `⚠️ Login sebagai: ${username} (D1 & D2 diisi manual)`;
+    }
+  }
+  
+  if (infoEl) {
+    infoEl.className = foundRole ? 'alert alert-success py-1 mb-2 small' : 'alert alert-warning py-1 mb-2 small';
   }
 }
-
+  
+ 
 function setFallbackPIC() {
   const username = currentUser ? currentUser.name : (localStorage.getItem('lastUser') || 'Guest');
   
@@ -1669,7 +1672,7 @@ async function submitFollowUp(step) {
 // ==========================================
 // Toggle D3 Edit/View
 function toggleD3Mode(isEdit) {
-  const fields = ['fuInterimDate','fuInterimRemarks','fuQtyOk','fuQtyReject','fuManHours'];
+  const fields = ['fuInterimDate','fuInterimRemarks','fuTotalOK','fuQtyReject','fuManHours'];
   fields.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.readOnly = !isEdit;
@@ -1857,17 +1860,11 @@ function assignFollowUpPIC() {
   const value = issuedBy || currentUser?.name || (localStorage.getItem('lastUser') || 'Guest');
   
   // Isi D1 dan D2
-  document.getElementById('fuPicD1').value = value;
-  document.getElementById('fuPicD2').value = value;
+  const d1El = document.getElementById('fuPicD1');
+  const d2El = document.getElementById('fuPicD2');
   
-  // Tampilkan info user
-  const infoEl = document.getElementById('followUpPICInfo');
-  infoEl.style.display = 'block';
-  
-  const username = currentUser ? currentUser.name : (localStorage.getItem('lastUser') || 'Guest');
-  document.getElementById('followUpLoggedInUser').textContent = username;
-  document.getElementById('followUpUserRole').textContent = `D1: ${value} | D2: ${value} (dari IssuedBy)`;
-  infoEl.className = 'alert alert-success py-1 mb-2 small';
+  if (d1El) d1El.value = value;
+  if (d2El) d2El.value = value;
 }
 
   // ==========================================
