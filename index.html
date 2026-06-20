@@ -452,7 +452,7 @@
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label fw-bold">NCR Type</label>
-              <select id="ncrType" class="form-select input-green" required>
+              <select id="ncrType" class="form-select input-green"  onchange="generateIDNo()"  required>
                 <option value="PDR">PDR</option>
                 <option value="NCMR">NCMR</option>
                 <option value="8D">8D</option>
@@ -460,7 +460,7 @@
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold">Product Category</label>
-              <select id="prodCategory" class="form-select input-green" onchange="generateIDNo()" required>
+              <select id="prodCategory" class="form-select input-green" required>
                 <option value="PWC">PWC</option>
                 <option value="ICA">ICA</option>
                 <option value="EV">EV</option>
