@@ -953,7 +953,7 @@
         </div>
         <div class="col-md-6">
           <label class="form-label">Corrective Action Date</label>
-          <input type="date" id="fuCAdate" class="form-control">
+          <input type="date" id="fuCADate" class="form-control">
         </div>
 
         
@@ -1835,7 +1835,7 @@ function toggleD3Mode(isEdit) {
 }
 
 function toggleD5Mode(isEdit) {
-  const fields = ['fuCAOcc','fuCASkip','fuCAdate'];
+  const fields = ['fuCAOcc','fuCASkip','fuCADate'];
   fields.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.readOnly = !isEdit;
@@ -2220,7 +2220,8 @@ function loadNCRViewData(ncr) {
   // ===== D3: INTERIM ACTION =====
   const d3DateEl = document.getElementById('fuInterimDate');
   if (d3DateEl) {
-    d3DateEl.value = ncr['InterimActionDate'] || new Date().toISOString().split('T')[0];
+    d3DateEl.value = formatDateForInput(ncr['InterimActionDate']) 
+                   || new Date().toISOString().split('T')[0];
   }
   const d3Remarks = document.getElementById('fuInterimRemarks');
   if (d3Remarks) d3Remarks.value = ncr['InterimRemarks'] || '';
@@ -2245,7 +2246,7 @@ function loadNCRViewData(ncr) {
   if (fuRCFactor) fuRCFactor.value = ncr['5M1E-Factor'] || '';
   
   const fuRCAdate = document.getElementById('fuRCAdate');
-  if (fuRCAdate) fuRCAdate.value = ncr['RC-AnalysisDate'] || '';
+  if (fuRCAdate) fuRCAdate.value = formatDateForInput(ncr['RC-AnalysisDate']);
 
   // ===== D5: CORRECTIVE ACTION =====
   const fuCAOcc = document.getElementById('fuCAOcc');
@@ -2254,8 +2255,8 @@ function loadNCRViewData(ncr) {
   const fuCASkip = document.getElementById('fuCASkip');
   if (fuCASkip) fuCASkip.value = ncr['CorrectiveActSkip'] || '';
   
-  const fuCAdate = document.getElementById('fuCAdate');
-  if (fuCAdate) fuCAdate.value = ncr['CADate'] || '';
+  const fuCADate = document.getElementById('fuCADate');
+  if (fuCADate) fuCADate.value = formatDateForInput(ncr['CADate']);
 
   // ===== D6: VERIFY CORRECTIVE ACTION =====
   const fuValOcc = document.getElementById('fuValOcc');
@@ -2265,7 +2266,7 @@ function loadNCRViewData(ncr) {
   if (fuValSkip) fuValSkip.value = ncr['ValSkip'] || '';
   
   const fuValDate = document.getElementById('fuValDate');
-  if (fuValDate) fuValDate.value = ncr['ValidationCAPADate'] || '';
+  if (fuValDate) fuValDate.value = formatDateForInput(ncr['ValidationCAPADate']);
   
   const fuValRslt = document.getElementById('fuValRslt');
   if (fuValRslt) fuValRslt.value = ncr['ValidationResult'] || '';
@@ -2278,7 +2279,7 @@ function loadNCRViewData(ncr) {
   if (fuPASkip) fuPASkip.value = ncr['PASkip'] || '';
   
   const fuPADate = document.getElementById('fuPADate');
-  if (fuPADate) fuPADate.value = ncr['PADate'] || '';
+  if (fuPADate) fuPADate.value = formatDateForInput(ncr['PADate']);
 
   // ===== D8: CLOSURE & VALIDATION =====
   const fuCongMsg = document.getElementById('fuCongMsg');
@@ -2288,7 +2289,7 @@ function loadNCRViewData(ncr) {
   if (fuStatusNC) fuStatusNC.value = ncr['StatusNC'] || 'Open';
   
   const fuCloseDate = document.getElementById('fuCloseDate');
-  if (fuCloseDate) fuCloseDate.value = formatDateDisplay(ncr['CloseDate']) || '-';
+  if (fuCloseDate) fuCloseDate.value = formatDateForInput(ncr['CloseDate']);
 
   // ===== DROPDOWN D3-D8 (pakai setTimeout) =====
   setTimeout(() => {
@@ -2605,7 +2606,30 @@ async function submitD2Update() {
     alert('❌ Gagal update: ' + err.message);
   }
 }
-
+  
+function formatDateForInput(dateStr) {
+  if (!dateStr) return '';
+  try {
+    // Coba parse berbagai format
+    let date;
+    if (typeof dateStr === 'string' && dateStr.includes('/')) {
+      // Format DD/MM/YYYY dari GS
+      const parts = dateStr.split('/');
+      if (parts.length === 3) {
+        date = new Date(`${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`);
+      }
+    } else {
+      date = new Date(dateStr);
+    }
+    if (date && !isNaN(date.getTime())) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth()+1).padStart(2,'0');
+      const d = String(date.getDate()).padStart(2,'0');
+      return `${y}-${m}-${d}`;
+    }
+  } catch(e) {}
+  return '';
+}
   
 </script>
 </body>
