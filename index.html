@@ -631,13 +631,13 @@
     <h5><span class="badge-d" style="background:var(--primary);">D1</span> Define Team Assignment (D1 - D8 PIC)</h5>
     
     <div class="row g-2 text-center row-cols-2 row-cols-sm-4 row-cols-md-8 mb-3">
-      <!-- D1 - Otomatis dari user login -->
+      <!-- D1 - Otomatis-->
       <div class="col">
         <label class="small fw-bold">D1</label>
         <input type="text" id="fuPicD1" class="form-control form-control-sm" readonly>
       </div>
       
-      <!-- D2 - Otomatis dari user login -->
+      <!-- D2 - Otomatis-->
       <div class="col">
         <label class="small fw-bold">D2</label>
         <input type="text" id="fuPicD2" class="form-control form-control-sm" readonly>
@@ -646,31 +646,35 @@
       <!-- D3-D8 dropdown -->
       <div class="col">
         <label class="small fw-bold">D3 (Interim act by)</label>
-        <!-- Di D1 section, dropdown D3 -->
-      <select id="fuPicD3" class="form-select form-select-sm auditor-list" 
-        onchange="document.getElementById('fuInterimActBy').value = this.value">
-      </select>
+        <select id="fuPicD3" class="form-select form-select-sm auditor-list" 
+        onchange="document.getElementById('fuInterimActBy').value = this.value"></select>
       </div>
+      
       <div class="col">
         <label class="small fw-bold">D4 (RCA by)</label>
         <select id="fuPicD4" class="form-select form-select-sm auditor-list"
-          onchange="document.getElementById('fuPicD4').value = this.value"> ></select>
+          onchange="document.getElementById('fuPicD4').value = this.value"></select>
       </div>
+      
       <div class="col">
         <label class="small fw-bold">D5 (CA by)</label>
-        <select id="fuPicD5" class="form-select form-select-sm auditor-list"></select>
+        <select id="fuPicD5" class="form-select form-select-sm auditor-list" 
+          onchange="document.getElementById('fuPicD5').value = this.value"></select>
       </div>
       <div class="col">
         <label class="small fw-bold">D6 (Valid CA by)</label>
-        <select id="fuPicD6" class="form-select form-select-sm auditor-list"></select>
+        <select id="fuPicD6" class="form-select form-select-sm auditor-list" 
+          onchange="document.getElementById('fuPicD6').value = this.value"></select>
       </div>
       <div class="col">
         <label class="small fw-bold">D7 (PA by)</label>
-        <select id="fuPicD7" class="form-select form-select-sm auditor-list"></select>
+        <select id="fuPicD7" class="form-select form-select-sm auditor-list" 
+          onchange="document.getElementById('fuPicD7').value = this.value"></select>
       </div>
       <div class="col">
         <label class="small fw-bold">D8 (Approved by)</label>
-        <select id="fuPicD8" class="form-select form-select-sm auditor-list"></select>
+        <select id="fuPicD8" class="form-select form-select-sm auditor-list"
+          onchange="document.getElementById('fuPicD7').value = this.value"></select>
       </div>
     </div>
 
@@ -1507,8 +1511,12 @@ async function loadAuditors() {
     
     if (res.status === 'ok' && res.rows && res.rows.length > 0) {
       auditorList = res.rows;
-      const dropdowns = ['picD3', 'picD4', 'picD5', 'picD6', 'picD7', 'picD8', 
-                         'fuPicD3', 'fuPicD4', 'fuPicD5', 'fuPicD6', 'fuPicD7', 'fuPicD8'];
+      // Tambahkan ID select di D1 section untuk D3-D8
+      const dropdowns = [
+        'picD3', 'picD4', 'picD5', 'picD6', 'picD7', 'picD8',           // Create NCR
+        'fuPicD3', 'fuPicD4Select', 'fuPicD5Select', 'fuPicD6Select',   // Follow-up D1 (D3-D6)
+        'fuPicD7Select', 'fuPicD8Select'                                // Follow-up D1 (D7-D8)
+      ];
       
       dropdowns.forEach(dropdownId => {
         const select = document.getElementById(dropdownId);
