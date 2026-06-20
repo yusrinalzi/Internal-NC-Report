@@ -2260,10 +2260,10 @@ function loadNCRViewData(ncr) {
 
   // ===== D6: VERIFY CORRECTIVE ACTION =====
   const fuValOcc = document.getElementById('fuValOcc');
-  if (fuValOcc) fuValOcc.value = ncr['ValOcc'] || '';
+  if (fuValOcc) fuValOcc.value = ncr['ValidationCAOcc'] || '';
   
   const fuValSkip = document.getElementById('fuValSkip');
-  if (fuValSkip) fuValSkip.value = ncr['ValSkip'] || '';
+  if (fuValSkip) fuValSkip.value = ncr['ValidationCASkip'] || '';
   
   const fuValDate = document.getElementById('fuValDate');
   if (fuValDate) fuValDate.value = formatDateForInput(ncr['ValidateCAPADate']);
@@ -2488,13 +2488,13 @@ setDropdown('fuPicD8Select', ncr['ApprovedBy']     || '');
     
     // ===== D6: Verify Corrective Action =====
     const ValOcc = document.getElementById('fuValOcc');
-    if (ValOcc && ncr['ValOcc']) {
-      ValOcc.value = ncr['ValOcc'];
+    if (ValOcc && ncr['ValidationCAOcc']) {
+      ValOcc.value = ncr['ValidationCAOcc'];
     }
     
     const ValSkip = document.getElementById('fuValSkip');
-    if (ValSkip && ncr['ValSkip']) {
-      ValSkip.value = ncr['ValSkip'];
+    if (ValSkip && ncr['ValidationCASkip']) {
+      ValSkip.value = ncr['ValidationCASkip'];
     }
     
     // ===== D7: Preventive Action =====
