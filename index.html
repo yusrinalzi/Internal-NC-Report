@@ -215,7 +215,8 @@
       .navbar-nav .btn { font-size: 12px; padding: 4px 8px; }
       .followup-section { padding: 16px; }
     }
-/* ========== SPINNER / ING ========== */
+
+    
 /* ========== SPINNER INLINE ========== */
 .spinner-container {
   display: none;
@@ -692,7 +693,7 @@
   <div class="followup-section" style="border-left-color: #6c757d;">
     <h5>
   <span class="badge-d" style="background:#6c757d;">D2</span> 
-  NON-CONFORMITY REPORT
+  PROBLEM DESCRIPTION
   <div class="ms-auto d-flex align-items-center gap-2">
     <div class="form-check form-switch mb-0">
       <input class="form-check-input" type="checkbox" id="toggleD2Edit" 
@@ -869,7 +870,7 @@
   <h5><span class="badge-d" style="background:#9c27b0;">D4</span> Identify, Analysis and Verify The Root Cause</h5>
   
   <div class="row g-3">
-    <!-- Row 1: RC analysis by & RC-Analysis Date -->
+    <!-- RC analysis by & RC-Analysis Date -->
     <div class="col-md-6">
       <label class="form-label">RC analysis by</label>
       <input type="text" id="fuPicD4" class="form-control" readonly style="background:#e8f0fe;">
@@ -879,19 +880,19 @@
       <input type="date" id="fuRCAdate" class="form-control">
     </div>
     
-    <!-- Row 2: Root Cause Occurrence -->
+    <!-- Root Cause Occurrence -->
     <div class="col-12">
       <label class="form-label">A. Root-Cause (Occurrence)</label>
       <textarea id="fuRootCauseOcc" class="form-control highlight-area" rows="2" placeholder="Describe occurrence root cause..."></textarea>
     </div>
     
-    <!-- Row 3: Root Cause Skip -->
+    <!-- Root Cause Skip -->
     <div class="col-12">
       <label class="form-label">B. Root-Cause (Skip)</label>
       <textarea id="fuRootCauseSkip" class="form-control highlight-area" rows="2" placeholder="Describe skip root cause..."></textarea>
     </div>
     
-    <!-- Row 4: RC Factor (5M+E) - SINGLE SELECTION -->
+    <!-- RC Factor (5M+E) - SINGLE SELECTION -->
     <div class="col-12">
       <label class="form-label">RC Factor (5M+E)</label>
       <select id="fuRCFactor" class="form-select highlight-area">
@@ -905,7 +906,7 @@
       </select>
     </div>
     
-    <!-- Row 5: Tombol Notice & Submit -->
+    <!-- Tombol Notice & Submit -->
     <div class="col-12 mt-3">
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex gap-3 align-items-center">
@@ -931,8 +932,8 @@
         </button>
       </div>
     </div>
-  </div> <!-- end row -->
-</div> <!-- end followup-section -->
+  </div> 
+</div> 
  
 
     <!-- ===== D5 - Corrective Action ===== -->
@@ -967,7 +968,7 @@
         <div class="d-flex gap-3 align-items-center">
           <!-- Toggle Edit/View D5 -->
           <div class="form-check form-switch mb-0">
-            <input class="form-check-input" type="checkbox" id="toggleD4Edit" onchange="toggleD5Mode(this.checked)">
+            <input class="form-check-input" type="checkbox" id="toggleD5Edit" onchange="toggleD5Mode(this.checked)">
             <label class="form-check-label small" for="toggleD5Edit" id="labelD5Mode">VIEW ONLY</label>
           </div>
           <!-- Notice PIC Button -->
@@ -992,8 +993,7 @@
 
 
     <!-- ===== D6 - Verify Corrective Action ===== -->
-    
-  <div class="followup-section" style="border-left-color: #4caf50;">
+      <div class="followup-section" style="border-left-color: #4caf50;">
       <h5><span class="badge-d" style="background:#4caf50;">D6</span> Verify Corrective Action</h5>
       <div class="row g-3">
        <div class="col-md-6">
@@ -1018,30 +1018,31 @@
       <label class="form-label">Verification Result</label>
       <select id="fuVerRslt" class="form-select highlight-area">
         <option value="">-- Select Result --</option>
-        <option value="Accapted">Accapted</option>
+        <option value="Accapted">Accepted</option>
         <option value="Rejected">Rejected</option>
         </select>
     </div>
+        
 <!-- Tombol Notice & Submit -->
     <div class="col-12 mt-3">
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex gap-3 align-items-center">
-          <!-- Toggle Edit/View D5 -->
+          <!-- Toggle Edit/View D6 -->
           <div class="form-check form-switch mb-0">
-            <input class="form-check-input" type="checkbox" id="toggleD4Edit" onchange="toggleD5Mode(this.checked)">
-            <label class="form-check-label small" for="toggleD5Edit" id="labelD5Mode">VIEW ONLY</label>
+            <input class="form-check-input" type="checkbox" id="toggleD6Edit" onchange="toggleD6Mode(this.checked)">
+            <label class="form-check-label small" for="toggleD6Edit" id="labelD6Mode">VIEW ONLY</label>
           </div>
           <!-- Notice PIC Button -->
-          <button class="btn btn-outline-primary btn-sm" onclick="noticePICD5()">
-            <i class="fas fa-envelope"></i> Notice PIC D5
+          <button class="btn btn-outline-primary btn-sm" onclick="noticePICD6()">
+            <i class="fas fa-envelope"></i> Notice PIC D6
           </button>
         </div>
-        <!-- Submit D5 dengan Spinner -->
-        <button class="btn-submit-d" onclick="submitD5()" id="btnSubmitD5">
-          <span id="btnSubmitD5Text">
-            <i class="fas fa-check-circle"></i> Submit D5
+        <!-- Submit D6 dengan Spinner -->
+        <button class="btn-submit-d" onclick="submitD6()" id="btnSubmitD6">
+          <span id="btnSubmitD6Text">
+            <i class="fas fa-check-circle"></i> Submit D6
           </span>
-          <span id="btnSubmitD5Spinner" class="spinner-container">
+          <span id="btnSubmitD6Spinner" class="spinner-container">
             <span class="spinner-border spinner-border-sm text-light"></span>
             <span class="text-light ms-1">Saving...</span>
           </span>
@@ -1138,7 +1139,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbxFDEmGHO3TaAQmoGfoiNai8Wncv2ZaSsHcvbNlvJuxUChUx1OO4J1dNYhDebIg_o0P/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzQ0FZhqKKvxmfWWj_gRhpjosORt074PisFTQ-kMgbvnbI35kZWYcljeW_eVyYuToiX/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
