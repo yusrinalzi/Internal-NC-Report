@@ -652,28 +652,29 @@
       
       <div class="col">
         <label class="small fw-bold">D4 (RCA by)</label>
-        <select id="fuPicD4" class="form-select form-select-sm auditor-list"
-          onchange="document.getElementById('fuPicD4').value = this.value"></select>
+       <select id="fuPicD4Select" class="form-select form-select-sm auditor-list"
+  onchange="document.getElementById('fuPicD4').value = this.value">
+</select>
       </div>
       
       <div class="col">
         <label class="small fw-bold">D5 (CA by)</label>
-        <select id="fuPicD5" class="form-select form-select-sm auditor-list" 
+        <select id="fuPicD5Select" class="form-select form-select-sm auditor-list" 
           onchange="document.getElementById('fuPicD5').value = this.value"></select>
       </div>
       <div class="col">
         <label class="small fw-bold">D6 (Valid CA by)</label>
-        <select id="fuPicD6" class="form-select form-select-sm auditor-list" 
+        <select id="fuPicD6Select" class="form-select form-select-sm auditor-list" 
           onchange="document.getElementById('fuPicD6').value = this.value"></select>
       </div>
       <div class="col">
         <label class="small fw-bold">D7 (PA by)</label>
-        <select id="fuPicD7" class="form-select form-select-sm auditor-list" 
+        <select id="fuPicD7Select" class="form-select form-select-sm auditor-list" 
           onchange="document.getElementById('fuPicD7').value = this.value"></select>
       </div>
       <div class="col">
         <label class="small fw-bold">D8 (Approved by)</label>
-        <select id="fuPicD8" class="form-select form-select-sm auditor-list"
+        <select id="fuPicD8Select" class="form-select form-select-sm auditor-list"
           onchange="document.getElementById('fuPicD7').value = this.value"></select>
       </div>
     </div>
@@ -1115,9 +1116,7 @@
         
 
     <!-- ===== D8 - Closure & Validation ===== -->
-   
-  
-  <div class="followup-section" style="border-left-color: #e91e63;">
+    <div class="followup-section" style="border-left-color: #e91e63;">
       <h5><span class="badge-d" style="background:#e91e63;">D8</span> Closure & Validation</h5>
       <div class="row g-3">
         <div class="col-12">
@@ -1136,8 +1135,7 @@
            
         <div class="col-md-6">
           <label class="form-label">Approve Date</label>
-          <input type="text" id="fuCloseDate" class="form-control" readonly 
-            style="background:#e8f0fe;">
+          <input type="date" id="fuCloseDate" class="form-control">
         </div>  
            
         <div class="col-md-9">
@@ -1366,14 +1364,21 @@ async function openFollowUpFromRow(idNo) {
     // ✅ TAMBAHKAN DI SINI - ganti seluruh blok setTimeout lama
     prefillD3toD8(ncr);
 
-    // ✅ TAMBAHKAN INI - reset D3 ke VIEW ONLY
-    document.getElementById('toggleD3Edit').checked = false;
-    toggleD3Mode(false);
+ // ✅ Reset semua D ke VIEW ONLY
+document.getElementById('toggleD3Edit').checked = false; toggleD3Mode(false);
+document.getElementById('toggleD4Edit').checked = false; toggleD4Mode(false);
+document.getElementById('toggleD5Edit').checked = false; toggleD5Mode(false);
+document.getElementById('toggleD6Edit').checked = false; toggleD6Mode(false);
+document.getElementById('toggleD7Edit').checked = false; toggleD7Mode(false);
+document.getElementById('toggleD8Edit').checked = false; toggleD8Mode(false);
     
   } else {
     alert('⚠️ NCR with ID ' + idNo + ' not found!');
   }
 }
+
+  
+  
 // ==========================================
 // 5. FUNGSI DATA
 // ==========================================
@@ -1512,11 +1517,12 @@ async function loadAuditors() {
     if (res.status === 'ok' && res.rows && res.rows.length > 0) {
       auditorList = res.rows;
       // Tambahkan ID select di D1 section untuk D3-D8
-      const dropdowns = [
-        'picD3', 'picD4', 'picD5', 'picD6', 'picD7', 'picD8',           // Create NCR
-        'fuPicD3', 'fuPicD4Select', 'fuPicD5Select', 'fuPicD6Select',   // Follow-up D1 (D3-D6)
-        'fuPicD7Select', 'fuPicD8Select'                                // Follow-up D1 (D7-D8)
-      ];
+     const dropdowns = [
+  'picD3','picD4','picD5','picD6','picD7','picD8',   // Create form
+  'fuPicD3',                                           // Follow-up D1 D3
+  'fuPicD4Select','fuPicD5Select',                     // Follow-up D1 D4-D5
+  'fuPicD6Select','fuPicD7Select','fuPicD8Select'      // Follow-up D1 D6-D8
+];
       
       dropdowns.forEach(dropdownId => {
         const select = document.getElementById(dropdownId);
@@ -1811,8 +1817,69 @@ function toggleD3Mode(isEdit) {
   if (picD3) picD3.disabled = !isEdit;
   
   document.getElementById('labelD3Mode').textContent = isEdit ? 'EDIT MODE' : 'VIEW ONLY';
+  document.getElementById('btnSubmitD3').style.display = isEdit ? 'inline-block' : 'none';
 }
 
+ function toggleD4Mode(isEdit) {
+  const fields = ['fuRootCauseOcc','fuRootCauseSkip','fuRCFactor','fuRCAdate'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.readOnly = !isEdit;
+  });
+  const rcFactor = document.getElementById('fuRCFactor');
+  if (rcFactor) rcFactor.disabled = !isEdit;
+  
+  document.getElementById('labelD4Mode').textContent = isEdit ? 'EDIT MODE' : 'VIEW ONLY';
+  document.getElementById('btnSubmitD4').style.display = isEdit ? 'inline-block' : 'none';
+}
+
+function toggleD5Mode(isEdit) {
+  const fields = ['fuCAOcc','fuCASkip','fuCAdate'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.readOnly = !isEdit;
+  });
+  document.getElementById('labelD5Mode').textContent = isEdit ? 'EDIT MODE' : 'VIEW ONLY';
+  document.getElementById('btnSubmitD5').style.display = isEdit ? 'inline-block' : 'none';
+}
+
+function toggleD6Mode(isEdit) {
+  const fields = ['fuVerOcc','fuVerSkip','fuVerDate'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.readOnly = !isEdit;
+  });
+  const verRslt = document.getElementById('fuVerRslt');
+  if (verRslt) verRslt.disabled = !isEdit;
+  
+  document.getElementById('labelD6Mode').textContent = isEdit ? 'EDIT MODE' : 'VIEW ONLY';
+  document.getElementById('btnSubmitD6').style.display = isEdit ? 'inline-block' : 'none';
+}
+
+function toggleD7Mode(isEdit) {
+  const fields = ['fuPAOcc','fuPASkip','fuPADate'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.readOnly = !isEdit;
+  });
+  document.getElementById('labelD7Mode').textContent = isEdit ? 'EDIT MODE' : 'VIEW ONLY';
+  document.getElementById('btnSubmitD7').style.display = isEdit ? 'inline-block' : 'none';
+}
+
+function toggleD8Mode(isEdit) {
+  const fields = ['fuCongMsg'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.readOnly = !isEdit;
+  });
+  const statusNC = document.getElementById('fuStatusNC');
+  if (statusNC) statusNC.disabled = !isEdit;
+  
+  document.getElementById('labelD8Mode').textContent = isEdit ? 'EDIT MODE' : 'VIEW ONLY';
+  document.getElementById('btnSubmitD8').style.display = isEdit ? 'inline-block' : 'none';
+}
+
+  
 // Notice PIC D3 via Email
 function noticePICD3() {
   const picName = document.getElementById('fuPicD3').value;
@@ -1841,6 +1908,8 @@ async function submitD3() {
   toggleButtonSpinner('btnSubmitD3', true);
   await submitFollowUp('D3');
   toggleButtonSpinner('btnSubmitD3', false);
+   document.getElementById('toggleD3Edit').checked = false;
+  toggleD3Mode(false);
 }
   
 // Set D3 default ke VIEW ONLY
@@ -1849,23 +1918,43 @@ toggleD3Mode(false);
   
 
 async function submitD4() {
+  toggleButtonSpinner('btnSubmitD4', true);
   await submitFollowUp('D4');
+  toggleButtonSpinner('btnSubmitD4', false);
+   document.getElementById('toggleD4Edit').checked = false;
+  toggleD4Mode(false);
 }
 
 async function submitD5() {
+  toggleButtonSpinner('btnSubmitD5', true);
   await submitFollowUp('D5');
+  toggleButtonSpinner('btnSubmitD5', false);
+   document.getElementById('toggleD5Edit').checked = false;
+  toggleD5Mode(false);
 }
 
 async function submitD6() {
+  toggleButtonSpinner('btnSubmitD6', true);
   await submitFollowUp('D6');
+  toggleButtonSpinner('btnSubmitD6', false);
+   document.getElementById('toggleD6Edit').checked = false;
+  toggleD6Mode(false);
 }
 
 async function submitD7() {
+  toggleButtonSpinner('btnSubmitD7', true);
   await submitFollowUp('D7');
+  toggleButtonSpinner('btnSubmitD7', false);
+   document.getElementById('toggleD7Edit').checked = false;
+  toggleD7Mode(false);
 }
 
 async function submitD8() {
+  toggleButtonSpinner('btnSubmitD8', true);
   await submitFollowUp('D8');
+  toggleButtonSpinner('btnSubmitD8', false);
+   document.getElementById('toggleD8Edit').checked = false;
+  toggleD8Mode(false);
 }
 
 // ==========================================
@@ -2044,15 +2133,15 @@ async function updatePIC() {
   }
   
   const picData = {
-    D1: document.getElementById('fuPicD1').value,
-    D2: document.getElementById('fuPicD2').value,
-    D3: document.getElementById('fuPicD3').value,
-    D4: document.getElementById('fuPicD4').value,
-    D5: document.getElementById('fuPicD5').value,
-    D6: document.getElementById('fuPicD6').value,
-    D7: document.getElementById('fuPicD7').value,
-    D8: document.getElementById('fuPicD8').value
-  };
+  D1: document.getElementById('fuPicD1').value,
+  D2: document.getElementById('fuPicD2').value,
+  D3: document.getElementById('fuPicD3').value,
+  D4: document.getElementById('fuPicD4Select')?.value || document.getElementById('fuPicD4').value,
+  D5: document.getElementById('fuPicD5Select')?.value || document.getElementById('fuPicD5').value,
+  D6: document.getElementById('fuPicD6Select')?.value || document.getElementById('fuPicD6').value,
+  D7: document.getElementById('fuPicD7Select')?.value || document.getElementById('fuPicD7').value,
+  D8: document.getElementById('fuPicD8Select')?.value || document.getElementById('fuPicD8').value,
+};
   
   if (!picData.D1 || !picData.D2) {
     alert('⚠️ D1 and D2 must be filled!');
@@ -2215,24 +2304,43 @@ async function refreshDataFromGS() {
 function prefillD3toD8(ncr) {
   if (!ncr) return;
   setTimeout(() => {
-    // ===== D3-D8 PIC DROPDOWN =====
-    setDropdown('fuPicD3', ncr['InterimActBy']   || '');
-    setDropdown('fuPicD4', ncr['RC-AnalysisBy']  || '');
-    setDropdown('fuPicD5', ncr['CABy']           || '');
-    setDropdown('fuPicD6', ncr['ValidateCAPABy'] || '');
-    setDropdown('fuPicD7', ncr['PABy']           || '');
-    setDropdown('fuPicD8', ncr['ApprovedBy']     || '');
-
-    // ===== D3: Sync Interim Act By =====
+    // ===== D3: tetap pakai setDropdown karena masih <select> di D1 =====
+    setDropdown('fuPicD3', ncr['InterimActBy'] || '');
+    
+    // ===== D3: Sync ke input text fuInterimActBy =====
     const d3Val = document.getElementById('fuPicD3').value;
     document.getElementById('fuInterimActBy').value = d3Val;
-    
-    // ===== D3: Interim Date =====
+
+    // ===== D4-D8: langsung set value karena pakai <input type="text"> =====
+    const d4El = document.getElementById('fuPicD4');
+    if (d4El) d4El.value = ncr['RC-AnalysisBy'] || '';
+
+    const d5El = document.getElementById('fuPicD5');
+    if (d5El) d5El.value = ncr['CABy'] || '';
+
+    const d6El = document.getElementById('fuPicD6');
+    if (d6El) d6El.value = ncr['ValidateCAPABy'] || '';
+
+    const d7El = document.getElementById('fuPicD7');
+    if (d7El) d7El.value = ncr['PABy'] || '';
+
+    const d8El = document.getElementById('fuPicD8');
+    if (d8El) d8El.value = ncr['ApprovedBy'] || '';
+
+// ✅ TAMBAHKAN INI - sync ke dropdown D1 section
+setDropdown('fuPicD4Select', ncr['RC-AnalysisBy']  || '');
+setDropdown('fuPicD5Select', ncr['CABy']           || '');
+setDropdown('fuPicD6Select', ncr['ValidateCAPABy'] || '');
+setDropdown('fuPicD7Select', ncr['PABy']           || '');
+setDropdown('fuPicD8Select', ncr['ApprovedBy']     || '');
+  
+    // ===== D3 date =====
     const d3DateEl = document.getElementById('fuInterimDate');
     if (d3DateEl && !d3DateEl.value) {
       d3DateEl.value = new Date().toISOString().split('T')[0];
     }
-    
+
+   
     // ===== TAMBAHKAN: D3 Field Lainnya =====
     const remarks = document.getElementById('fuInterimRemarks');
     if (remarks && ncr['InterimRemarks']) {
