@@ -1844,7 +1844,7 @@ function toggleD5Mode(isEdit) {
 }
 
 function toggleD6Mode(isEdit) {
-  const fields = ['fuVerOcc','fuVerSkip','fuVerDate'];
+  const fields = ['fuVerOcc','fuVerSkip','fuVerDate','fuVerRslt'];
   fields.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.readOnly = !isEdit;
@@ -1867,7 +1867,7 @@ function toggleD7Mode(isEdit) {
 }
 
 function toggleD8Mode(isEdit) {
-  const fields = ['fuCongMsg'];
+  const fields = ['fuCloseDate','fuCongMsg','fuStatusNC'];
   fields.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.readOnly = !isEdit;
