@@ -1009,16 +1009,16 @@
         </div>
       <div class="col-md-6">
           <label class="form-label">Verify Corrective Action Date</label>
-          <input type="date" id="fuVerDate" class="form-control">
+          <input type="date" id="fuValDate" class="form-control">
         </div>
 
           <div class="col-12">
           <label class="form-label">A. Verification result of Corrective action (Occurrence)</label>
-          <textarea id="fuVerOcc" class="form-control highlight-area" rows="2" placeholder="Verification result for occurrence..."></textarea>
+          <textarea id="fuValOcc" class="form-control highlight-area" rows="2" placeholder="Verification result for occurrence..."></textarea>
         </div>
         <div class="col-12">
           <label class="form-label">B. Verification result of Corrective action (Skip)</label>
-          <textarea id="fuVerSkip" class="form-control highlight-area" rows="2" placeholder="Verification result for skip..."></textarea>
+          <textarea id="fuValSkip" class="form-control highlight-area" rows="2" placeholder="Verification result for skip..."></textarea>
         </div>
  <div class="col-12">
       <label class="form-label">Verification Result</label>
@@ -1223,10 +1223,10 @@ const columnMapping = {
     'fuCADate': 'CADAte'
   },
   'D6': {
-    'fuVerOcc': 'VerOcc',
-    'fuVerSkip': 'VerSkip',
+    'fuValOcc': 'ValOcc',
+    'fuValSkip': 'ValSkip',
     'fuPicD6': 'ValidateCAPABy',
-    'fuNoticeD6': 'NoticeD6'
+    'fuValDate': 'ValDate'
   },
   'D7': {
     'fuPAOcc': 'PAOcc',
@@ -1844,7 +1844,7 @@ function toggleD5Mode(isEdit) {
 }
 
 function toggleD6Mode(isEdit) {
-  const fields = ['fuVerOcc','fuVerSkip','fuVerDate','fuVerRslt'];
+  const fields = ['fuValOcc','fuValSkip','fuValDate','fuVerRslt'];
   fields.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.readOnly = !isEdit;
@@ -2257,14 +2257,14 @@ function loadNCRViewData(ncr) {
   if (fuCAdate) fuCAdate.value = ncr['CADate'] || '';
 
   // ===== D6: VERIFY CORRECTIVE ACTION =====
-  const fuVerOcc = document.getElementById('fuVerOcc');
-  if (fuVerOcc) fuVerOcc.value = ncr['VerOcc'] || '';
+  const fuValOcc = document.getElementById('fuValOcc');
+  if (fuValOcc) fuValOcc.value = ncr['ValOcc'] || '';
   
-  const fuVerSkip = document.getElementById('fuVerSkip');
-  if (fuVerSkip) fuVerSkip.value = ncr['VerSkip'] || '';
+  const fuValSkip = document.getElementById('fuValSkip');
+  if (fuValSkip) fuValSkip.value = ncr['ValSkip'] || '';
   
-  const fuVerDate = document.getElementById('fuVerDate');
-  if (fuVerDate) fuVerDate.value = ncr['ValidationCAPADate'] || '';
+  const fuValDate = document.getElementById('fuValDate');
+  if (fuValDate) fuValDate.value = ncr['ValidationCAPADate'] || '';
   
   const fuVerRslt = document.getElementById('fuVerRslt');
   if (fuVerRslt) fuVerRslt.value = ncr['ValidationResult'] || '';
@@ -2485,14 +2485,14 @@ setDropdown('fuPicD8Select', ncr['ApprovedBy']     || '');
     }
     
     // ===== D6: Verify Corrective Action =====
-    const verOcc = document.getElementById('fuVerOcc');
-    if (verOcc && ncr['VerOcc']) {
-      verOcc.value = ncr['VerOcc'];
+    const ValOcc = document.getElementById('fuValOcc');
+    if (ValOcc && ncr['ValOcc']) {
+      ValOcc.value = ncr['ValOcc'];
     }
     
-    const verSkip = document.getElementById('fuVerSkip');
-    if (verSkip && ncr['VerSkip']) {
-      verSkip.value = ncr['VerSkip'];
+    const ValSkip = document.getElementById('fuValSkip');
+    if (ValSkip && ncr['ValSkip']) {
+      ValSkip.value = ncr['ValSkip'];
     }
     
     // ===== D7: Preventive Action =====
