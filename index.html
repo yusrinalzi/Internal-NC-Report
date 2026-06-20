@@ -1054,92 +1054,138 @@
 
 
     <!-- ===== D7 - Preventive Action ===== -->
-    <div class="followup-section" style="border-left-color: #ff5722;">
+    
+  <div class="followup-section" style="border-left-color: #ff5722;">
       <h5><span class="badge-d" style="background:#ff5722;">D7</span> Preventive Action</h5>
       <div class="row g-3">
-        <div class="col-12">
-          <label class="form-label">A. Preventive action (Occurrence)</label>
-          <textarea id="fuPAOcc" class="form-control highlight-area" rows="2" placeholder="Describe preventive action for occurrence..."></textarea>
-        </div>
-        <div class="col-12">
-          <label class="form-label">B. Preventive action (Skip)</label>
-          <textarea id="fuPASkip" class="form-control highlight-area" rows="2" placeholder="Describe preventive action for skip..."></textarea>
-        </div>
-        <div class="col-md-6">
+       <div class="col-md-6">
           <label class="form-label">Preventive Action by</label>
-          <select id="fuPicD7" class="form-select auditor-list">
-            <option value="">-- Select PIC --</option>
-          </select>
+          <input type="text" id="fuPicD7" class="form-control" readonly 
+            style="background:#e8f0fe;">
+        </div>    
+ <div class="col-md-6">
+          <label class="form-label">Preventive Action Date</label>
+          <input type="date" id="fuPADate" class="form-control">
         </div>
-        <div class="col-12 mt-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <input type="checkbox" id="fuNoticeD7">
-              <label for="fuNoticeD7" class="ms-1">Notice D7 PIC</label>
-            </div>
-            <button class="btn-submit-d" onclick="submitD7()">
-              <i class="fas fa-check-circle"></i> Submit D7
-            </button>
+  <div class="col-12">
+          <label class="form-label">A. Preventive action (Occurrence)</label>
+          <textarea id="fuPAOcc" class="form-control highlight-area" rows="2" placeholder="Verification result for occurrence..."></textarea>
+        </div>
+<div class="col-12">
+          <label class="form-label">B. Preventive action (Skip)</label>
+          <textarea id="fuPASkip" class="form-control highlight-area" rows="2" placeholder="Verification result for occurrence..."></textarea>
+        </div>
+
+        
+<!-- Tombol Notice & Submit -->
+    <div class="col-12 mt-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex gap-3 align-items-center">
+          <!-- Toggle Edit/View D7 -->
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" id="toggleD7Edit" onchange="toggleD7Mode(this.checked)">
+            <label class="form-check-label small" for="toggleD7Edit" id="labelD7Mode">VIEW ONLY</label>
           </div>
+          <!-- Notice PIC Button -->
+          <button class="btn btn-outline-primary btn-sm" onclick="noticePICD7()">
+            <i class="fas fa-envelope"></i> Notice PIC D7
+          </button>
         </div>
+        <!-- Submit D7 dengan Spinner -->
+        <button class="btn-submit-d" onclick="submitD7()" id="btnSubmitD7">
+          <span id="btnSubmitD7Text">
+            <i class="fas fa-check-circle"></i> Submit D7
+          </span>
+          <span id="btnSubmitD7Spinner" class="spinner-container">
+            <span class="spinner-border spinner-border-sm text-light"></span>
+            <span class="text-light ms-1">Saving...</span>
+          </span>
+        </button>
       </div>
     </div>
+  </div>
+ </div>
+
+        
+
+        
 
     <!-- ===== D8 - Closure & Validation ===== -->
-    <div class="followup-section" style="border-left-color: #e91e63;">
+   
+  
+  <div class="followup-section" style="border-left-color: #e91e63;">
       <h5><span class="badge-d" style="background:#e91e63;">D8</span> Closure & Validation</h5>
       <div class="row g-3">
         <div class="col-12">
           <div class="alert alert-success">
             <i class="fas fa-trophy me-2"></i>
-            <strong>Congratulations!</strong> Thank you for completing the 8D report. Your team's effort is appreciated.
+            <strong>Congratulations!</strong> Thank you for completing the NCR report. Your team's effort is appreciated.
           </div>
         </div>
+
+         <div class="row g-3">
+       <div class="col-md-6">
+          <label class="form-label">Approved by</label>
+          <input type="text" id="fuPicD8" class="form-control" readonly 
+            style="background:#e8f0fe;">
+        </div>  
+           
         <div class="col-md-6">
-          <label class="form-label">Validation Result status</label>
-          <select id="fuValidationStatus" class="form-select">
+          <label class="form-label">Approve Date</label>
+          <input type="text" id="fuCloseDate" class="form-control" readonly 
+            style="background:#e8f0fe;">
+        </div>  
+           
+        <div class="col-md-9">
+          <label class="form-label">Congratulation Note</label>
+          <textarea id="fuCongMsg" class="form-control highlight-area" rows="3" placeholder="Summary of the entire 8D process..."></textarea>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">NC Status</label>
+          <select id="fuStatusNC" class="form-select">
             <option value="Open">Open</option>
             <option value="In Progress">In Progress</option>
             <option value="Closed">Closed</option>
           </select>
         </div>
-        <div class="col-md-6">
-          <label class="form-label">Approved by (D8 PIC)</label>
-          <select id="fuPicD8" class="form-select auditor-list">
-            <option value="">-- Select PIC --</option>
-          </select>
-        </div>
-        <div class="col-12">
-          <label class="form-label">Complete Report Summary</label>
-          <textarea id="fuReportSummary" class="form-control highlight-area" rows="3" placeholder="Summary of the entire 8D process..."></textarea>
-        </div>
-        <div class="col-12 mt-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <input type="checkbox" id="fuNoticeD8">
-              <label for="fuNoticeD8" class="ms-1">Notice D8 PIC</label>
-            </div>
-            <div>
-              <button class="btn btn-secondary me-2" onclick="showDashboard()">
-                <i class="fas fa-times"></i> Cancel
-              </button>
-              <button class="btn-submit-d" onclick="submitD8()" style="background:#e91e63;">
-                <i class="fas fa-check-circle"></i> Complete 8D Report
-              </button>
-            </div>
+       
+    <!-- Tombol Notice & Submit -->
+    <div class="col-12 mt-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex gap-3 align-items-center">
+          <!-- Toggle Edit/View D8 -->
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" id="toggleD8Edit" onchange="toggleD8Mode(this.checked)">
+            <label class="form-check-label small" for="toggleD8Edit" id="labelD8Mode">VIEW ONLY</label>
           </div>
+          <!-- Notice PIC Button -->
+          <button class="btn btn-outline-primary btn-sm" onclick="noticePICD8()">
+            <i class="fas fa-envelope"></i> Notice PIC D8
+          </button>
         </div>
+        <!-- Submit D7 dengan Spinner -->
+        <button class="btn-submit-d" onclick="submitD8()" id="btnSubmitD8">
+          <span id="btnSubmitD8Text">
+            <i class="fas fa-check-circle"></i> Submit D8
+          </span>
+          <span id="btnSubmitD8Spinner" class="spinner-container">
+            <span class="spinner-border spinner-border-sm text-light"></span>
+            <span class="text-light ms-1">Saving...</span>
+          </span>
+        </button>
       </div>
     </div>
   </div>
-
-</div>
+ </div>
+</div>   
+       
 
 <script>
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbzQ0FZhqKKvxmfWWj_gRhpjosORt074PisFTQ-kMgbvnbI35kZWYcljeW_eVyYuToiX/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbx5KisWGMIFBFvEPnQUyugQ10PeDIkGreGk_UG0eRP2FAcLFNBVxMxbR_j6SWiWrMWo/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
