@@ -1013,16 +1013,16 @@
         </div>
 
           <div class="col-12">
-          <label class="form-label">A. Verification result of Corrective action (Occurrence)</label>
-          <textarea id="fuValOcc" class="form-control highlight-area" rows="2" placeholder="Verification result for occurrence..."></textarea>
+          <label class="form-label">A. Verification of Corrective action (Occurrence)</label>
+          <textarea id="fuValOcc" class="form-control highlight-area" rows="2" placeholder="Verification for occurrence..."></textarea>
         </div>
         <div class="col-12">
-          <label class="form-label">B. Verification result of Corrective action (Skip)</label>
-          <textarea id="fuValSkip" class="form-control highlight-area" rows="2" placeholder="Verification result for skip..."></textarea>
+          <label class="form-label">B. Verification of Corrective action (Skip)</label>
+          <textarea id="fuValSkip" class="form-control highlight-area" rows="2" placeholder="Verification for skip..."></textarea>
         </div>
  <div class="col-12">
       <label class="form-label">Verification Result</label>
-      <select id="fuVerRslt" class="form-select highlight-area">
+      <select id="fuValRslt" class="form-select highlight-area">
         <option value="">-- Select Result --</option>
         <option value="Accapted">Accepted</option>
         <option value="Rejected">Rejected</option>
@@ -1220,19 +1220,20 @@ const columnMapping = {
     'fuCAOcc': 'CorrectiveActOccur',
     'fuCASkip': 'CorrectiveActSkip',
     'fuPicD5': 'CABy',
-    'fuCADate': 'CADAte'
+    'fuCADate': 'CADate'
   },
   'D6': {
     'fuValOcc': 'ValOcc',
     'fuValSkip': 'ValSkip',
     'fuPicD6': 'ValidateCAPABy',
+    'fuValRslt': 'ValidationResult'
     'fuValDate': 'ValDate'
   },
   'D7': {
     'fuPAOcc': 'PAOcc',
     'fuPASkip': 'PASkip',
     'fuPicD7': 'PABy',
-    'fuNoticeD7': 'NoticeD7'
+    'fuPADate': 'PADate'
   },
   'D8': {
   'fuPicD8'   : 'ApprovedBy',
@@ -1786,7 +1787,7 @@ async function submitFollowUp(step) {
     const ncr = rawDataNCR.find(r => r['ID No.'] === currentFollowUpId);
     if (ncr) {
       if (step === 'D8') {
-        const status = document.getElementById('fuValidationStatus').value;
+        const status = document.getElementById('fuValRslt').value;
         ncr.StatusNC = status === 'Closed' ? 'Closed' : 'In Progress';
       } else {
         ncr.StatusNC = 'In Progress';
@@ -1844,13 +1845,13 @@ function toggleD5Mode(isEdit) {
 }
 
 function toggleD6Mode(isEdit) {
-  const fields = ['fuValOcc','fuValSkip','fuValDate','fuVerRslt'];
+  const fields = ['fuValOcc','fuValSkip','fuValDate','fuValRslt'];
   fields.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.readOnly = !isEdit;
   });
-  const verRslt = document.getElementById('fuVerRslt');
-  if (verRslt) verRslt.disabled = !isEdit;
+  const valRslt = document.getElementById('fuValRslt');
+  if (valRslt) valRslt.disabled = !isEdit;
   
   document.getElementById('labelD6Mode').textContent = isEdit ? 'EDIT MODE' : 'VIEW ONLY';
   document.getElementById('btnSubmitD6').style.display = isEdit ? 'inline-block' : 'none';
@@ -2266,8 +2267,8 @@ function loadNCRViewData(ncr) {
   const fuValDate = document.getElementById('fuValDate');
   if (fuValDate) fuValDate.value = ncr['ValidationCAPADate'] || '';
   
-  const fuVerRslt = document.getElementById('fuVerRslt');
-  if (fuVerRslt) fuVerRslt.value = ncr['ValidationResult'] || '';
+  const fuValRslt = document.getElementById('fuValRslt');
+  if (fuValRslt) fuValRslt.value = ncr['ValidationResult'] || '';
 
   // ===== D7: PREVENTIVE ACTION =====
   const fuPAOcc = document.getElementById('fuPAOcc');
