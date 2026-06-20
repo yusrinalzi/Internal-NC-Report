@@ -956,6 +956,7 @@
           <input type="date" id="fuCAdate" class="form-control">
         </div>
 
+        
 <!-- Corrective action -->
         <div class="col-12">
           <label class="form-label">A. Corrective action (Occurrence)</label>
@@ -1361,7 +1362,7 @@ async function openFollowUpFromRow(idNo) {
     assignFollowUpPIC();
     
     // ✅ TAMBAHKAN DI SINI - ganti seluruh blok setTimeout lama
-    prefillD3toD8(ncr);
+    loadNCRViewData(ncr);
 
  // ✅ Reset semua D ke VIEW ONLY
 document.getElementById('toggleD3Edit').checked = false; toggleD3Mode(false);
@@ -1399,7 +1400,7 @@ async function loadAllData() {
         assignFollowUpPIC();
         
         // Pre-fill D3-D8
-        prefillD3toD8(ncr);
+        loadNCRViewData(ncr);
       }
     }
     
@@ -2176,7 +2177,7 @@ async function updatePIC() {
     if (ncr) {
       loadNCRViewData(ncr);
       assignFollowUpPIC();  // Akan ambil dari IssuedBy
-      prefillD3toD8(ncr);
+      loadNCRViewData(ncr);
     }
     
     hideLoadingOverlay();
@@ -2189,13 +2190,12 @@ async function updatePIC() {
   }
 }
 
-// ==========================================
-// FUNGSI FOLLOW-UP: LOAD VIEW DATA (D2)
-// ==========================================
+
+  
 function loadNCRViewData(ncr) {
   if (!ncr) return;
   
-  // D2: NON-CONFORMITY REPORT (View Only)
+  // ===== D2: NON-CONFORMITY REPORT =====
   document.getElementById('fuViewIssuedBy').value = ncr.IssuedBy || '-';
   document.getElementById('fuViewIssuedDate').value = formatDateDisplay(ncr.IssuedDate) || '-';
   document.getElementById('fuViewIdNo').value = ncr['ID No.'] || '-';
@@ -2215,20 +2215,104 @@ function loadNCRViewData(ncr) {
   document.getElementById('fuViewInterimAct').value = ncr.InterimAction || '-';
   document.getElementById('fuViewSortingRequired').value = ncr.SortingRepairReworkRequired || '-';
   document.getElementById('fuViewSortingPIC').value = ncr.SortingReworkPIC || '-';
-  
-// Auto-fill D3 PIC dari data InterimActBy atau dari D1 Assignment
-const d3Pic = ncr['InterimActBy'] || ncr['SortingReworkPIC'] || '';
-setTimeout(() => {
-  setDropdown('fuPicD3', d3Pic);
-}, 500);
 
-// Auto-fill tanggal hari ini jika belum ada
-const d3DateEl = document.getElementById('fuInterimDate');
-if (d3DateEl && !d3DateEl.value) {
-  d3DateEl.value = new Date().toISOString().split('T')[0];
-}
-}
+  // ===== D3: INTERIM ACTION =====
+  const d3DateEl = document.getElementById('fuInterimDate');
+  if (d3DateEl) {
+    d3DateEl.value = ncr['InterimActionDate'] || new Date().toISOString().split('T')[0];
+  }
+  const d3Remarks = document.getElementById('fuInterimRemarks');
+  if (d3Remarks) d3Remarks.value = ncr['InterimRemarks'] || '';
   
+  const fuTotalOK = document.getElementById('fuTotalOK');
+  if (fuTotalOK) fuTotalOK.value = ncr['TotalOK'] || '0';
+  
+  const fuQtyReject = document.getElementById('fuQtyReject');
+  if (fuQtyReject) fuQtyReject.value = ncr['FinalRejectQty'] || '0';
+  
+  const fuManHours = document.getElementById('fuManHours');
+  if (fuManHours) fuManHours.value = ncr['TotalManHour'] || '0';
+
+  // ===== D4: ROOT CAUSE =====
+  const fuRootCauseOcc = document.getElementById('fuRootCauseOcc');
+  if (fuRootCauseOcc) fuRootCauseOcc.value = ncr['RootCauseOcc'] || '';
+  
+  const fuRootCauseSkip = document.getElementById('fuRootCauseSkip');
+  if (fuRootCauseSkip) fuRootCauseSkip.value = ncr['RootCause(Escape)'] || '';
+  
+  const fuRCFactor = document.getElementById('fuRCFactor');
+  if (fuRCFactor) fuRCFactor.value = ncr['5M1E-Factor'] || '';
+  
+  const fuRCAdate = document.getElementById('fuRCAdate');
+  if (fuRCAdate) fuRCAdate.value = ncr['RC-AnalysisDate'] || '';
+
+  // ===== D5: CORRECTIVE ACTION =====
+  const fuCAOcc = document.getElementById('fuCAOcc');
+  if (fuCAOcc) fuCAOcc.value = ncr['CorrectiveActOccur'] || '';
+  
+  const fuCASkip = document.getElementById('fuCASkip');
+  if (fuCASkip) fuCASkip.value = ncr['CorrectiveActSkip'] || '';
+  
+  const fuCAdate = document.getElementById('fuCAdate');
+  if (fuCAdate) fuCAdate.value = ncr['CADate'] || '';
+
+  // ===== D6: VERIFY CORRECTIVE ACTION =====
+  const fuVerOcc = document.getElementById('fuVerOcc');
+  if (fuVerOcc) fuVerOcc.value = ncr['VerOcc'] || '';
+  
+  const fuVerSkip = document.getElementById('fuVerSkip');
+  if (fuVerSkip) fuVerSkip.value = ncr['VerSkip'] || '';
+  
+  const fuVerDate = document.getElementById('fuVerDate');
+  if (fuVerDate) fuVerDate.value = ncr['ValidationCAPADate'] || '';
+  
+  const fuVerRslt = document.getElementById('fuVerRslt');
+  if (fuVerRslt) fuVerRslt.value = ncr['ValidationResult'] || '';
+
+  // ===== D7: PREVENTIVE ACTION =====
+  const fuPAOcc = document.getElementById('fuPAOcc');
+  if (fuPAOcc) fuPAOcc.value = ncr['PAOcc'] || '';
+  
+  const fuPASkip = document.getElementById('fuPASkip');
+  if (fuPASkip) fuPASkip.value = ncr['PASkip'] || '';
+  
+  const fuPADate = document.getElementById('fuPADate');
+  if (fuPADate) fuPADate.value = ncr['PADate'] || '';
+
+  // ===== D8: CLOSURE & VALIDATION =====
+  const fuCongMsg = document.getElementById('fuCongMsg');
+  if (fuCongMsg) fuCongMsg.value = ncr['CongratulationMsg'] || '';
+  
+  const fuStatusNC = document.getElementById('fuStatusNC');
+  if (fuStatusNC) fuStatusNC.value = ncr['StatusNC'] || 'Open';
+  
+  const fuCloseDate = document.getElementById('fuCloseDate');
+  if (fuCloseDate) fuCloseDate.value = formatDateDisplay(ncr['CloseDate']) || '-';
+
+  // ===== DROPDOWN D3-D8 (pakai setTimeout) =====
+  setTimeout(() => {
+    setDropdown('fuPicD3', ncr['InterimActBy'] || '');
+    document.getElementById('fuInterimActBy').value = 
+      document.getElementById('fuPicD3').value;
+
+    setDropdown('fuPicD4Select', ncr['RC-AnalysisBy']  || '');
+    setDropdown('fuPicD5Select', ncr['CABy']           || '');
+    setDropdown('fuPicD6Select', ncr['ValidateCAPABy'] || '');
+    setDropdown('fuPicD7Select', ncr['PABy']           || '');
+    setDropdown('fuPicD8Select', ncr['ApprovedBy']     || '');
+
+    // Sync ke input text
+    const setValue = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    };
+    setValue('fuPicD4', ncr['RC-AnalysisBy']  || '');
+    setValue('fuPicD5', ncr['CABy']           || '');
+    setValue('fuPicD6', ncr['ValidateCAPABy'] || '');
+    setValue('fuPicD7', ncr['PABy']           || '');
+    setValue('fuPicD8', ncr['ApprovedBy']     || '');
+  }, 500);
+}
 // ==========================================
 // FUNGSI BANTU: FORMAT DATE
 // ==========================================
@@ -2286,7 +2370,7 @@ async function refreshDataFromGS() {
         loadNCRViewData(ncr);
         assignFollowUpPIC();
         
-       prefillD3toD8(ncr);
+       loadNCRViewData(ncr);
       }
     }
     
