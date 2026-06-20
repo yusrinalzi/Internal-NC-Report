@@ -953,7 +953,7 @@
         </div>
         <div class="col-md-6">
           <label class="form-label">Corrective Action Date</label>
-          <input type="date" id="fuCADate" class="form-control">
+          <input type="date" id="fuCAdate" class="form-control">
         </div>
 
         
@@ -1220,7 +1220,7 @@ const columnMapping = {
     'fuCAOcc': 'CorrectiveActOccur',
     'fuCASkip': 'CorrectiveActSkip',
     'fuPicD5': 'CABy',
-    'fuCADate': 'CADate'
+    'fuCAdate': 'CADate'
   },
   'D6': {
     'fuValOcc': 'ValidationCAOcc',
@@ -1835,7 +1835,7 @@ function toggleD3Mode(isEdit) {
 }
 
 function toggleD5Mode(isEdit) {
-  const fields = ['fuCAOcc','fuCASkip','fuCADate'];
+  const fields = ['fuCAOcc','fuCASkip','fuCAdate'];
   fields.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.readOnly = !isEdit;
@@ -2255,8 +2255,8 @@ function loadNCRViewData(ncr) {
   const fuCASkip = document.getElementById('fuCASkip');
   if (fuCASkip) fuCASkip.value = ncr['CorrectiveActSkip'] || '';
   
-  const fuCADate = document.getElementById('fuCADate');
-  if (fuCADate) fuCADate.value = formatDateForInput(ncr['CADate']);
+  const fuCAdate = document.getElementById('fuCAdate');
+  if (fuCAdate) fuCAdate.value = formatDateForInput(ncr['CADate']);
 
   // ===== D6: VERIFY CORRECTIVE ACTION =====
   const fuValOcc = document.getElementById('fuValOcc');
@@ -2266,7 +2266,7 @@ function loadNCRViewData(ncr) {
   if (fuValSkip) fuValSkip.value = ncr['ValSkip'] || '';
   
   const fuValDate = document.getElementById('fuValDate');
-  if (fuValDate) fuValDate.value = formatDateForInput(ncr['ValidationCAPADate']);
+  if (fuValDate) fuValDate.value = formatDateForInput(ncr['ValidateCAPADate']);
   
   const fuValRslt = document.getElementById('fuValRslt');
   if (fuValRslt) fuValRslt.value = ncr['ValidationResult'] || '';
