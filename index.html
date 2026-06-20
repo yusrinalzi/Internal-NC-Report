@@ -936,9 +936,21 @@
  
 
     <!-- ===== D5 - Corrective Action ===== -->
+ 
     <div class="followup-section" style="border-left-color: #2196f3;">
       <h5><span class="badge-d" style="background:#2196f3;">D5</span> Corrective Action</h5>
       <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Corrective Action by</label>
+          <input type="text" id="fuPicD5" class="form-control" readonly 
+            style="background:#e8f0fe;">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Corrective Action Date</label>
+          <input type="date" id="fuCAdate" class="form-control">
+        </div>
+
+<!-- Corrective action -->
         <div class="col-12">
           <label class="form-label">A. Corrective action (Occurrence)</label>
           <textarea id="fuCAOcc" class="form-control highlight-area" rows="2" placeholder="Describe corrective action for occurrence..."></textarea>
@@ -947,31 +959,54 @@
           <label class="form-label">B. Corrective action (Skip)</label>
           <textarea id="fuCASkip" class="form-control highlight-area" rows="2" placeholder="Describe corrective action for skip..."></textarea>
         </div>
-        <div class="col-md-6">
-          <label class="form-label">Corrective Action by</label>
-          <select id="fuPicD5" class="form-select auditor-list">
-            <option value="">-- Select PIC --</option>
-          </select>
-        </div>
-        <div class="col-12 mt-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <input type="checkbox" id="fuNoticeD5">
-              <label for="fuNoticeD5" class="ms-1">Notice D5 PIC</label>
-            </div>
-            <button class="btn-submit-d" onclick="submitD5()">
-              <i class="fas fa-check-circle"></i> Submit D5
-            </button>
+
+        
+<!-- Tombol Notice & Submit -->
+    <div class="col-12 mt-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex gap-3 align-items-center">
+          <!-- Toggle Edit/View D5 -->
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" id="toggleD4Edit" onchange="toggleD5Mode(this.checked)">
+            <label class="form-check-label small" for="toggleD5Edit" id="labelD5Mode">VIEW ONLY</label>
           </div>
+          <!-- Notice PIC Button -->
+          <button class="btn btn-outline-primary btn-sm" onclick="noticePICD5()">
+            <i class="fas fa-envelope"></i> Notice PIC D5
+          </button>
         </div>
+        <!-- Submit D5 dengan Spinner -->
+        <button class="btn-submit-d" onclick="submitD5()" id="btnSubmitD5">
+          <span id="btnSubmitD5Text">
+            <i class="fas fa-check-circle"></i> Submit D5
+          </span>
+          <span id="btnSubmitD5Spinner" class="spinner-container">
+            <span class="spinner-border spinner-border-sm text-light"></span>
+            <span class="text-light ms-1">Saving...</span>
+          </span>
+        </button>
       </div>
     </div>
+  </div>
+</div> 
+
 
     <!-- ===== D6 - Verify Corrective Action ===== -->
-    <div class="followup-section" style="border-left-color: #4caf50;">
+    
+  <div class="followup-section" style="border-left-color: #4caf50;">
       <h5><span class="badge-d" style="background:#4caf50;">D6</span> Verify Corrective Action</h5>
       <div class="row g-3">
-        <div class="col-12">
+       <div class="col-md-6">
+           <label class="form-label">Verify Corrective Action by</label>
+          <input type="text" id="fuPicD6" class="form-control" readonly 
+            style="background:#e8f0fe;">
+        </div>
+      <div class="col-md-6">
+          <label class="form-label">Verify Corrective Action Date</label>
+          <input type="date" id="fuVerDate" class="form-control">
+        </div>
+
+          <div class="col-12">
           <label class="form-label">A. Verification result of Corrective action (Occurrence)</label>
           <textarea id="fuVerOcc" class="form-control highlight-area" rows="2" placeholder="Verification result for occurrence..."></textarea>
         </div>
@@ -979,25 +1014,43 @@
           <label class="form-label">B. Verification result of Corrective action (Skip)</label>
           <textarea id="fuVerSkip" class="form-control highlight-area" rows="2" placeholder="Verification result for skip..."></textarea>
         </div>
-        <div class="col-md-6">
-          <label class="form-label">Verify Corrective Action by</label>
-          <select id="fuPicD6" class="form-select auditor-list">
-            <option value="">-- Select PIC --</option>
-          </select>
-        </div>
-        <div class="col-12 mt-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <input type="checkbox" id="fuNoticeD6">
-              <label for="fuNoticeD6" class="ms-1">Notice D6 PIC</label>
-            </div>
-            <button class="btn-submit-d" onclick="submitD6()">
-              <i class="fas fa-check-circle"></i> Submit D6
-            </button>
+ <div class="col-12">
+      <label class="form-label">Verification Result</label>
+      <select id="fuVerRslt" class="form-select highlight-area">
+        <option value="">-- Select Result --</option>
+        <option value="Accapted">Accapted</option>
+        <option value="Rejected">Rejected</option>
+        </select>
+    </div>
+<!-- Tombol Notice & Submit -->
+    <div class="col-12 mt-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex gap-3 align-items-center">
+          <!-- Toggle Edit/View D5 -->
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" id="toggleD4Edit" onchange="toggleD5Mode(this.checked)">
+            <label class="form-check-label small" for="toggleD5Edit" id="labelD5Mode">VIEW ONLY</label>
           </div>
+          <!-- Notice PIC Button -->
+          <button class="btn btn-outline-primary btn-sm" onclick="noticePICD5()">
+            <i class="fas fa-envelope"></i> Notice PIC D5
+          </button>
         </div>
+        <!-- Submit D5 dengan Spinner -->
+        <button class="btn-submit-d" onclick="submitD5()" id="btnSubmitD5">
+          <span id="btnSubmitD5Text">
+            <i class="fas fa-check-circle"></i> Submit D5
+          </span>
+          <span id="btnSubmitD5Spinner" class="spinner-container">
+            <span class="spinner-border spinner-border-sm text-light"></span>
+            <span class="text-light ms-1">Saving...</span>
+          </span>
+        </button>
       </div>
     </div>
+  </div>
+</div> 
+
 
     <!-- ===== D7 - Preventive Action ===== -->
     <div class="followup-section" style="border-left-color: #ff5722;">
