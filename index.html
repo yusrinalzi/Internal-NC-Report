@@ -1188,7 +1188,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbzxMu-uhwLaHocOlE2O8mQR1Bi3cdw4l-PCe6YITqtGQ3NRN9sn5r7naY72KKtVm_EV/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbx8k6R8frXjy6xwM6oDtnvxGeH-oClT4lvcFsUDEfkcSE8NrIiKR0ecj0m6Y0tKGUn6/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
@@ -1907,54 +1907,208 @@ function toggleD8Mode(isEdit) {
 // ==========================================
 // NOTICE PIC D3 - D8
 // ==========================================
-
 function noticePICD3() {
-  sendNoticeEmail(
-    'fuPicD3',
-    '[Action Required] D3 Interim Action - NCR {idNo}',
-    'Dear {picName},\n\nAnda ditugaskan sebagai PIC D3 (Interim/Containment Action) untuk NCR ID: {idNo}.\n\nMohon segera lakukan tindakan interim dan update di Internal NCR sistem.\n\nhttps://yusrinalzi.github.io/Internal-NC-Report/\n\nGunakan User Name dan Id anda untuk login.\n\nTerima kasih.'
+  const picName = document.getElementById('fuPicD3').value;
+  if (!picName) { alert('⚠️ Pilih PIC D3 terlebih dahulu!'); return; }
+  
+  const auditor = auditorList.find(a => a.AuditorName === picName);
+  const email = auditor?.Email || '';
+  const email2 = auditor?.Email2 || '';
+  const N1Email = auditor?.['N+1Email'] || '';
+  const QMS1Email = auditor?.qms1 || '';
+  const QMS2Email = auditor?.qms2 || '';
+  const QAEngEmail = auditor?.QAEng || '';
+  
+  if (!email) {
+    alert(`⚠️ Email untuk ${picName} tidak ditemukan di NameList.`);
+    return;
+  }
+  
+  const cc = [email2, N1Email, QMS1Email, QMS2Email, QAEngEmail]
+    .filter(e => e && e.trim() !== '')
+    .join(';');
+  
+  const idNo = currentFollowUpId || '-';
+  const subject = encodeURIComponent(`[Action Required] D3 Interim Action - NCR ${idNo}`);
+  const body = encodeURIComponent(
+    `Dear ${picName},\n\nAnda ditugaskan sebagai PIC D3 (Interim/Containment Action) untuk NCR ID: ${idNo}.\n\nMohon segera lakukan tindakan interim dan update di Internal NCR sistem.\n\nhttps://yusrinalzi.github.io/Internal-NC-Report/\n\nGunakan User Name dan Id anda untuk login.\n\nTerima kasih.`
   );
+
+  // ✅ CC di-encode, struktur URL lebih bersih
+  const ccPart = cc ? `cc=${encodeURIComponent(cc)}&` : '';
+  window.open(`mailto:${email}?${ccPart}subject=${subject}&body=${body}`, '_blank');
 }
 
+// ==========================================
+// NOTICE PIC D4
+// ==========================================
 function noticePICD4() {
-  sendNoticeEmail(
-    'fuPicD4Select',
-    '[Action Required] D4 Root Cause Analysis - NCR {idNo}',
-    'Dear {picName},\n\nAnda ditugaskan sebagai PIC D4 (Root Cause Analysis) untuk NCR ID: {idNo}.\n\nMohon segera lakukan analisis root cause dan update di Internal NCR sistem.\n\nhttps://yusrinalzi.github.io/Internal-NC-Report/\n\nGunakan User Name dan Id anda untuk login.\n\nTerima kasih.'
+  const picName = document.getElementById('fuPicD4Select').value;
+  if (!picName) { alert('⚠️ Pilih PIC D4 terlebih dahulu!'); return; }
+  
+  const auditor = auditorList.find(a => a.AuditorName === picName);
+  const email = auditor?.Email || '';
+  const email2 = auditor?.Email2 || '';
+  const N1Email = auditor?.['N+1Email'] || '';
+  const QMS1Email = auditor?.qms1 || '';
+  const QMS2Email = auditor?.qms2 || '';
+  const QAEngEmail = auditor?.QAEng || '';
+  
+  if (!email) {
+    alert(`⚠️ Email untuk ${picName} tidak ditemukan di NameList.`);
+    return;
+  }
+  
+  const cc = [email2, N1Email, QMS1Email, QMS2Email, QAEngEmail]
+    .filter(e => e && e.trim() !== '')
+    .join(';');
+  
+  const idNo = currentFollowUpId || '-';
+  const subject = encodeURIComponent(`[Action Required] D4 Root Cause Analysis - NCR ${idNo}`);
+  const body = encodeURIComponent(
+    `Dear ${picName},\n\nAnda ditugaskan sebagai PIC D4 (Root Cause Analysis) untuk NCR ID: ${idNo}.\n\nMohon segera lakukan analisis root cause dan update di Internal NCR sistem.\n\nhttps://yusrinalzi.github.io/Internal-NC-Report/\n\nGunakan User Name dan Id anda untuk login.\n\nTerima kasih.`
   );
+
+  const ccPart = cc ? `cc=${encodeURIComponent(cc)}&` : '';
+  window.open(`mailto:${email}?${ccPart}subject=${subject}&body=${body}`, '_blank');
 }
 
+// ==========================================
+// NOTICE PIC D5
+// ==========================================
 function noticePICD5() {
-  sendNoticeEmail(
-    'fuPicD5Select',
-    '[Action Required] D5 Corrective Action - NCR {idNo}',
-    'Dear {picName},\n\nAnda ditugaskan sebagai PIC D5 (Corrective Action) untuk NCR ID: {idNo}.\n\nMohon segera lakukan tindakan korektif dan update di Internal NCR sistem.\n\nhttps://yusrinalzi.github.io/Internal-NC-Report/\n\nGunakan User Name dan Id anda untuk login.\n\nTerima kasih.'
+  const picName = document.getElementById('fuPicD5Select').value;
+  if (!picName) { alert('⚠️ Pilih PIC D5 terlebih dahulu!'); return; }
+  
+  const auditor = auditorList.find(a => a.AuditorName === picName);
+  const email = auditor?.Email || '';
+  const email2 = auditor?.Email2 || '';
+  const N1Email = auditor?.['N+1Email'] || '';
+  const QMS1Email = auditor?.qms1 || '';
+  const QMS2Email = auditor?.qms2 || '';
+  const QAEngEmail = auditor?.QAEng || '';
+  
+  if (!email) {
+    alert(`⚠️ Email untuk ${picName} tidak ditemukan di NameList.`);
+    return;
+  }
+  
+  const cc = [email2, N1Email, QMS1Email, QMS2Email, QAEngEmail]
+    .filter(e => e && e.trim() !== '')
+    .join(';');
+  
+  const idNo = currentFollowUpId || '-';
+  const subject = encodeURIComponent(`[Action Required] D5 Corrective Action - NCR ${idNo}`);
+  const body = encodeURIComponent(
+    `Dear ${picName},\n\nAnda ditugaskan sebagai PIC D5 (Corrective Action) untuk NCR ID: ${idNo}.\n\nMohon segera lakukan tindakan korektif dan update di Internal NCR sistem.\n\nhttps://yusrinalzi.github.io/Internal-NC-Report/\n\nGunakan User Name dan Id anda untuk login.\n\nTerima kasih.`
   );
+
+  const ccPart = cc ? `cc=${encodeURIComponent(cc)}&` : '';
+  window.open(`mailto:${email}?${ccPart}subject=${subject}&body=${body}`, '_blank');
 }
 
+// ==========================================
+// NOTICE PIC D6
+// ==========================================
 function noticePICD6() {
-  sendNoticeEmail(
-    'fuPicD6Select',
-    '[Action Required] D6 Verify Corrective Action - NCR {idNo}',
-    'Dear {picName},\n\nAnda ditugaskan sebagai PIC D6 (Verify Corrective Action) untuk NCR ID: {idNo}.\n\nMohon segera lakukan verifikasi dan update di Internal NCR sistem.\n\nhttps://yusrinalzi.github.io/Internal-NC-Report/\n\nGunakan User Name dan Id anda untuk login.\n\nTerima kasih.'
+  const picName = document.getElementById('fuPicD6Select').value;
+  if (!picName) { alert('⚠️ Pilih PIC D6 terlebih dahulu!'); return; }
+  
+  const auditor = auditorList.find(a => a.AuditorName === picName);
+  const email = auditor?.Email || '';
+  const email2 = auditor?.Email2 || '';
+  const N1Email = auditor?.['N+1Email'] || '';
+  const QMS1Email = auditor?.qms1 || '';
+  const QMS2Email = auditor?.qms2 || '';
+  const QAEngEmail = auditor?.QAEng || '';
+  
+  if (!email) {
+    alert(`⚠️ Email untuk ${picName} tidak ditemukan di NameList.`);
+    return;
+  }
+  
+  const cc = [email2, N1Email, QMS1Email, QMS2Email, QAEngEmail]
+    .filter(e => e && e.trim() !== '')
+    .join(';');
+  
+  const idNo = currentFollowUpId || '-';
+  const subject = encodeURIComponent(`[Action Required] D6 Verify Corrective Action - NCR ${idNo}`);
+  const body = encodeURIComponent(
+    `Dear ${picName},\n\nAnda ditugaskan sebagai PIC D6 (Verify Corrective Action) untuk NCR ID: ${idNo}.\n\nMohon segera lakukan verifikasi dan update di Internal NCR sistem.\n\nhttps://yusrinalzi.github.io/Internal-NC-Report/\n\nGunakan User Name dan Id anda untuk login.\n\nTerima kasih.`
   );
+
+  const ccPart = cc ? `cc=${encodeURIComponent(cc)}&` : '';
+  window.open(`mailto:${email}?${ccPart}subject=${subject}&body=${body}`, '_blank');
 }
 
+// ==========================================
+// NOTICE PIC D7
+// ==========================================
 function noticePICD7() {
-  sendNoticeEmail(
-    'fuPicD7Select',
-    '[Action Required] D7 Preventive Action - NCR {idNo}',
-    'Dear {picName},\n\nAnda ditugaskan sebagai PIC D7 (Preventive Action) untuk NCR ID: {idNo}.\n\nMohon segera lakukan tindakan pencegahan dan update di Internal NCR sistem.\n\nhttps://yusrinalzi.github.io/Internal-NC-Report/\n\nGunakan User Name dan Id anda untuk login.\n\nTerima kasih.'
+  const picName = document.getElementById('fuPicD7Select').value;
+  if (!picName) { alert('⚠️ Pilih PIC D7 terlebih dahulu!'); return; }
+  
+  const auditor = auditorList.find(a => a.AuditorName === picName);
+  const email = auditor?.Email || '';
+  const email2 = auditor?.Email2 || '';
+  const N1Email = auditor?.['N+1Email'] || '';
+  const QMS1Email = auditor?.qms1 || '';
+  const QMS2Email = auditor?.qms2 || '';
+  const QAEngEmail = auditor?.QAEng || '';
+  
+  if (!email) {
+    alert(`⚠️ Email untuk ${picName} tidak ditemukan di NameList.`);
+    return;
+  }
+  
+  const cc = [email2, N1Email, QMS1Email, QMS2Email, QAEngEmail]
+    .filter(e => e && e.trim() !== '')
+    .join(';');
+  
+  const idNo = currentFollowUpId || '-';
+  const subject = encodeURIComponent(`[Action Required] D7 Preventive Action - NCR ${idNo}`);
+  const body = encodeURIComponent(
+    `Dear ${picName},\n\nAnda ditugaskan sebagai PIC D7 (Preventive Action) untuk NCR ID: ${idNo}.\n\nMohon segera lakukan tindakan pencegahan dan update di Internal NCR sistem.\n\nhttps://yusrinalzi.github.io/Internal-NC-Report/\n\nGunakan User Name dan Id anda untuk login.\n\nTerima kasih.`
   );
+
+  const ccPart = cc ? `cc=${encodeURIComponent(cc)}&` : '';
+  window.open(`mailto:${email}?${ccPart}subject=${subject}&body=${body}`, '_blank');
 }
 
+// ==========================================
+// NOTICE PIC D8
+// ==========================================
 function noticePICD8() {
-  sendNoticeEmail(
-    'fuPicD8Select',
-    '[Action Required] D8 Closure & Validation - NCR {idNo}',
-    'Dear {picName},\n\nAnda ditugaskan sebagai PIC D8 (Approval/Closure) untuk NCR ID: {idNo}.\n\nMohon segera lakukan review dan approval di Internal NCR sistem.\n\nhttps://yusrinalzi.github.io/Internal-NC-Report/\n\nGunakan User Name dan Id anda untuk login.\n\nTerima kasih.'
+  const picName = document.getElementById('fuPicD8Select').value;
+  if (!picName) { alert('⚠️ Pilih PIC D8 terlebih dahulu!'); return; }
+  
+  const auditor = auditorList.find(a => a.AuditorName === picName);
+  const email = auditor?.Email || '';
+  const email2 = auditor?.Email2 || '';
+  const N1Email = auditor?.['N+1Email'] || '';
+  const QMS1Email = auditor?.qms1 || '';
+  const QMS2Email = auditor?.qms2 || '';
+  const QAEngEmail = auditor?.QAEng || '';
+  
+  if (!email) {
+    alert(`⚠️ Email untuk ${picName} tidak ditemukan di NameList.`);
+    return;
+  }
+  
+  const cc = [email2, N1Email, QMS1Email, QMS2Email, QAEngEmail]
+    .filter(e => e && e.trim() !== '')
+    .join(';');
+  
+  const idNo = currentFollowUpId || '-';
+  const subject = encodeURIComponent(`[Action Required] D8 Closure & Validation - NCR ${idNo}`);
+  const body = encodeURIComponent(
+    `Dear ${picName},\n\nAnda ditugaskan sebagai PIC D8 (Approval/Closure) untuk NCR ID: ${idNo}.\n\nMohon segera lakukan review dan approval di Internal NCR sistem.\n\nhttps://yusrinalzi.github.io/Internal-NC-Report/\n\nGunakan User Name dan Id anda untuk login.\n\nTerima kasih.`
   );
+
+  const ccPart = cc ? `cc=${encodeURIComponent(cc)}&` : '';
+  window.open(`mailto:${email}?${ccPart}subject=${subject}&body=${body}`, '_blank');
 }
+
 
   // Submit D3 dengan loading spinner
 async function submitD3() {
