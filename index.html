@@ -1555,51 +1555,28 @@ function setFallbackAuditors() {
   });
 }
 
-  // ==========================================
-// FUNGSI HELPER: GET CC EMAILS
-// ==========================================
-function getCcEmails(auditor) {
-  const ccFields = ['Email2', 'N1Email', 'qms1', 'qms2', 'QAEng'];
-  return ccFields
-    .map(field => auditor?.[field] || '')
-    .filter(email => email && email !== '')
-    .join(',');
-}
-
-// ==========================================
-// FUNGSI HELPER: SEND NOTICE EMAIL
-// ==========================================
 function sendNoticeEmail(picId, subjectText, bodyText) {
-  const picName = document.getElementById(picId).value;
-  if (!picName) { 
-    alert('⚠️ Pilih PIC terlebih dahulu!'); 
-    return; 
-  }
-  
+  // 1. Cari auditor berdasarkan nama PIC
   const auditor = auditorList.find(a => a.AuditorName === picName);
+  
+  // 2. Ambil email utama
   const email = auditor?.Email || '';
   
-  if (!email) {
-    alert(`⚠️ Email untuk ${picName} tidak ditemukan di NameList.`);
-    return;
-  }
+  // 3. ===== CC EMAILS (OTOMATIS) =====
+  const ccFields = ['Email2', 'N1Email', 'qms1', 'qms2', 'QAEng'];
+  const ccString = ccFields
+    .map(field => auditor?.[field] || '')
+    .filter(email => email && email !== '')
+    .join(',');   // <-- CC otomatis dari sini!
   
-  const ccString = getCcEmails(auditor);
-  const idNo = currentFollowUpId || '-';
-  
-  const subject = encodeURIComponent(subjectText.replace('{idNo}', idNo));
-  const body = encodeURIComponent(bodyText.replace(/{picName}/g, picName).replace(/{idNo}/g, idNo));
-  
+  // 4. Buat mailto URL dengan CC
   let mailtoUrl = `mailto:${email}`;
   if (ccString) {
     mailtoUrl += `?cc=${ccString}&subject=${subject}&body=${body}`;
-  } else {
-    mailtoUrl += `?subject=${subject}&body=${body}`;
   }
   
   window.open(mailtoUrl, '_blank');
 }
-  
   
 // ==========================================
 // 7. FUNGSI SUBMIT NCR (CREATE)
