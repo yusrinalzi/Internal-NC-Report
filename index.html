@@ -1265,16 +1265,42 @@ function doLogin() {
   }
 }
 
-function doGuestLogin() {
+function applyGuestRestrictions() {
+  if (!currentUser || !currentUser.isGuest) return;
+  
+  // Sembunyikan semua toggle Edit/View
+  ['D2','D3','D4','D5','D6','D7','D8'].forEach(d => {
+    const toggle = document.getElementById(`toggleD${d.slice(1)}Edit`);
+    if (toggle) toggle.closest('.form-check').style.display = 'none';
+  });
+  
+  // Sembunyikan tombol Update PIC
+  const btnUpdatePIC = document.getElementById('btnUpdatePIC');
+  if (btnUpdatePIC) btnUpdatePIC.style.display = 'none';
+  
+  // Sembunyikan tombol Update D2
+  const btnUpdateD2 = document.getElementById('btnUpdateD2');
+  if (btnUpdateD2) btnUpdateD2.style.display = 'none';
+  
+  // Sembunyikan tombol Notice PIC
+  document.querySelectorAll('[onclick^="noticePIC"]').forEach(btn => {
+    btn.style.display = 'none';
+  });
+  
+  // Sembunyikan tombol Create NCR di navbar
+  document.querySelector('[onclick="openCreateForm()"]').style.display = 'none';
+}  
+
+ function doGuestLogin() {
   currentUser = { name: 'Guest', id: 'GUEST', isGuest: true };
-  document.getElementById('navUserName').innerText = 'Guest';
+  document.getElementById('navUserName').innerText = 'Guest (View Only)';
   document.getElementById('navAvatar').innerText = '👤';
- 
+  
   document.getElementById('loginPage').classList.remove('active');
   document.getElementById('appShell').classList.add('active');
   
   loadAllData();
-}
+} 
 
 function doLogout() {
   currentUser = null;
@@ -1322,6 +1348,7 @@ function openCreateForm() {
   }
   
   generateIDNo();
+  applyGuestRestrictions();
 }
   
 function openFollowUp() {
@@ -1376,6 +1403,8 @@ document.getElementById('toggleD8Edit').checked = false; toggleD8Mode(false);
   } else {
     alert('⚠️ NCR with ID ' + idNo + ' not found!');
   }
+
+  applyGuestRestrictions();
 }
 
   
@@ -1768,6 +1797,12 @@ function getFormDataByStep(step) {
 }
 
 async function submitFollowUp(step) {
+ // ✅ TAMBAHKAN INI DI PALING ATAS
+  if (currentUser?.isGuest) {
+    alert('⚠️ Guest tidak dapat melakukan perubahan data.');
+    return;
+  }
+  
   // Validasi
   if (!currentFollowUpId) {
     alert('⚠️ Please select an NCR first!');
@@ -2334,6 +2369,13 @@ function toggleButtonSpinner(buttonId, show) {
 // ==========================================
   
 async function updatePIC() {
+
+  // ✅ TAMBAHKAN INI DI PALING ATAS
+  if (currentUser?.isGuest) {
+    alert('⚠️ Guest tidak dapat melakukan perubahan data.');
+    return;
+  }
+ 
   if (!currentFollowUpId) {
     alert('⚠️ Please select an NCR first!');
     return;
