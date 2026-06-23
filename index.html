@@ -424,18 +424,18 @@
           <thead class="table-dark">
             <tr>
               <th>ID No.</th>
-              <th>Type</th>
               <th>Category</th>
               <th>Issued By</th>
               <th>DetailNC</th>
               <th>CustomerName</th>
               <th>Issued Date</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th>Status/PIC</th>
+              <th>Followup</th>
+              
             </tr>
           </thead>
           <tbody id="ncrTableBody">
-            <tr><td colspan="9" class="text-center py-4">Loading database from Google Sheet...</td></tr>
+            <tr><td colspan="8" class="text-center py-4">Loading database from Google Sheet...</td></tr>
           </tbody>
         </table>
       </div>
@@ -1435,6 +1435,32 @@ document.getElementById('toggleD8Edit').checked = false; toggleD8Mode(false);
   applyGuestRestrictions();
 }
 
+
+function getActiveDandPIC(r) {
+  // Jika sudah closed
+  if (r.StatusNC === 'Closed') {
+    return { d: 'Closed', pic: r.ApprovedBy || '-' };
+  }
+  
+  // Cek D3-D8 berdasarkan tanggal
+  const checks = [
+    { d: 'D3', date: r['InterimActionDate'], pic: r['InterimActBy'] },
+    { d: 'D4', date: r['RC-AnalysisDate'],   pic: r['RC-AnalysisBy'] },
+    { d: 'D5', date: r['CADate'],            pic: r['CABy'] },
+    { d: 'D6', date: r['ValidateCAPADate'],  pic: r['ValidateCAPABy'] },
+    { d: 'D7', date: r['PADate'],            pic: r['PABy'] },
+    { d: 'D8', date: r['CloseDate'],         pic: r['ApprovedBy'] },
+  ];
+  
+  for (const item of checks) {
+    if (!item.date || String(item.date).trim() === '') {
+      return { d: item.d, pic: item.pic || '-' };
+    }
+  }
+  
+  return { d: 'Closed', pic: r.ApprovedBy || '-' };
+}
+  
   
   
 // ==========================================
@@ -1482,7 +1508,7 @@ async function loadDashboardData() {
     }
   } catch(e) { 
     console.error("Error loading data:", e);
-    document.getElementById('ncrTableBody').innerHTML = '<tr><td colspan="9" class="text-center text-danger">Failed to load data. Check console.</td></tr>';
+    document.getElementById('ncrTableBody').innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load data. Check console.</td></tr>';
   }
 }
 
@@ -1496,7 +1522,7 @@ function renderDashboard(data) {
   // Update Table
   const tbody = document.getElementById('ncrTableBody');
   if (data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="text-center py-3">No active report found.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-3">No active report found.</td></tr>`;
     return;
   }
 
@@ -1504,29 +1530,39 @@ function renderDashboard(data) {
     let detailNC = r.DetailNC || r.NCMode || '-';
     if (detailNC.length > 50) detailNC = detailNC.substring(0, 47) + '...';
     
-    const status = r.StatusNC || 'Open';
-    const statusBadge = status === 'Closed' ? 'bg-success' : status === 'In Progress' ? 'bg-warning' : 'bg-danger';
+   const { d: activeD, pic: activePIC } = getActiveDandPIC(r);
+const dColor = activeD === 'Closed' ? '#2e7d32' : 
+               activeD === 'D3' ? '#ff9800' :
+               activeD === 'D4' ? '#9c27b0' :
+               activeD === 'D5' ? '#2196f3' :
+               activeD === 'D6' ? '#4caf50' :
+               activeD === 'D7' ? '#ff5722' :
+               activeD === 'D8' ? '#e91e63' : '#607d8b';
     
-    return `
-      <tr>
-        <td><strong>${r['ID No.'] || '-'}</strong></td>
-        <td><span class="badge bg-secondary">${r.Type || 'PDR'}</span></td>
-        <td>${r.Category || '-'}</td>
-        <td>${r.IssuedBy || '-'}</td>
-        <td>${detailNC}</td>
-        <td>${r.CustomerName || '-'}</td>
-        <td>${formatDate(r.IssuedDate)}</td>
-        <td><span class="badge ${statusBadge}">${status}</span></td>
-        <td>
-          <button class="btn btn-sm btn-primary" onclick="openFollowUpFromRow('${r['ID No.']}')">
-            <i class="fas fa-pen"></i> Follow-up
-          </button>
-        </td>
-      </tr>
-    `;
+ return `
+  <tr>
+    <td><strong>${r['ID No.'] || '-'}</strong></td>
+    <td>${r.Category || '-'}</td>
+    <td>${r.IssuedBy || '-'}</td>
+    <td>${detailNC}</td>
+    <td>${r.CustomerName || '-'}</td>
+    <td>${formatDate(r.IssuedDate)}</td>
+    <td>
+      <span class="badge" style="background:${dColor}; font-size:11px;">${activeD}</span>
+      <br>
+      <small class="text-muted" style="font-size:11px;">${activePIC}</small>
+    </td>
+    <td>
+      <button class="btn btn-sm btn-primary" onclick="openFollowUpFromRow('${r['ID No.']}')">
+        <i class="fas fa-pen"></i> Follow-up
+      </button>
+    </td>
+  </tr>
+`;
   }).join('');
 }
 
+  
 function formatDate(dateStr) {
   if (!dateStr) return '-';
   try {
