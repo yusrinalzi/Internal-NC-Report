@@ -1286,12 +1286,19 @@ function applyGuestRestrictions() {
   document.querySelectorAll('[onclick^="noticePIC"]').forEach(btn => {
     btn.style.display = 'none';
   });
-  
-  // Sembunyikan tombol Create NCR di navbar
-  document.querySelector('[onclick="openCreateForm()"]').style.display = 'none';
-}  
 
- function doGuestLogin() {
+  // ✅ Sembunyikan tombol Submit D3-D8
+  ['D3','D4','D5','D6','D7','D8'].forEach(d => {
+    const btn = document.getElementById(`btnSubmit${d}`);
+    if (btn) btn.style.display = 'none';
+  });
+
+  // ✅ Sembunyikan tombol Create NCR di navbar
+  const btnCreate = document.querySelector('[onclick="openCreateForm()"]');
+  if (btnCreate) btnCreate.style.display = 'none';
+}
+
+function doGuestLogin() {
   currentUser = { name: 'Guest', id: 'GUEST', isGuest: true };
   document.getElementById('navUserName').innerText = 'Guest (View Only)';
   document.getElementById('navAvatar').innerText = '👤';
@@ -1300,7 +1307,10 @@ function applyGuestRestrictions() {
   document.getElementById('appShell').classList.add('active');
   
   loadAllData();
-} 
+  
+  // ✅ TAMBAHKAN INI
+  applyGuestRestrictions();
+}
 
 function doLogout() {
   currentUser = null;
