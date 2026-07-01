@@ -289,6 +289,77 @@
   to { transform: rotate(360deg); }
 }
 
+/* Foto di Follow-up */
+#fuPhotoDisplay {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  object-fit: contain;
+}
+
+.img-placeholder {
+  width: 100%;
+  height: 200px;
+  background: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #999;
+}    
+
+/* Foto di Follow-up */
+#fuPhotoDisplay {
+  max-width: 100%;
+  max-height: 350px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  object-fit: contain;
+  background: #fafafa;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.img-placeholder {
+  width: 100%;
+  height: 200px;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #adb5bd;
+  border: 2px dashed #dee2e6;
+  transition: all 0.3s ease;
+}
+
+.img-placeholder i {
+  font-size: 48px;
+  opacity: 0.5;
+}
+
+/* Preview foto di Create NCR */
+#photoPreview {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 4px;
+  background: white;
+  object-fit: contain;
+}
+
+#fuPhotoPreview {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 4px;
+  background: white;
+  object-fit: contain;
+}    
     
   </style>
 </head>
@@ -564,6 +635,16 @@
               </select>
             </div>
 
+            <!-- Upload Foto -->
+<div class="col-12">
+  <label class="form-label fw-bold">📷 Upload Foto Non-Conformity</label>
+  <input type="file" id="photoUpload" class="form-control" accept="image/*" onchange="previewPhoto(event)">
+  <div id="photoPreviewContainer" class="mt-2" style="display:none;">
+    <img id="photoPreview" src="#" alt="Preview" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px;">
+    <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removePhoto()">✕ Hapus</button>
+  </div>
+  <small class="text-muted">Format: JPG, PNG, GIF (Max 5MB)</small>
+</div>
             
          <!-- D1-D8 TEAM PIC CONFIGURATION -->
 <div class="col-12 mt-4 border-top pt-3">
@@ -655,11 +736,85 @@
         <input type="text" id="fuPicD1" class="form-control form-control-sm" readonly>
       </div>
       
-      <!-- D2 - Otomatis-->
-      <div class="col">
-        <label class="small fw-bold">D2</label>
-        <input type="text" id="fuPicD2" class="form-control form-control-sm" readonly>
+<!-- ===== D2: NON-CONFORMITY REPORT (View Only) ===== -->
+<div class="followup-section" style="border-left-color: #6c757d;">
+  <h5>
+    <span class="badge-d" style="background:#6c757d;">D2</span> 
+    PROBLEM DESCRIPTION
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <div class="form-check form-switch mb-0">
+        <input class="form-check-input" type="checkbox" id="toggleD2Edit" 
+               onchange="toggleD2Mode(this.checked)">
+        <label class="form-check-label small" for="toggleD2Edit" id="labelD2Mode">
+          VIEW ONLY
+        </label>
       </div>
+      <button class="btn-submit-d btn-sm" id="btnUpdateD2" 
+              onclick="submitD2Update()" style="display:none;">
+        <i class="fas fa-save"></i> Update D2
+      </button>
+    </div>
+  </h5>
+  
+  <div class="row g-3">
+    <!-- ===== SEMUA FIELD D2 DI SINI ===== -->
+    
+    <!-- Row 1: Issued By, Issued Date, ID No -->
+    <div class="col-md-4">
+      <label class="form-label fw-bold">Issued By</label>
+      <input type="text" id="fuViewIssuedBy" class="form-control" readonly>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label fw-bold">Issued Date</label>
+      <input type="text" id="fuViewIssuedDate" class="form-control" readonly>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label fw-bold">ID No.</label>
+      <input type="text" id="fuViewIdNo" class="form-control" readonly>
+    </div>
+    
+    <!-- ... semua field D2 lainnya ... -->
+    
+    <!-- Row 9: Sorting Required -->
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Is sorting, repair or rework required?</label>
+      <input type="text" id="fuViewSortingRequired" class="form-control" readonly>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Sorting Rework PIC</label>
+      <input type="text" id="fuViewSortingPIC" class="form-control" readonly>
+    </div>
+    
+    <!-- ===== 📷 FOTO NC - DITARUH DI SINI (setelah semua field) ===== -->
+    <div class="col-12">
+      <hr>
+      <label class="form-label fw-bold">📷 Foto Non-Conformity</label>
+      
+      <!-- Tampilan foto -->
+      <div id="fuPhotoContainer">
+        <div id="fuPhotoPlaceholder" class="img-placeholder" style="height:200px; background:#f0f0f0; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#999; border:2px dashed #ddd;">
+          <i class="fas fa-image fa-3x"></i>
+          <p class="mt-2 mb-0">Belum ada foto</p>
+        </div>
+        <img id="fuPhotoDisplay" src="#" alt="NCR Photo" style="display:none; max-width:100%; max-height:300px; border-radius:8px; border:1px solid #ddd; object-fit:contain; background:#fafafa;">
+      </div>
+      
+      <!-- Upload foto baru (hanya muncul di EDIT MODE) -->
+      <div id="fuPhotoEditSection" style="display:none; margin-top:10px;">
+        <label class="form-label fw-bold">📷 Ganti Foto</label>
+        <input type="file" id="fuPhotoUpload" class="form-control" accept="image/*" onchange="previewFuPhoto(event)">
+        <div id="fuPhotoPreviewContainer" class="mt-2" style="display:none;">
+          <img id="fuPhotoPreview" src="#" alt="Preview" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px; background:white;">
+          <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removeFuPhoto()">
+            <i class="fas fa-trash"></i> Hapus
+          </button>
+        </div>
+        <small class="text-muted">Format: JPG, PNG (Max 5MB)</small>
+      </div>
+    </div>
+    
+  </div> <!-- end row -->
+</div> <!-- end followup-section -->
       
       <!-- D3-D8 dropdown -->
       <div class="col">
@@ -1349,14 +1504,69 @@ function showDashboard() {
   currentFollowUpId = null;
 }
 
+// ==========================================
+// FUNGSI RESET UPLOAD FOTO (Create NCR)
+// ==========================================
+function resetPhotoUpload() {
+  uploadedPhotoData = null;
+  uploadedPhotoName = null;
+  
+  const photoUpload = document.getElementById('photoUpload');
+  if (photoUpload) photoUpload.value = '';
+  
+  const previewContainer = document.getElementById('photoPreviewContainer');
+  if (previewContainer) previewContainer.style.display = 'none';
+  
+  const preview = document.getElementById('photoPreview');
+  if (preview) preview.src = '#';
+}
+
+// ==========================================
+// FUNGSI RESET UPLOAD FOTO (Follow-up D2)
+// ==========================================
+function resetFuPhotoUpload() {
+  fuUploadedPhotoData = null;
+  fuUploadedPhotoName = null;
+  
+  const fuPhotoUpload = document.getElementById('fuPhotoUpload');
+  if (fuPhotoUpload) fuPhotoUpload.value = '';
+  
+  const fuPreviewContainer = document.getElementById('fuPhotoPreviewContainer');
+  if (fuPreviewContainer) fuPreviewContainer.style.display = 'none';
+  
+  const fuPreview = document.getElementById('fuPhotoPreview');
+  if (fuPreview) fuPreview.src = '#';
+}  
+  
 function openCreateForm() {
   document.getElementById('sectionDashboard').style.display = 'none';
   document.getElementById('ncrFormPage').style.display = 'block';
   document.getElementById('followUpPage').style.display = 'none';
+
+ // ✅ Reset upload foto
+  resetPhotoUpload();
   
+  // ✅ 1. Reset upload foto MANUAL (sebelum form.reset)
+  uploadedPhotoData = null;
+  uploadedPhotoName = null;
+  const photoUpload = document.getElementById('photoUpload');
+  if (photoUpload) {
+    photoUpload.value = '';  // Reset input file
+  }
+  const previewContainer = document.getElementById('photoPreviewContainer');
+  if (previewContainer) {
+    previewContainer.style.display = 'none';
+  }
+  const preview = document.getElementById('photoPreview');
+  if (preview) {
+    preview.src = '#';
+  }
+  
+  // ✅ 2. Reset form (akan mereset semua field termasuk select, textarea, dll)
   const form = document.getElementById('formD1D2');
   if (form) form.reset();
   
+  // ✅ 3. Set nilai IssuedBy (karena form.reset() akan menghapusnya)
   const issuedByField = document.getElementById('issuedBy');
   if (issuedByField) {
     if (currentUser && currentUser.name) {
@@ -1368,14 +1578,17 @@ function openCreateForm() {
     }
   }
   
-  // TAMBAHKAN INI: Re-assign D1 & D2 setiap kali form dibuka
+  // ✅ 4. Re-assign D1 & D2
   if (picDataMap && Object.keys(picDataMap).length > 0) {
     assignCurrentUserPIC();
   } else {
     loadPICData();
   }
   
+  // ✅ 5. Generate ID No
   generateIDNo();
+  
+  // ✅ 6. Terapkan guest restrictions
   applyGuestRestrictions();
 }
   
@@ -1675,8 +1888,35 @@ function sendNoticeEmail(picId, subjectText, bodyText) {
 // 7. FUNGSI SUBMIT NCR (CREATE)
 // ==========================================
 async function submitD1D2(e) {
-  e.preventDefault();
+  e.preventDefault(); // <-- HARUS di awal!
   
+  // Upload foto baru jika ada (gunakan variabel dari Create NCR)
+  let photoUrl = '';
+  if (uploadedPhotoData) { // <-- gunakan uploadedPhotoData, bukan fuUploadedPhotoData
+    showLoadingOverlay('Uploading photo...');
+    try {
+      const formData = new FormData();
+      formData.append('action', 'uploadPhoto');
+      formData.append('imageData', uploadedPhotoData); // <-- uploadedPhotoData
+      formData.append('fileName', uploadedPhotoName);  // <-- uploadedPhotoName
+      formData.append('idNo', document.getElementById('idNo').value); // <-- dari form Create NCR
+      
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      if (result.status === 'ok') {
+        photoUrl = result.photoUrl;
+      }
+    } catch(err) {
+      console.error('❌ Error upload foto:', err);
+    }
+    hideLoadingOverlay();
+  }
+  
+  // === LANJUTKAN SUBMIT NCR ===
   const formData = {
     action: 'appendNCR',
     timestamp: new Date().toISOString(),
@@ -1701,15 +1941,17 @@ async function submitD1D2(e) {
       'SortingReworkPIC': document.getElementById('picD3').value,
       'Period': new Date().toLocaleDateString('en-GB'),
       'IssuedBy': document.getElementById('issuedBy').value,
-      // TAMBAHKAN D1 & D2
-      'IssuedBy': document.getElementById('picD1').value,
+      // D1 & D2
+      'D1': document.getElementById('picD1').value,
+      'D2': document.getElementById('picD2').value,
       'InterimActBy': document.getElementById('picD3').value,
       'RC-AnalysisBy': document.getElementById('picD4').value,
       'CABy': document.getElementById('picD5').value,
       'ValidateCAPABy': document.getElementById('picD6').value,
       'PABy': document.getElementById('picD7').value,
       'ApprovedBy': document.getElementById('picD8').value,
-      'StatusNC': 'Open'
+      'StatusNC': 'Open',
+      'PhotoUrl': photoUrl // <-- Tambahkan ini!
     }
   };
 
@@ -1720,6 +1962,9 @@ async function submitD1D2(e) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
     });
+
+    // ✅ Reset upload foto setelah sukses
+    resetPhotoUpload();
     
     alert('✅ NCR Submitted Successfully!');
     showDashboard();
@@ -1729,7 +1974,6 @@ async function submitD1D2(e) {
     alert("❌ Submission failed: " + err.message);
   }
 }
-
   // ==========================================
 // FUNGSI BARU: LOAD PIC DATA (D1-D8)
 // ==========================================
@@ -2529,6 +2773,7 @@ function loadNCRViewData(ncr) {
   document.getElementById('fuViewSortingRequired').value = ncr.SortingRepairReworkRequired || '-';
   document.getElementById('fuViewSortingPIC').value = ncr.SortingReworkPIC || '-';
 
+  
   // ===== D3: INTERIM ACTION =====
   const d3DateEl = document.getElementById('fuInterimDate');
   if (d3DateEl) {
@@ -2909,6 +3154,8 @@ async function submitD2Update() {
       body: JSON.stringify(payload)
     });
     hideLoadingOverlay();
+    resetFuPhotoUpload();
+    
     alert('✅ D2 Updated!');
     // Kembalikan ke view mode
     document.getElementById('toggleD2Edit').checked = false;
@@ -2942,6 +3189,48 @@ function formatDateForInput(dateStr) {
   } catch(e) {}
   return '';
 }
+
+// ==========================================
+// FUNGSI UPLOAD FOTO
+// ==========================================
+let uploadedPhotoData = null;
+let uploadedPhotoName = null;
+
+function previewPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  // Validasi ukuran (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    alert('❌ Ukuran foto terlalu besar! Maksimal 5MB.');
+    event.target.value = '';
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const previewContainer = document.getElementById('photoPreviewContainer');
+    const preview = document.getElementById('photoPreview');
+    preview.src = e.target.result;
+    previewContainer.style.display = 'block';
+    
+    // Simpan data foto untuk diupload
+    uploadedPhotoData = e.target.result.split(',')[1]; // Base64 tanpa header
+    uploadedPhotoName = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto() {
+  document.getElementById('photoUpload').value = '';
+  document.getElementById('photoPreviewContainer').style.display = 'none';
+  document.getElementById('photoPreview').src = '#';
+  uploadedPhotoData = null;
+  uploadedPhotoName = null;
+}
+
+
+
   
 </script>
 </body>
