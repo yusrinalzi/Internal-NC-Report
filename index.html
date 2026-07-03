@@ -389,7 +389,6 @@
 </div>
 
 <!-- ========== MAIN APP ========== -->
-
 <!-- ========== LOADING OVERLAY (FULL PAGE) ========== -->
 <div id="loadingOverlay" class="spinner-overlay">
   <div class="spinner-box">
@@ -706,6 +705,7 @@
     </div>
   </div>
 
+  
 <!-- ========== FOLLOW-UP PAGE ========== -->
 <div id="followUpPage" class="page-content">
   <div class="d-flex justify-content-between align-items-center mb-4">
@@ -735,87 +735,12 @@
         <label class="small fw-bold">D1</label>
         <input type="text" id="fuPicD1" class="form-control form-control-sm" readonly>
       </div>
-      
-<!-- ===== D2: NON-CONFORMITY REPORT (View Only) ===== -->
-<div class="followup-section" style="border-left-color: #6c757d;">
-  <h5>
-    <span class="badge-d" style="background:#6c757d;">D2</span> 
-    PROBLEM DESCRIPTION
-    <div class="ms-auto d-flex align-items-center gap-2">
-      <div class="form-check form-switch mb-0">
-        <input class="form-check-input" type="checkbox" id="toggleD2Edit" 
-               onchange="toggleD2Mode(this.checked)">
-        <label class="form-check-label small" for="toggleD2Edit" id="labelD2Mode">
-          VIEW ONLY
-        </label>
+<!-- D2 - Otomatis-->
+      <div class="col">
+        <label class="small fw-bold">D2</label>
+        <input type="text" id="fuPicD2" class="form-control form-control-sm" readonly>
       </div>
-      <button class="btn-submit-d btn-sm" id="btnUpdateD2" 
-              onclick="submitD2Update()" style="display:none;">
-        <i class="fas fa-save"></i> Update D2
-      </button>
-    </div>
-  </h5>
-  
-  <div class="row g-3">
-    <!-- ===== SEMUA FIELD D2 DI SINI ===== -->
     
-    <!-- Row 1: Issued By, Issued Date, ID No -->
-    <div class="col-md-4">
-      <label class="form-label fw-bold">Issued By</label>
-      <input type="text" id="fuViewIssuedBy" class="form-control" readonly>
-    </div>
-    <div class="col-md-4">
-      <label class="form-label fw-bold">Issued Date</label>
-      <input type="text" id="fuViewIssuedDate" class="form-control" readonly>
-    </div>
-    <div class="col-md-4">
-      <label class="form-label fw-bold">ID No.</label>
-      <input type="text" id="fuViewIdNo" class="form-control" readonly>
-    </div>
-    
-    <!-- ... semua field D2 lainnya ... -->
-    
-    <!-- Row 9: Sorting Required -->
-    <div class="col-md-6">
-      <label class="form-label fw-bold">Is sorting, repair or rework required?</label>
-      <input type="text" id="fuViewSortingRequired" class="form-control" readonly>
-    </div>
-    <div class="col-md-6">
-      <label class="form-label fw-bold">Sorting Rework PIC</label>
-      <input type="text" id="fuViewSortingPIC" class="form-control" readonly>
-    </div>
-    
-    <!-- ===== 📷 FOTO NC - DITARUH DI SINI (setelah semua field) ===== -->
-    <div class="col-12">
-      <hr>
-      <label class="form-label fw-bold">📷 Foto Non-Conformity</label>
-      
-      <!-- Tampilan foto -->
-      <div id="fuPhotoContainer">
-        <div id="fuPhotoPlaceholder" class="img-placeholder" style="height:200px; background:#f0f0f0; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#999; border:2px dashed #ddd;">
-          <i class="fas fa-image fa-3x"></i>
-          <p class="mt-2 mb-0">Belum ada foto</p>
-        </div>
-        <img id="fuPhotoDisplay" src="#" alt="NCR Photo" style="display:none; max-width:100%; max-height:300px; border-radius:8px; border:1px solid #ddd; object-fit:contain; background:#fafafa;">
-      </div>
-      
-      <!-- Upload foto baru (hanya muncul di EDIT MODE) -->
-      <div id="fuPhotoEditSection" style="display:none; margin-top:10px;">
-        <label class="form-label fw-bold">📷 Ganti Foto</label>
-        <input type="file" id="fuPhotoUpload" class="form-control" accept="image/*" onchange="previewFuPhoto(event)">
-        <div id="fuPhotoPreviewContainer" class="mt-2" style="display:none;">
-          <img id="fuPhotoPreview" src="#" alt="Preview" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px; background:white;">
-          <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removeFuPhoto()">
-            <i class="fas fa-trash"></i> Hapus
-          </button>
-        </div>
-        <small class="text-muted">Format: JPG, PNG (Max 5MB)</small>
-      </div>
-    </div>
-    
-  </div> <!-- end row -->
-</div> <!-- end followup-section -->
-      
       <!-- D3-D8 dropdown -->
       <div class="col">
         <label class="small fw-bold">D3 (Interim act by)</label>
@@ -886,6 +811,7 @@
     </button>
   </div>
 </h5>
+   
     
     <div class="row g-3">
       <!-- Row 1: Issued By, Issued Date, ID No -->
@@ -982,8 +908,36 @@
         <input type="text" id="fuViewSortingPIC" class="form-control" readonly>
       </div>
     </div>
+      
+    <!-- ===== 📷 FOTO NC - DITARUH DI SINI (setelah semua field) ===== -->
+    <div class="col-12">
+      <hr>
+      <label class="form-label fw-bold">📷 Foto Non-Conformity</label>
+      
+      <!-- Tampilan foto -->
+      <div id="fuPhotoContainer">
+        <div id="fuPhotoPlaceholder" class="img-placeholder" style="height:200px; background:#f0f0f0; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#999; border:2px dashed #ddd;">
+          <i class="fas fa-image fa-3x"></i>
+          <p class="mt-2 mb-0">Belum ada foto</p>
+        </div>
+        <img id="fuPhotoDisplay" src="#" alt="NCR Photo" style="display:none; max-width:100%; max-height:300px; border-radius:8px; border:1px solid #ddd; object-fit:contain; background:#fafafa;">
+      </div>
+      
+      <!-- Upload foto baru (hanya muncul di EDIT MODE) -->
+      <div id="fuPhotoEditSection" style="display:none; margin-top:10px;">
+        <label class="form-label fw-bold">📷 Ganti Foto</label>
+        <input type="file" id="fuPhotoUpload" class="form-control" accept="image/*" onchange="previewFuPhoto(event)">
+        <div id="fuPhotoPreviewContainer" class="mt-2" style="display:none;">
+          <img id="fuPhotoPreview" src="#" alt="Preview" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px; background:white;">
+          <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removeFuPhoto()">
+            <i class="fas fa-trash"></i> Hapus
+          </button>
+        </div>
+        <small class="text-muted">Format: JPG, PNG (Max 5MB)</small>
+      </div>
+    </div>
   </div>
-
+      
       <!-- ===== D3 - Interim/Containment Action ===== -->
     <div class="followup-section" style="border-left-color: #ff9800;">
       <h5><span class="badge-d" style="background:#ff9800;">D3</span> Interim/Containment Action</h5>
@@ -1355,7 +1309,7 @@
   </div>
  </div>
 </div>   
-       
+</div>        
 
 <script>
   // ==========================================
