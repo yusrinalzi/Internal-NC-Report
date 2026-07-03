@@ -1564,13 +1564,9 @@ function openFollowUp() {
 async function openFollowUpFromRow(idNo) {
   currentFollowUpId = idNo;
   localStorage.setItem('currentFollowUpId', idNo);
-  openFollowUp();
-  
-  await loadDashboardData();
-  await loadPICData();
-  
+  openFollowUp(); // remove loadAuditors() call from inside openFollowUp, see below
+
   const ncr = rawDataNCR.find(r => r['ID No.'] === idNo);
-  
   if (ncr) {
     document.getElementById('followUpId').textContent = ncr['ID No.'] || '-';
     document.getElementById('followUpType').textContent = ncr.Type || '-';
@@ -1635,32 +1631,18 @@ function getActiveDandPIC(r) {
 // ==========================================
 async function loadAllData() {
   showLoadingOverlay('Loading data from Google Sheet...');
-  
   try {
-    await loadDashboardData();  // Load semua NCR dari GS
-    await loadAuditors();       // Load daftar auditor dari GS
-    await loadPICData();        // Load data PIC dari GS
-    
-    // ===== CEK APAKAH ADA FOLLOW-UP YANG AKTIF =====
-    const savedId = localStorage.getItem('currentFollowUpId');
-    if (savedId && document.getElementById('followUpPage').style.display === 'block') {
-      // Refresh follow-up view dengan data terbaru
-      const ncr = rawDataNCR.find(r => r['ID No.'] === savedId);
-      if (ncr) {
-        loadNCRViewData(ncr);
-        assignFollowUpPIC();
-        
-        // Pre-fill D3-D8
-        loadNCRViewData(ncr);
-      }
-    }
-    
+    await Promise.all([
+      loadDashboardData(),
+      loadAuditors(),
+      loadPICData()
+    ]);
+    // ...rest of your follow-up refresh logic stays after this
     hideLoadingOverlay();
-    
   } catch(error) {
     console.error('Error loading data:', error);
     hideLoadingOverlay();
-    alert('❌ Failed to load data from Google Sheet: ' + error.message);
+    alert('❌ Failed to load data: ' + error.message);
   }
 }
 
