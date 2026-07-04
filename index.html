@@ -1878,27 +1878,18 @@ async function submitD1D2(e) {
   if (uploadedPhotoData) {
     showLoadingOverlay('Uploading photo...');
     try {
-      const formData = new FormData();
-      formData.append('imageData', uploadedPhotoData);
-      formData.append('fileName', uploadedPhotoName || 'photo_' + Date.now() + '.jpg');
-      formData.append('idNo', document.getElementById('idNo').value);
+      // 🔥 PAKAI uploadPhotoToGitHub
+      const result = await uploadPhotoToGitHub(
+        uploadedPhotoData,
+        uploadedPhotoName || 'photo_' + Date.now() + '.jpg',
+        document.getElementById('idNo').value
+      );
       
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        body: formData
-        // JANGAN set Content-Type!
-      });
-      
-      // Coba baca response (jika bisa)
-      try {
-        const result = await response.text();
-        console.log('📥 Upload response:', result);
-        const json = JSON.parse(result);
-        if (json.status === 'ok' && json.photoUrl) {
-          photoUrl = json.photoUrl;
-        }
-      } catch(e) {
-        console.warn('⚠️ Cannot parse response (mode no-cors):', e);
+      if (result.success) {
+        photoUrl = result.url;
+        console.log('✅ Photo uploaded:', photoUrl);
+      } else {
+        console.error('❌ Upload failed:', result.error);
       }
       
     } catch(err) {
@@ -1907,7 +1898,7 @@ async function submitD1D2(e) {
     hideLoadingOverlay();
   }
   
-  // Submit NCR
+  // Submit NCR (sama seperti sebelumnya)
   const formData = {
     action: 'appendNCR',
     timestamp: new Date().toISOString(),
@@ -1932,8 +1923,7 @@ async function submitD1D2(e) {
       'SortingReworkPIC': document.getElementById('picD3').value,
       'Period': new Date().toLocaleDateString('en-GB'),
       'IssuedBy': document.getElementById('issuedBy').value,
-      'NCPicture': photoUrl, // ← TAMBAHKAN INI!
-      // D1 & D2
+      'NCPicture': photoUrl, // 🔥 URL dari GitHub
       'D1': document.getElementById('picD1').value,
       'D2': document.getElementById('picD2').value,
       'InterimActBy': document.getElementById('picD3').value,
@@ -1966,6 +1956,8 @@ async function submitD1D2(e) {
     alert("❌ Submission failed: " + err.message);
   }
 }
+
+  
   // ==========================================
 // FUNGSI BARU: LOAD PIC DATA (D1-D8)
 // ==========================================
@@ -3148,15 +3140,18 @@ async function submitD2Update() {
   if (fuUploadedPhotoData) {
     showLoadingOverlay('Uploading photo...');
     try {
-      const formData = new FormData();
-      formData.append('imageData', fuUploadedPhotoData);
-      formData.append('fileName', fuUploadedPhotoName || 'fu_photo_' + Date.now() + '.jpg');
-      formData.append('idNo', currentFollowUpId);
+      // 🔥 PAKAI uploadPhotoToGitHub
+      const result = await uploadPhotoToGitHub(
+        fuUploadedPhotoData,
+        fuUploadedPhotoName || 'fu_photo_' + Date.now() + '.jpg',
+        currentFollowUpId
+      );
       
-      await fetch(API_URL, {
-        method: 'POST',
-        body: formData
-      });
+      if (result.success) {
+        photoUrl = result.url;
+        console.log('✅ Follow-up photo uploaded:', photoUrl);
+      }
+      
     } catch(err) {
       console.error('❌ Error upload foto follow-up:', err);
     }
@@ -3179,7 +3174,7 @@ async function submitD2Update() {
     InterimAction:  document.getElementById('fuViewInterimAct').value,
     SortingRepairReworkRequired: document.getElementById('fuViewSortingRequired').value,
     SortingReworkPIC: document.getElementById('fuViewSortingPIC').value,
-    NCPicture:      photoUrl // ← TAMBAHKAN INI!
+    NCPicture:      photoUrl // 🔥 URL dari GitHub
   };
   
   const payload = {
@@ -3205,7 +3200,6 @@ async function submitD2Update() {
     toggleD2Mode(false);
     await loadDashboardData();
     
-    // Refresh view
     const ncr = rawDataNCR.find(r => r['ID No.'] === currentFollowUpId);
     if (ncr) loadNCRViewData(ncr);
     
@@ -3719,6 +3713,100 @@ function removeFuPhoto() {
   if (placeholder) placeholder.style.display = 'flex';
 }
 
+// ==========================================
+// FUNGSI UPLOAD KE GITHUB
+// ==========================================
+
+// Fungsi untuk membaca file sebagai base64
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            // Ambil hanya bagian base64 (tanpa prefix data:image/...)
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+        };
+        reader.onerror = (error) => {
+            reject(error);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// Fungsi upload ke GitHub via Apps Script
+async function uploadImageToGitHub(file, folder = 'Images') {
+    try {
+        const base64Content = await readFileAsBase64(file);
+        
+        console.log('📤 Uploading via Apps Script...');
+        console.log('📤 File:', file.name);
+        
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+                action: 'uploadImage',  // <-- SESUAI dengan GS
+                data: {
+                    image: base64Content,
+                    filename: file.name,
+                    folder: folder
+                }
+            })
+        });
+        
+        const result = await response.json();
+        console.log('📥 Response:', result);
+        
+        if (result.success) {
+            console.log('✅ Upload success:', result.url);
+            return { success: true, url: result.url };
+        } else {
+            throw new Error(result.error || 'Upload failed');
+        }
+        
+    } catch (error) {
+        console.error('❌ Upload error:', error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+// Upload foto dari camera (Create NCR)
+async function uploadPhotoToGitHub(base64Data, fileName, idNo) {
+    try {
+        console.log('📤 Uploading photo from camera...');
+        console.log('📤 File:', fileName);
+        console.log('📤 ID No:', idNo);
+        
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+                action: 'uploadImage',  // <-- SESUAI dengan GS
+                data: {
+                    image: base64Data,
+                    filename: fileName,
+                    folder: 'Images'
+                }
+            })
+        });
+        
+        const result = await response.json();
+        console.log('📥 Upload result:', result);
+        
+        if (result.success) {
+            return { success: true, url: result.url };
+        } else {
+            throw new Error(result.error || 'Upload failed');
+        }
+        
+    } catch (error) {
+        console.error('❌ Upload error:', error.message);
+        return { success: false, error: error.message };
+    }
+}  
+  
+
+  
 
   
 </script>
