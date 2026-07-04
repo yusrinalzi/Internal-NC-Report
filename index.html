@@ -3622,32 +3622,7 @@ function processPhotoFromCameraFu(imageData) {
   }
 }
 
-// ==========================================
-// FUNGSI PREVIEW FOTO (Create NCR)
-// ==========================================
 
-function previewPhoto(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  if (file.size > 5 * 1024 * 1024) {
-    alert('❌ Ukuran foto terlalu besar! Maksimal 5MB.');
-    event.target.value = '';
-    return;
-  }
-  
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const previewContainer = document.getElementById('photoPreviewContainer');
-    const preview = document.getElementById('photoPreview');
-    preview.src = e.target.result;
-    previewContainer.style.display = 'block';
-    
-    uploadedPhotoData = e.target.result.split(',')[1];
-    uploadedPhotoName = file.name;
-  };
-  reader.readAsDataURL(file);
-}
 
 function removePhoto() {
   document.getElementById('photoUpload').value = '';
@@ -3657,61 +3632,6 @@ function removePhoto() {
   uploadedPhotoName = null;
 }
 
-// ==========================================
-// FUNGSI PREVIEW FOTO (Follow-up)
-// ==========================================
-
-let fuUploadedPhotoData = null;
-let fuUploadedPhotoName = null;
-
-function previewFuPhoto(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  if (file.size > 5 * 1024 * 1024) {
-    alert('❌ Ukuran foto terlalu besar! Maksimal 5MB.');
-    event.target.value = '';
-    return;
-  }
-  
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const previewContainer = document.getElementById('fuPhotoPreviewContainer');
-    const preview = document.getElementById('fuPhotoPreview');
-    const display = document.getElementById('fuPhotoDisplay');
-    const placeholder = document.getElementById('fuPhotoPlaceholder');
-    
-    preview.src = e.target.result;
-    previewContainer.style.display = 'block';
-    
-    if (placeholder) placeholder.style.display = 'none';
-    if (display) {
-      display.src = e.target.result;
-      display.style.display = 'block';
-    }
-    
-    fuUploadedPhotoData = e.target.result.split(',')[1];
-    fuUploadedPhotoName = file.name;
-  };
-  reader.readAsDataURL(file);
-}
-
-function removeFuPhoto() {
-  document.getElementById('fuPhotoUpload').value = '';
-  document.getElementById('fuPhotoPreviewContainer').style.display = 'none';
-  document.getElementById('fuPhotoPreview').src = '#';
-  fuUploadedPhotoData = null;
-  fuUploadedPhotoName = null;
-  
-  // Tampilkan placeholder kembali
-  const display = document.getElementById('fuPhotoDisplay');
-  const placeholder = document.getElementById('fuPhotoPlaceholder');
-  if (display) {
-    display.style.display = 'none';
-    display.src = '#';
-  }
-  if (placeholder) placeholder.style.display = 'flex';
-}
 
 // ==========================================
 // FUNGSI UPLOAD KE GITHUB
@@ -3804,7 +3724,80 @@ async function uploadPhotoToGitHub(base64Data, fileName, idNo) {
         return { success: false, error: error.message };
     }
 }  
-  
+async function handleImg(event, i) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validasi tipe file
+    if (!file.type.startsWith('image/')) {
+        showToast('Hanya file gambar yang diperbolehkan!', 'error');
+        return;
+    }
+
+    // Validasi ukuran file (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        showToast('Ukuran file maksimal 5MB!', 'error');
+        return;
+    }
+
+    // Tampilkan preview dulu
+    const reader = new FileReader();
+    reader.onload = e => {
+        questionStates[i].picSrc = e.target.result;
+        questionStates[i].picName = file.name;
+        const img = document.getElementById(`imgPrev_${i}`);
+        img.src = e.target.result;
+        img.style.display = 'block';
+        
+        // Tambahkan status upload
+        const statusEl = document.createElement('span');
+        statusEl.className = 'upload-status';
+        statusEl.id = `uploadStatus_${i}`;
+        statusEl.textContent = '⏳ Uploading to GitHub...';
+        const parentDiv = img.parentElement;
+        const existingStatus = document.getElementById(`uploadStatus_${i}`);
+        if (existingStatus) existingStatus.remove();
+        parentDiv.appendChild(statusEl);
+    };
+    reader.readAsDataURL(file);
+
+    // 🔥 PAKAI uploadImageToGitHub (JSON)
+    try {
+        const result = await uploadImageToGitHub(file);
+        const statusEl = document.getElementById(`uploadStatus_${i}`);
+        
+        if (result.success) {
+            questionStates[i].githubUrl = result.url;
+            questionStates[i].githubPath = result.path || '';
+            questionStates[i].picSrc = result.url;
+            
+            statusEl.textContent = '✅ Uploaded to GitHub';
+            statusEl.style.color = 'var(--success)';
+            showToast(`✅ Image ${file.name} uploaded to GitHub`, 'success');
+            
+            // Tambahkan link untuk melihat file
+            const linkEl = document.createElement('a');
+            linkEl.href = result.url;
+            linkEl.target = '_blank';
+            linkEl.textContent = '🔗 View';
+            linkEl.style.marginLeft = '8px';
+            linkEl.style.fontSize = '12px';
+            linkEl.style.color = 'var(--primary)';
+            statusEl.appendChild(linkEl);
+        } else {
+            statusEl.textContent = `❌ Upload failed: ${result.error}`;
+            statusEl.style.color = 'var(--danger)';
+            showToast(`❌ Failed to upload ${file.name}`, 'error');
+        }
+    } catch (error) {
+        const statusEl = document.getElementById(`uploadStatus_${i}`);
+        if (statusEl) {
+            statusEl.textContent = '❌ Upload failed';
+            statusEl.style.color = 'var(--danger)';
+        }
+        showToast(`❌ Error uploading image: ${error.message}`, 'error');
+    }
+}  
 
   
 
