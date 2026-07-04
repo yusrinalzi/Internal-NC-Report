@@ -1363,7 +1363,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbw2KXy0dce7JJSAOB0IY3E_E-0Rc94lYHy0u2aEu_9RG28ABqR7XzmCvnWeyQeuTX-J/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwLH2CeAUAHM_W4t4w0ukaHnj9slo-LdqnBsURAZ4penzfCjnCYcG1z0vTweU1y2Bcj/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
@@ -1871,33 +1871,43 @@ function sendNoticeEmail(picId, subjectText, bodyText) {
 // 7. FUNGSI SUBMIT NCR (CREATE)
 // ==========================================
 async function submitD1D2(e) {
-  e.preventDefault(); // <-- HARUS di awal!
+  e.preventDefault();
   
-  // Upload foto baru jika ada (gunakan variabel dari Create NCR)
+  // Upload foto dulu
   let photoUrl = '';
-  // Di dalam submitD1D2, bagian upload foto:
-if (uploadedPhotoData) {
-  showLoadingOverlay('Uploading photo...');
-  try {
-    const formData = new FormData();
-    formData.append('action', 'uploadPhoto');
-    formData.append('imageData', uploadedPhotoData);
-    formData.append('fileName', uploadedPhotoName || 'photo.jpg');
-    formData.append('idNo', document.getElementById('idNo').value);
-    
-    // Kirim dengan fetch (mode no-cors agar tidak blocking)
-    await fetch(API_URL, {
-      method: 'POST',
-      body: formData  // Jangan set Content-Type, biar browser yang set
-    });
-    
-  } catch(err) {
-    console.error('❌ Error upload foto:', err);
+  if (uploadedPhotoData) {
+    showLoadingOverlay('Uploading photo...');
+    try {
+      const formData = new FormData();
+      formData.append('imageData', uploadedPhotoData);
+      formData.append('fileName', uploadedPhotoName || 'photo_' + Date.now() + '.jpg');
+      formData.append('idNo', document.getElementById('idNo').value);
+      
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        body: formData
+        // JANGAN set Content-Type!
+      });
+      
+      // Coba baca response (jika bisa)
+      try {
+        const result = await response.text();
+        console.log('📥 Upload response:', result);
+        const json = JSON.parse(result);
+        if (json.status === 'ok' && json.photoUrl) {
+          photoUrl = json.photoUrl;
+        }
+      } catch(e) {
+        console.warn('⚠️ Cannot parse response (mode no-cors):', e);
+      }
+      
+    } catch(err) {
+      console.error('❌ Error upload foto:', err);
+    }
+    hideLoadingOverlay();
   }
-  hideLoadingOverlay();
-}
   
-  // === LANJUTKAN SUBMIT NCR ===
+  // Submit NCR
   const formData = {
     action: 'appendNCR',
     timestamp: new Date().toISOString(),
@@ -1922,6 +1932,7 @@ if (uploadedPhotoData) {
       'SortingReworkPIC': document.getElementById('picD3').value,
       'Period': new Date().toLocaleDateString('en-GB'),
       'IssuedBy': document.getElementById('issuedBy').value,
+      'NCPicture': photoUrl, // ← TAMBAHKAN INI!
       // D1 & D2
       'D1': document.getElementById('picD1').value,
       'D2': document.getElementById('picD2').value,
@@ -1931,26 +1942,26 @@ if (uploadedPhotoData) {
       'ValidateCAPABy': document.getElementById('picD6').value,
       'PABy': document.getElementById('picD7').value,
       'ApprovedBy': document.getElementById('picD8').value,
-      'StatusNC': 'Open',
-      'PhotoUrl': photoUrl // <-- Tambahkan ini!
+      'StatusNC': 'Open'
     }
   };
 
   try {
+    showLoadingOverlay('Saving NCR...');
     await fetch(API_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
     });
+    hideLoadingOverlay();
 
-    // ✅ Reset upload foto setelah sukses
     resetPhotoUpload();
-    
     alert('✅ NCR Submitted Successfully!');
     showDashboard();
     loadAllData();
   } catch(err) { 
+    hideLoadingOverlay();
     console.error("Submission error:", err);
     alert("❌ Submission failed: " + err.message);
   }
@@ -2754,6 +2765,30 @@ function loadNCRViewData(ncr) {
   document.getElementById('fuViewSortingRequired').value = ncr.SortingRepairReworkRequired || '-';
   document.getElementById('fuViewSortingPIC').value = ncr.SortingReworkPIC || '-';
 
+ const photoUrl = ncr.NCPicture || '';
+  const display = document.getElementById('fuPhotoDisplay');
+  const placeholder = document.getElementById('fuPhotoPlaceholder');
+  
+  if (photoUrl && photoUrl.startsWith('http')) {
+    // Tampilkan foto
+    if (display) {
+      display.src = photoUrl;
+      display.style.display = 'block';
+      display.onerror = function() {
+        // Jika gagal load, tampilkan placeholder
+        this.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'flex';
+      };
+    }
+    if (placeholder) placeholder.style.display = 'none';
+  } else {
+    // Sembunyikan foto, tampilkan placeholder
+    if (display) {
+      display.style.display = 'none';
+      display.src = '#';
+    }
+    if (placeholder) placeholder.style.display = 'flex';
+  }
   
   // ===== D3: INTERIM ACTION =====
   const d3DateEl = document.getElementById('fuInterimDate');
@@ -3109,13 +3144,13 @@ async function submitD2Update() {
   if (!currentFollowUpId) { alert('⚠️ Pilih NCR terlebih dahulu!'); return; }
   
   // Upload foto jika ada
+  let photoUrl = '';
   if (fuUploadedPhotoData) {
     showLoadingOverlay('Uploading photo...');
     try {
       const formData = new FormData();
-      formData.append('action', 'uploadPhoto');
       formData.append('imageData', fuUploadedPhotoData);
-      formData.append('fileName', fuUploadedPhotoName || 'fu_photo.jpg');
+      formData.append('fileName', fuUploadedPhotoName || 'fu_photo_' + Date.now() + '.jpg');
       formData.append('idNo', currentFollowUpId);
       
       await fetch(API_URL, {
@@ -3144,6 +3179,7 @@ async function submitD2Update() {
     InterimAction:  document.getElementById('fuViewInterimAct').value,
     SortingRepairReworkRequired: document.getElementById('fuViewSortingRequired').value,
     SortingReworkPIC: document.getElementById('fuViewSortingPIC').value,
+    NCPicture:      photoUrl // ← TAMBAHKAN INI!
   };
   
   const payload = {
@@ -3168,6 +3204,11 @@ async function submitD2Update() {
     document.getElementById('toggleD2Edit').checked = false;
     toggleD2Mode(false);
     await loadDashboardData();
+    
+    // Refresh view
+    const ncr = rawDataNCR.find(r => r['ID No.'] === currentFollowUpId);
+    if (ncr) loadNCRViewData(ncr);
+    
   } catch(err) {
     hideLoadingOverlay();
     alert('❌ Gagal update: ' + err.message);
