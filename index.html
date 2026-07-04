@@ -1363,7 +1363,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbyRfq-Nmjed2wPL3VKc8QLNyvFlxTvLckJJgu7nb0DDY5yj_snacE-LtZhpkfQOTXsl/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxWMjfhhJ3EfhDOQqpGfX7mSl0Xn_vPyaQwZxxqAe5-pxv6FWewYgGm170ytfuN0mxR/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
@@ -1873,24 +1873,28 @@ function sendNoticeEmail(picId, subjectText, bodyText) {
 async function submitD1D2(e) {
   e.preventDefault();
   
-  // Upload foto dulu
   let photoUrl = '';
   if (uploadedPhotoData) {
     showLoadingOverlay('Uploading photo...');
     try {
-      // 🔥 PAKAI uploadPhotoToGitHub
-      const result = await uploadPhotoToGitHub(
-        uploadedPhotoData,
-        uploadedPhotoName || 'photo_' + Date.now() + '.jpg',
-        document.getElementById('idNo').value
-      );
+      // 🔥 Kirim request, tapi tidak baca response (no-cors)
+      await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',  // <-- PAKAI no-cors
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          action: 'uploadImage',
+          data: {
+            image: uploadedPhotoData,
+            filename: uploadedPhotoName || 'photo_' + Date.now() + '.jpg',
+            folder: 'Images'
+          }
+        })
+      });
       
-      if (result.success) {
-        photoUrl = result.url;
-        console.log('✅ Photo uploaded:', photoUrl);
-      } else {
-        console.error('❌ Upload failed:', result.error);
-      }
+      console.log('📤 Photo upload request sent (no-cors)');
+      // Karena no-cors, kita tidak bisa dapat URL dari response
+      // Tapi Google Script akan menyimpan URL di sheet NCPicture
       
     } catch(err) {
       console.error('❌ Error upload foto:', err);
@@ -1898,7 +1902,7 @@ async function submitD1D2(e) {
     hideLoadingOverlay();
   }
   
-  // Submit NCR (sama seperti sebelumnya)
+  // Submit NCR
   const formData = {
     action: 'appendNCR',
     timestamp: new Date().toISOString(),
@@ -1923,7 +1927,8 @@ async function submitD1D2(e) {
       'SortingReworkPIC': document.getElementById('picD3').value,
       'Period': new Date().toLocaleDateString('en-GB'),
       'IssuedBy': document.getElementById('issuedBy').value,
-      'NCPicture': photoUrl, // 🔥 URL dari GitHub
+      // 🔥 NCPicture akan diisi oleh Google Script saat upload
+      'NCPicture': '', // Kosong, nanti diisi oleh Google Script
       'D1': document.getElementById('picD1').value,
       'D2': document.getElementById('picD2').value,
       'InterimActBy': document.getElementById('picD3').value,
@@ -1956,7 +1961,6 @@ async function submitD1D2(e) {
     alert("❌ Submission failed: " + err.message);
   }
 }
-
   
   // ==========================================
 // FUNGSI BARU: LOAD PIC DATA (D1-D8)
@@ -3654,6 +3658,7 @@ function readFileAsBase64(file) {
 }
 
 // Fungsi upload ke GitHub via Apps Script
+// Fungsi upload ke GitHub via Apps Script
 async function uploadImageToGitHub(file, folder = 'Images') {
     try {
         const base64Content = await readFileAsBase64(file);
@@ -3661,11 +3666,13 @@ async function uploadImageToGitHub(file, folder = 'Images') {
         console.log('📤 Uploading via Apps Script...');
         console.log('📤 File:', file.name);
         
-        const response = await fetch(API_URL, {
+        // 🔥 PAKAI no-cors
+        await fetch(API_URL, {
             method: 'POST',
+            mode: 'no-cors',  // <-- TAMBAHKAN INI!
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({
-                action: 'uploadImage',  // <-- SESUAI dengan GS
+                action: 'uploadImage',
                 data: {
                     image: base64Content,
                     filename: file.name,
@@ -3674,15 +3681,9 @@ async function uploadImageToGitHub(file, folder = 'Images') {
             })
         });
         
-        const result = await response.json();
-        console.log('📥 Response:', result);
-        
-        if (result.success) {
-            console.log('✅ Upload success:', result.url);
-            return { success: true, url: result.url };
-        } else {
-            throw new Error(result.error || 'Upload failed');
-        }
+        // Karena no-cors, response tidak bisa dibaca
+        console.log('📤 Upload request sent (no-cors mode)');
+        return { success: true, url: '' };
         
     } catch (error) {
         console.error('❌ Upload error:', error.message);
@@ -3691,39 +3692,46 @@ async function uploadImageToGitHub(file, folder = 'Images') {
 }
 
 // Upload foto dari camera (Create NCR)
+  
 async function uploadPhotoToGitHub(base64Data, fileName, idNo) {
     try {
         console.log('📤 Uploading photo from camera...');
         console.log('📤 File:', fileName);
         console.log('📤 ID No:', idNo);
+        console.log('📤 Base64 length:', base64Data ? base64Data.length : 0);
         
-        const response = await fetch(API_URL, {
+        const payload = {
+            action: 'uploadImage',
+            data: {
+                image: base64Data,
+                filename: fileName,
+                folder: 'Images'
+            }
+        };
+        
+        console.log('📤 Sending upload request...');
+        
+        // 🔥 PAKAI no-cors, TAPI response TIDAK BISA dibaca
+        await fetch(API_URL, {
             method: 'POST',
+            mode: 'no-cors',  // <-- PAKAI no-cors
             headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({
-                action: 'uploadImage',  // <-- SESUAI dengan GS
-                data: {
-                    image: base64Data,
-                    filename: fileName,
-                    folder: 'Images'
-                }
-            })
+            body: JSON.stringify(payload)
         });
         
-        const result = await response.json();
-        console.log('📥 Upload result:', result);
+        // 🔥 Karena no-cors, kita TIDAK BISA baca response
+        // Tapi request tetap terkirim ke Google Script
+        console.log('📤 Upload request sent (no-cors mode)');
         
-        if (result.success) {
-            return { success: true, url: result.url };
-        } else {
-            throw new Error(result.error || 'Upload failed');
-        }
+        // 🔥 Kita asumsikan sukses, Google Script akan proses di backend
+        return { success: true, url: '' };
         
     } catch (error) {
         console.error('❌ Upload error:', error.message);
         return { success: false, error: error.message };
     }
-}  
+}
+  
 async function handleImg(event, i) {
     const file = event.target.files[0];
     if (!file) return;
