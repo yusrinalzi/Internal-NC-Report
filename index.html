@@ -396,7 +396,41 @@
     <p id="loadingMessage">Processing...</p>
   </div>
 </div>
+<!-- ========== CAMERA MODAL ========== -->
+<div id="cameraModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; justify-content:center; align-items:center; flex-direction:column; backdrop-filter:blur(4px);">
+  <div style="background:white; border-radius:16px; padding:24px; max-width:600px; width:95%; text-align:center; box-shadow:0 8px 48px rgba(0,0,0,0.4);">
+    <h5 class="mb-3">📷 Ambil Foto</h5>
+    <div style="position:relative; background:#000; border-radius:8px; overflow:hidden; min-height:300px; display:flex; align-items:center; justify-content:center;">
+      <video id="cameraVideo" autoplay playsinline style="width:100%; max-height:400px; background:#000; display:block; object-fit:contain;"></video>
+      <canvas id="cameraCanvas" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;"></canvas>
+    </div>
+    <div style="margin-top:16px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-danger" onclick="closeCamera()"><i class="fas fa-times"></i> Tutup</button>
+      <button class="btn btn-primary" onclick="capturePhoto()" id="btnCapture"><i class="fas fa-camera"></i> Ambil Foto</button>
+      <button class="btn btn-success" onclick="confirmPhoto()" id="btnConfirm" style="display:none;"><i class="fas fa-check"></i> Gunakan Foto</button>
+      <button class="btn btn-secondary" onclick="retakePhoto()" id="btnRetake" style="display:none;"><i class="fas fa-redo"></i> Ulangi</button>
+    </div>
+    <small class="text-muted d-block mt-2">Pastikan izin kamera diizinkan di browser Anda.</small>
+  </div>
+</div>
 
+<!-- ========== CAMERA MODAL FOR FOLLOW-UP ========== -->
+<div id="cameraModalFu" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; justify-content:center; align-items:center; flex-direction:column; backdrop-filter:blur(4px);">
+  <div style="background:white; border-radius:16px; padding:24px; max-width:600px; width:95%; text-align:center; box-shadow:0 8px 48px rgba(0,0,0,0.4);">
+    <h5 class="mb-3">📷 Ambil Foto (Follow-up)</h5>
+    <div style="position:relative; background:#000; border-radius:8px; overflow:hidden; min-height:300px; display:flex; align-items:center; justify-content:center;">
+      <video id="cameraVideoFu" autoplay playsinline style="width:100%; max-height:400px; background:#000; display:block; object-fit:contain;"></video>
+      <canvas id="cameraCanvasFu" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;"></canvas>
+    </div>
+    <div style="margin-top:16px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-danger" onclick="closeCameraFu()"><i class="fas fa-times"></i> Tutup</button>
+      <button class="btn btn-primary" onclick="capturePhotoFu()" id="btnCaptureFu"><i class="fas fa-camera"></i> Ambil Foto</button>
+      <button class="btn btn-success" onclick="confirmPhotoFu()" id="btnConfirmFu" style="display:none;"><i class="fas fa-check"></i> Gunakan Foto</button>
+      <button class="btn btn-secondary" onclick="retakePhotoFu()" id="btnRetakeFu" style="display:none;"><i class="fas fa-redo"></i> Ulangi</button>
+    </div>
+    <small class="text-muted d-block mt-2">Pastikan izin kamera diizinkan di browser Anda.</small>
+  </div>
+</div>
 
   
 <div id="appShell" class="page">
@@ -637,15 +671,22 @@
             </div>
 
             <!-- Upload Foto -->
+<!-- ✅ HANYA SATU BAGIAN UPLOAD FOTO -->
+<!-- Upload Foto -->
 <div class="col-12">
-  <label class="form-label fw-bold">📷 Upload Foto Non-Conformity</label>
-  <input type="file" id="photoUpload" class="form-control" accept="image/*" onchange="previewPhoto(event)">
-  <div id="photoPreviewContainer" class="mt-2" style="display:none;">
-    <img id="photoPreview" src="#" alt="Preview" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px;">
-    <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removePhoto()">✕ Hapus</button> 
-    <small class="text-muted">Format: JPG, PNG, GIF (Max 5MB)</small>
+  <label class="form-label fw-bold">📷 Upload / Ambil Foto Non-Conformity</label>
+  <div class="d-flex gap-2 flex-wrap">
+    <input type="file" id="photoUpload" class="form-control" accept="image/*" onchange="previewPhoto(event)" style="flex:1; min-width:150px;">
+    <button type="button" class="btn btn-primary" onclick="openCamera()" style="white-space:nowrap;">
+      <i class="fas fa-camera"></i> Ambil Foto
+    </button>
   </div>
- </div>
+  <div id="photoPreviewContainer" class="mt-2" style="display:none;">
+    <img id="photoPreview" src="#" alt="Preview" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px; background:white;">
+    <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removePhoto()">✕ Hapus</button>
+    <small class="text-muted d-block mt-1">Format: JPG, PNG (Max 5MB)</small>
+  </div>
+</div>
             
          <!-- D1-D8 TEAM PIC CONFIGURATION -->
 <div class="col-12 mt-4 border-top pt-3">
@@ -912,33 +953,38 @@
     </div>
       
     <!-- ===== 📷 FOTO NC - DITARUH DI SINI (setelah semua field) ===== -->
-    <div class="col-12">
-      <hr>
-      <label class="form-label fw-bold">📷 Foto Non-Conformity</label>
-      
-      <!-- Tampilan foto -->
-      <div id="fuPhotoContainer">
-        <div id="fuPhotoPlaceholder" class="img-placeholder" style="height:200px; background:#f0f0f0; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#999; border:2px dashed #ddd;">
-          <i class="fas fa-image fa-3x"></i>
-          <p class="mt-2 mb-0">Belum ada foto</p>
-        </div>
-        <img id="fuPhotoDisplay" src="#" alt="NCR Photo" style="display:none; max-width:100%; max-height:300px; border-radius:8px; border:1px solid #ddd; object-fit:contain; background:#fafafa;">
-      </div>
-      
-      <!-- Upload foto baru (hanya muncul di EDIT MODE) -->
-      <div id="fuPhotoEditSection" style="display:none; margin-top:10px;">
-        <label class="form-label fw-bold">📷 Ganti Foto</label>
-        <input type="file" id="fuPhotoUpload" class="form-control" accept="image/*" onchange="previewFuPhoto(event)">
-        <div id="fuPhotoPreviewContainer" class="mt-2" style="display:none;">
-          <img id="fuPhotoPreview" src="#" alt="Preview" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px; background:white;">
-          <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removeFuPhoto()">
-            <i class="fas fa-trash"></i> Hapus
-          </button>
-        </div>
-        <small class="text-muted">Format: JPG, PNG (Max 5MB)</small>
-      </div>
+    <!-- ===== 📷 FOTO NC - DITARUH DI SINI (setelah semua field) ===== -->
+<div class="col-12">
+  <hr>
+  <label class="form-label fw-bold">📷 Foto Non-Conformity</label>
+  
+  <!-- Tampilan foto -->
+  <div id="fuPhotoContainer">
+    <div id="fuPhotoPlaceholder" class="img-placeholder" style="height:200px; background:#f8f9fa; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#adb5bd; border:2px dashed #dee2e6;">
+      <i class="fas fa-image fa-3x"></i>
+      <p class="mt-2 mb-0">Belum ada foto</p>
     </div>
+    <img id="fuPhotoDisplay" src="#" alt="NCR Photo" style="display:none; max-width:100%; max-height:300px; border-radius:8px; border:1px solid #ddd; object-fit:contain; background:#fafafa;">
   </div>
+  
+  <!-- Upload foto baru (hanya muncul di EDIT MODE) -->
+  <div id="fuPhotoEditSection" style="display:none; margin-top:10px;">
+    <label class="form-label fw-bold">📷 Ganti Foto</label>
+    <div class="d-flex gap-2 flex-wrap">
+      <input type="file" id="fuPhotoUpload" class="form-control" accept="image/*" onchange="previewFuPhoto(event)" style="flex:1; min-width:150px;">
+      <button type="button" class="btn btn-primary" onclick="openCameraFu()" style="white-space:nowrap;">
+        <i class="fas fa-camera"></i> Ambil Foto
+      </button>
+    </div>
+    <div id="fuPhotoPreviewContainer" class="mt-2" style="display:none;">
+      <img id="fuPhotoPreview" src="#" alt="Preview" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px; background:white;">
+      <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removeFuPhoto()">
+        <i class="fas fa-trash"></i> Hapus
+      </button>
+    </div>
+    <small class="text-muted">Format: JPG, PNG (Max 5MB)</small>
+  </div>
+</div>
       
       <!-- ===== D3 - Interim/Containment Action ===== -->
     <div class="followup-section" style="border-left-color: #ff9800;">
@@ -1317,7 +1363,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbygYVnkQE8jhIE8mGdvaEm8rLsnfHvZ-RCevnnFFD2IJbW8ZmkXUPTG5bKYcSEF6x3u/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbw2KXy0dce7JJSAOB0IY3E_E-0Rc94lYHy0u2aEu_9RG28ABqR7XzmCvnWeyQeuTX-J/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
@@ -1460,9 +1506,7 @@ function showDashboard() {
   currentFollowUpId = null;
 }
 
-// ==========================================
-// FUNGSI RESET UPLOAD FOTO (Create NCR)
-// ==========================================
+// ✅ FUNGSI BARU
 function resetPhotoUpload() {
   uploadedPhotoData = null;
   uploadedPhotoName = null;
@@ -1480,6 +1524,7 @@ function resetPhotoUpload() {
 // ==========================================
 // FUNGSI RESET UPLOAD FOTO (Follow-up D2)
 // ==========================================
+// ✅ FUNGSI BARU
 function resetFuPhotoUpload() {
   fuUploadedPhotoData = null;
   fuUploadedPhotoName = null;
@@ -1492,7 +1537,7 @@ function resetFuPhotoUpload() {
   
   const fuPreview = document.getElementById('fuPhotoPreview');
   if (fuPreview) fuPreview.src = '#';
-}  
+}
   
 function openCreateForm() {
   document.getElementById('sectionDashboard').style.display = 'none';
@@ -1830,29 +1875,27 @@ async function submitD1D2(e) {
   
   // Upload foto baru jika ada (gunakan variabel dari Create NCR)
   let photoUrl = '';
-  if (uploadedPhotoData) { // <-- gunakan uploadedPhotoData, bukan fuUploadedPhotoData
-    showLoadingOverlay('Uploading photo...');
-    try {
-      const formData = new FormData();
-      formData.append('action', 'uploadPhoto');
-      formData.append('imageData', uploadedPhotoData); // <-- uploadedPhotoData
-      formData.append('fileName', uploadedPhotoName);  // <-- uploadedPhotoName
-      formData.append('idNo', document.getElementById('idNo').value); // <-- dari form Create NCR
-      
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        body: formData
-      });
-      
-      const result = await response.json();
-      if (result.status === 'ok') {
-        photoUrl = result.photoUrl;
-      }
-    } catch(err) {
-      console.error('❌ Error upload foto:', err);
-    }
-    hideLoadingOverlay();
+  // Di dalam submitD1D2, bagian upload foto:
+if (uploadedPhotoData) {
+  showLoadingOverlay('Uploading photo...');
+  try {
+    const formData = new FormData();
+    formData.append('action', 'uploadPhoto');
+    formData.append('imageData', uploadedPhotoData);
+    formData.append('fileName', uploadedPhotoName || 'photo.jpg');
+    formData.append('idNo', document.getElementById('idNo').value);
+    
+    // Kirim dengan fetch (mode no-cors agar tidak blocking)
+    await fetch(API_URL, {
+      method: 'POST',
+      body: formData  // Jangan set Content-Type, biar browser yang set
+    });
+    
+  } catch(err) {
+    console.error('❌ Error upload foto:', err);
   }
+  hideLoadingOverlay();
+}
   
   // === LANJUTKAN SUBMIT NCR ===
   const formData = {
@@ -3036,7 +3079,8 @@ function setDropdown(id, value) {
 }
 
   // Toggle D2 antara VIEW dan EDIT mode
-function toggleD2Mode(isEdit) {
+
+  function toggleD2Mode(isEdit) {
   const fields = [
     'fuViewIssuedBy','fuViewIssuedDate','fuViewIdNo','fuViewType',
     'fuViewCategory','fuViewShiftTime','fuViewPartNo','fuViewCustomerName',
@@ -3050,6 +3094,12 @@ function toggleD2Mode(isEdit) {
     if (el) el.readOnly = !isEdit;
   });
   
+  // Tampilkan/sembunyikan upload foto di D2
+  const photoEditSection = document.getElementById('fuPhotoEditSection');
+  if (photoEditSection) {
+    photoEditSection.style.display = isEdit ? 'block' : 'none';
+  }
+  
   document.getElementById('labelD2Mode').textContent = isEdit ? 'EDIT MODE' : 'VIEW ONLY';
   document.getElementById('btnUpdateD2').style.display = isEdit ? 'inline-block' : 'none';
 }
@@ -3057,6 +3107,26 @@ function toggleD2Mode(isEdit) {
 // Submit update D2 ke Google Sheet
 async function submitD2Update() {
   if (!currentFollowUpId) { alert('⚠️ Pilih NCR terlebih dahulu!'); return; }
+  
+  // Upload foto jika ada
+  if (fuUploadedPhotoData) {
+    showLoadingOverlay('Uploading photo...');
+    try {
+      const formData = new FormData();
+      formData.append('action', 'uploadPhoto');
+      formData.append('imageData', fuUploadedPhotoData);
+      formData.append('fileName', fuUploadedPhotoName || 'fu_photo.jpg');
+      formData.append('idNo', currentFollowUpId);
+      
+      await fetch(API_URL, {
+        method: 'POST',
+        body: formData
+      });
+    } catch(err) {
+      console.error('❌ Error upload foto follow-up:', err);
+    }
+    hideLoadingOverlay();
+  }
   
   const data = {
     IssuedBy:       document.getElementById('fuViewIssuedBy').value,
@@ -3095,9 +3165,9 @@ async function submitD2Update() {
     resetFuPhotoUpload();
     
     alert('✅ D2 Updated!');
-    // Kembalikan ke view mode
     document.getElementById('toggleD2Edit').checked = false;
     toggleD2Mode(false);
+    await loadDashboardData();
   } catch(err) {
     hideLoadingOverlay();
     alert('❌ Gagal update: ' + err.message);
@@ -3132,8 +3202,8 @@ function formatDateForInput(dateStr) {
 // FUNGSI UPLOAD FOTO
 // ==========================================
 let uploadedPhotoData = null;
-let uploadedPhotoName = null;
 
+// ✅ FUNGSI BARU
 function previewPhoto(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -3159,6 +3229,58 @@ function previewPhoto(event) {
   reader.readAsDataURL(file);
 }
 
+// ✅ FUNGSI BARU
+function previewFuPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (file.size > 5 * 1024 * 1024) {
+    alert('❌ Ukuran foto terlalu besar! Maksimal 5MB.');
+    event.target.value = '';
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const previewContainer = document.getElementById('fuPhotoPreviewContainer');
+    const preview = document.getElementById('fuPhotoPreview');
+    const display = document.getElementById('fuPhotoDisplay');
+    const placeholder = document.getElementById('fuPhotoPlaceholder');
+    
+    preview.src = e.target.result;
+    previewContainer.style.display = 'block';
+    
+    if (placeholder) placeholder.style.display = 'none';
+    if (display) {
+      display.src = e.target.result;
+      display.style.display = 'block';
+    }
+    
+    fuUploadedPhotoData = e.target.result.split(',')[1];
+    fuUploadedPhotoName = file.name;
+  };
+  reader.readAsDataURL(file);
+}  
+
+// ✅ FUNGSI BARU
+function removeFuPhoto() {
+  document.getElementById('fuPhotoUpload').value = '';
+  document.getElementById('fuPhotoPreviewContainer').style.display = 'none';
+  document.getElementById('fuPhotoPreview').src = '#';
+  fuUploadedPhotoData = null;
+  fuUploadedPhotoName = null;
+  
+  const display = document.getElementById('fuPhotoDisplay');
+  const placeholder = document.getElementById('fuPhotoPlaceholder');
+  if (display) {
+    display.style.display = 'none';
+    display.src = '#';
+  }
+  if (placeholder) placeholder.style.display = 'flex';
+}
+  
+  
+// ✅ FUNGSI BARU
 function removePhoto() {
   document.getElementById('photoUpload').value = '';
   document.getElementById('photoPreviewContainer').style.display = 'none';
@@ -3167,6 +3289,394 @@ function removePhoto() {
   uploadedPhotoName = null;
 }
 
+  // ==========================================
+// FUNGSI TAKE PICTURE DENGAN KAMERA
+// ==========================================
+
+let videoStream = null;
+let photoCaptured = false;
+
+function openCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert('❌ Browser Anda tidak mendukung akses kamera. Silakan gunakan Chrome atau Edge terbaru.');
+    return;
+  }
+
+  const modal = document.getElementById('cameraModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    startCamera();
+  } else {
+    alert('❌ Modal kamera tidak ditemukan. Silakan refresh halaman.');
+  }
+}
+
+async function startCamera() {
+  const video = document.getElementById('cameraVideo');
+  if (!video) return;
+  
+  try {
+    if (videoStream) {
+      videoStream.getTracks().forEach(track => track.stop());
+    }
+    
+    videoStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    
+    video.srcObject = videoStream;
+    await video.play();
+    photoCaptured = false;
+    
+    document.getElementById('btnCapture').style.display = 'inline-block';
+    document.getElementById('btnConfirm').style.display = 'none';
+    document.getElementById('btnRetake').style.display = 'none';
+    
+    // Reset canvas
+    const canvas = document.getElementById('cameraCanvas');
+    if (canvas) {
+      canvas.style.display = 'none';
+      video.style.display = 'block';
+    }
+    
+  } catch(err) {
+    console.error('❌ Error opening camera:', err);
+    alert('❌ Tidak dapat mengakses kamera. Pastikan Anda memberikan izin kamera.\n\nError: ' + err.message);
+    closeCamera();
+  }
+}
+
+function capturePhoto() {
+  const video = document.getElementById('cameraVideo');
+  const canvas = document.getElementById('cameraCanvas');
+  
+  if (!video || !canvas) return;
+  
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 720;
+  
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  canvas.style.display = 'block';
+  video.style.display = 'none';
+  
+  photoCaptured = true;
+  
+  document.getElementById('btnCapture').style.display = 'none';
+  document.getElementById('btnConfirm').style.display = 'inline-block';
+  document.getElementById('btnRetake').style.display = 'inline-block';
+}
+
+function retakePhoto() {
+  const video = document.getElementById('cameraVideo');
+  const canvas = document.getElementById('cameraCanvas');
+  
+  video.style.display = 'block';
+  canvas.style.display = 'none';
+  
+  photoCaptured = false;
+  
+  document.getElementById('btnCapture').style.display = 'inline-block';
+  document.getElementById('btnConfirm').style.display = 'none';
+  document.getElementById('btnRetake').style.display = 'none';
+}
+
+function confirmPhoto() {
+  const canvas = document.getElementById('cameraCanvas');
+  if (!canvas) return;
+  
+  const imageData = canvas.toDataURL('image/jpeg', 0.9);
+  closeCamera();
+  processPhotoFromCamera(imageData);
+}
+
+function closeCamera() {
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+  }
+  
+  const modal = document.getElementById('cameraModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  
+  photoCaptured = false;
+}
+
+function processPhotoFromCamera(imageData) {
+  const fileInput = document.getElementById('photoUpload');
+  const previewContainer = document.getElementById('photoPreviewContainer');
+  const preview = document.getElementById('photoPreview');
+  
+  // Konversi base64 ke blob
+  const byteString = atob(imageData.split(',')[1]);
+  const mimeType = imageData.split(',')[0].split(':')[1].split(';')[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  const blob = new Blob([ab], { type: mimeType });
+  
+  const fileName = 'camera_' + Date.now() + '.jpg';
+  const file = new File([blob], fileName, { type: mimeType });
+  
+  const dataTransfer = new DataTransfer();
+  dataTransfer.items.add(file);
+  fileInput.files = dataTransfer.files;
+  
+  preview.src = imageData;
+  previewContainer.style.display = 'block';
+  
+  uploadedPhotoData = imageData.split(',')[1];
+  uploadedPhotoName = fileName;
+  
+  const event = new Event('change', { bubbles: true });
+  fileInput.dispatchEvent(event);
+}
+
+// ==========================================
+// FUNGSI KAMERA UNTUK FOLLOW-UP
+// ==========================================
+
+let videoStreamFu = null;
+let photoCapturedFu = false;
+
+function openCameraFu() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert('❌ Browser Anda tidak mendukung akses kamera.');
+    return;
+  }
+
+  const modal = document.getElementById('cameraModalFu');
+  if (modal) {
+    modal.style.display = 'flex';
+    startCameraFu();
+  } else {
+    alert('❌ Modal kamera tidak ditemukan. Silakan refresh halaman.');
+  }
+}
+
+async function startCameraFu() {
+  const video = document.getElementById('cameraVideoFu');
+  if (!video) return;
+  
+  try {
+    if (videoStreamFu) {
+      videoStreamFu.getTracks().forEach(track => track.stop());
+    }
+    
+    videoStreamFu = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    
+    video.srcObject = videoStreamFu;
+    await video.play();
+    photoCapturedFu = false;
+    
+    document.getElementById('btnCaptureFu').style.display = 'inline-block';
+    document.getElementById('btnConfirmFu').style.display = 'none';
+    document.getElementById('btnRetakeFu').style.display = 'none';
+    
+    const canvas = document.getElementById('cameraCanvasFu');
+    if (canvas) {
+      canvas.style.display = 'none';
+      video.style.display = 'block';
+    }
+    
+  } catch(err) {
+    console.error('❌ Error opening camera:', err);
+    alert('❌ Tidak dapat mengakses kamera. Error: ' + err.message);
+    closeCameraFu();
+  }
+}
+
+function capturePhotoFu() {
+  const video = document.getElementById('cameraVideoFu');
+  const canvas = document.getElementById('cameraCanvasFu');
+  
+  if (!video || !canvas) return;
+  
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 720;
+  
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  canvas.style.display = 'block';
+  video.style.display = 'none';
+  photoCapturedFu = true;
+  
+  document.getElementById('btnCaptureFu').style.display = 'none';
+  document.getElementById('btnConfirmFu').style.display = 'inline-block';
+  document.getElementById('btnRetakeFu').style.display = 'inline-block';
+}
+
+function retakePhotoFu() {
+  const video = document.getElementById('cameraVideoFu');
+  const canvas = document.getElementById('cameraCanvasFu');
+  
+  video.style.display = 'block';
+  canvas.style.display = 'none';
+  photoCapturedFu = false;
+  
+  document.getElementById('btnCaptureFu').style.display = 'inline-block';
+  document.getElementById('btnConfirmFu').style.display = 'none';
+  document.getElementById('btnRetakeFu').style.display = 'none';
+}
+
+function confirmPhotoFu() {
+  const canvas = document.getElementById('cameraCanvasFu');
+  if (!canvas) return;
+  
+  const imageData = canvas.toDataURL('image/jpeg', 0.9);
+  closeCameraFu();
+  processPhotoFromCameraFu(imageData);
+}
+
+function closeCameraFu() {
+  if (videoStreamFu) {
+    videoStreamFu.getTracks().forEach(track => track.stop());
+    videoStreamFu = null;
+  }
+  
+  const modal = document.getElementById('cameraModalFu');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  photoCapturedFu = false;
+}
+
+function processPhotoFromCameraFu(imageData) {
+  const fileInput = document.getElementById('fuPhotoUpload');
+  const previewContainer = document.getElementById('fuPhotoPreviewContainer');
+  const preview = document.getElementById('fuPhotoPreview');
+  const display = document.getElementById('fuPhotoDisplay');
+  const placeholder = document.getElementById('fuPhotoPlaceholder');
+  
+  const byteString = atob(imageData.split(',')[1]);
+  const mimeType = imageData.split(',')[0].split(':')[1].split(';')[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  const blob = new Blob([ab], { type: mimeType });
+  
+  const fileName = 'fu_camera_' + Date.now() + '.jpg';
+  const file = new File([blob], fileName, { type: mimeType });
+  
+  const dataTransfer = new DataTransfer();
+  dataTransfer.items.add(file);
+  fileInput.files = dataTransfer.files;
+  
+  preview.src = imageData;
+  previewContainer.style.display = 'block';
+  
+  fuUploadedPhotoData = imageData.split(',')[1];
+  fuUploadedPhotoName = fileName;
+  
+  if (placeholder) placeholder.style.display = 'none';
+  if (display) {
+    display.src = imageData;
+    display.style.display = 'block';
+  }
+}
+
+// ==========================================
+// FUNGSI PREVIEW FOTO (Create NCR)
+// ==========================================
+
+function previewPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (file.size > 5 * 1024 * 1024) {
+    alert('❌ Ukuran foto terlalu besar! Maksimal 5MB.');
+    event.target.value = '';
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const previewContainer = document.getElementById('photoPreviewContainer');
+    const preview = document.getElementById('photoPreview');
+    preview.src = e.target.result;
+    previewContainer.style.display = 'block';
+    
+    uploadedPhotoData = e.target.result.split(',')[1];
+    uploadedPhotoName = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto() {
+  document.getElementById('photoUpload').value = '';
+  document.getElementById('photoPreviewContainer').style.display = 'none';
+  document.getElementById('photoPreview').src = '#';
+  uploadedPhotoData = null;
+  uploadedPhotoName = null;
+}
+
+// ==========================================
+// FUNGSI PREVIEW FOTO (Follow-up)
+// ==========================================
+
+let fuUploadedPhotoData = null;
+let fuUploadedPhotoName = null;
+
+function previewFuPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (file.size > 5 * 1024 * 1024) {
+    alert('❌ Ukuran foto terlalu besar! Maksimal 5MB.');
+    event.target.value = '';
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const previewContainer = document.getElementById('fuPhotoPreviewContainer');
+    const preview = document.getElementById('fuPhotoPreview');
+    const display = document.getElementById('fuPhotoDisplay');
+    const placeholder = document.getElementById('fuPhotoPlaceholder');
+    
+    preview.src = e.target.result;
+    previewContainer.style.display = 'block';
+    
+    if (placeholder) placeholder.style.display = 'none';
+    if (display) {
+      display.src = e.target.result;
+      display.style.display = 'block';
+    }
+    
+    fuUploadedPhotoData = e.target.result.split(',')[1];
+    fuUploadedPhotoName = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeFuPhoto() {
+  document.getElementById('fuPhotoUpload').value = '';
+  document.getElementById('fuPhotoPreviewContainer').style.display = 'none';
+  document.getElementById('fuPhotoPreview').src = '#';
+  fuUploadedPhotoData = null;
+  fuUploadedPhotoName = null;
+  
+  // Tampilkan placeholder kembali
+  const display = document.getElementById('fuPhotoDisplay');
+  const placeholder = document.getElementById('fuPhotoPlaceholder');
+  if (display) {
+    display.style.display = 'none';
+    display.src = '#';
+  }
+  if (placeholder) placeholder.style.display = 'flex';
+}
 
 
   
