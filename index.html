@@ -1948,36 +1948,194 @@ async function submitD1D2(e) {
     alert("❌ Submission failed: " + err.message);
   }
 }
+// ============================================================
+// FUNCTION: syncD1FromSections()
+// ============================================================
+// Mengambil nilai D3-D8 dari SECTION dan mengisi ke D1 Dropdown
+// ============================================================
+
+function syncD1FromSections() {
+    console.log('🔄 syncD1FromSections: START');
+    
+    // Ambil nilai dari section
+    const values = {
+        D3: document.getElementById('fuInterimActBy')?.value || '',
+        D4: document.getElementById('fuPicD4')?.value || '',
+        D5: document.getElementById('fuPicD5')?.value || '',
+        D6: document.getElementById('fuPicD6')?.value || '',
+        D7: document.getElementById('fuPicD7')?.value || '',
+        D8: document.getElementById('fuPicD8')?.value || ''
+    };
+    
+    console.log('📊 Nilai dari section:', values);
+    
+    // Mapping section → D1 dropdown
+    const mappings = [
+        { sectionValue: values.D3, dropdownId: 'fuPicD3' },
+        { sectionValue: values.D4, dropdownId: 'fuPicD4Select' },
+        { sectionValue: values.D5, dropdownId: 'fuPicD5Select' },
+        { sectionValue: values.D6, dropdownId: 'fuPicD6Select' },
+        { sectionValue: values.D7, dropdownId: 'fuPicD7Select' },
+        { sectionValue: values.D8, dropdownId: 'fuPicD8Select' }
+    ];
+    
+    // Fungsi untuk set dropdown
+    function setDropdownValue(id, value) {
+        const el = document.getElementById(id);
+        if (!el) {
+            console.warn(`⚠️ Element ${id} tidak ditemukan`);
+            return false;
+        }
+        
+        // Cari option yang match
+        let found = false;
+        for (let opt of el.options) {
+            if (opt.value === value) {
+                el.value = value;
+                found = true;
+                console.log(`✅ ${id} = "${value}" (ditemukan)`);
+                break;
+            }
+        }
+        
+        // Jika tidak ditemukan, tambahkan
+        if (!found && value) {
+            console.log(`➕ Menambahkan "${value}" ke ${id}`);
+            const opt = document.createElement('option');
+            opt.value = value;
+            opt.textContent = value + ' (auto)';
+            el.appendChild(opt);
+            el.value = value;
+            console.log(`✅ ${id} = "${value}" (auto-added)`);
+        }
+        
+        return true;
+    }
+    
+    // Isi semua dropdown
+    mappings.forEach(({ sectionValue, dropdownId }) => {
+        setDropdownValue(dropdownId, sectionValue);
+    });
+    
+    console.log('✅ syncD1FromSections: FINISH');
+}
   
-  // ==========================================
-// FUNGSI BARU: LOAD PIC DATA (D1-D8)
-// ==========================================
+// ============================================================
+// FUNGSI: loadPICData() - DIPERLUAS!
+// ============================================================
+// 1. Mengambil data PIC dari Google Sheet (untuk D1 & D2)
+// 2. Mengisi D3-D8 dari section (yang sudah diisi oleh loadNCRViewData)
+// ============================================================
+
 let picDataMap = {};
 
 async function loadPICData() {
-  try {
-    const response = await fetch(`${API_URL}?action=getPICData`);
-    const res = await response.json();
+    console.log('📌 loadPICData: START');
     
-    if (res.status === 'ok' && res.data) {
-      picDataMap = res.data;
-      console.log('✅ PIC Data loaded from Google Sheet:', picDataMap);
-      
-      // Assign untuk create form
-      assignCurrentUserPIC();
-      
-      // Assign untuk follow-up page (jika sedang di follow-up)
-      if (document.getElementById('followUpPage').style.display === 'block') {
-        assignFollowUpPIC();
-      }
-    } else {
-      console.warn('⚠️ Gagal load PIC data dari Google Sheet');
-      setFallbackPIC();
+    try {
+        // ===== STEP 1: AMBIL DATA DARI GOOGLE SHEET =====
+        const response = await fetch(`${API_URL}?action=getPICData`);
+        const res = await response.json();
+        
+        if (res.status === 'ok' && res.data) {
+            picDataMap = res.data;
+            console.log('✅ PIC Data loaded from Google Sheet:', picDataMap);
+            
+            // ===== STEP 2: ISI D1 & D2 (Create Form) =====
+            assignCurrentUserPIC();
+            console.log('✅ D1 & D2 (Create Form) terisi');
+            
+            // ===== STEP 3: ISI D1 & D2 (Follow-up) =====
+            if (document.getElementById('followUpPage').style.display === 'block') {
+                assignFollowUpPIC();
+                console.log('✅ D1 & D2 (Follow-up) terisi');
+            }
+            
+            // ===== 🔥 STEP 4: ISI D3-D8 DARI SECTION! =====
+            // 🔥 INI YANG BARU! 🔥
+            // Ambil data dari section yang sudah diisi oleh loadNCRViewData()
+            console.log('📌 Mengisi D3-D8 dari section...');
+            
+            // Cek apakah section sudah terisi
+            const d3SectionValue = document.getElementById('fuInterimActBy')?.value || '';
+            const d4SectionValue = document.getElementById('fuPicD4')?.value || '';
+            const d5SectionValue = document.getElementById('fuPicD5')?.value || '';
+            const d6SectionValue = document.getElementById('fuPicD6')?.value || '';
+            const d7SectionValue = document.getElementById('fuPicD7')?.value || '';
+            const d8SectionValue = document.getElementById('fuPicD8')?.value || '';
+            
+            console.log('📊 Nilai dari section:');
+            console.log('  D3 (fuInterimActBy):', d3SectionValue);
+            console.log('  D4 (fuPicD4):', d4SectionValue);
+            console.log('  D5 (fuPicD5):', d5SectionValue);
+            console.log('  D6 (fuPicD6):', d6SectionValue);
+            console.log('  D7 (fuPicD7):', d7SectionValue);
+            console.log('  D8 (fuPicD8):', d8SectionValue);
+            
+            // ===== STEP 5: ISI D1 DROPDOWN D3-D8 =====
+            // Fungsi untuk mengisi dropdown dari section
+            function setDropdownFromSection(dropdownId, value) {
+                const el = document.getElementById(dropdownId);
+                if (!el) {
+                    console.warn(`⚠️ Element ${dropdownId} tidak ditemukan`);
+                    return false;
+                }
+                
+                // Cari option yang match
+                let found = false;
+                for (let opt of el.options) {
+                    if (opt.value === value) {
+                        el.value = value;
+                        found = true;
+                        console.log(`✅ ${dropdownId} = "${value}" (ditemukan)`);
+                        break;
+                    }
+                }
+                
+                // Jika tidak ditemukan, TAMBAHKAN!
+                if (!found && value) {
+                    console.log(`➕ Menambahkan "${value}" ke ${dropdownId}`);
+                    const opt = document.createElement('option');
+                    opt.value = value;
+                    opt.textContent = value + ' (auto)';
+                    el.appendChild(opt);
+                    el.value = value;
+                    console.log(`✅ ${dropdownId} = "${value}" (auto-added)`);
+                }
+                
+                return true;
+            }
+            
+            // Isi D3-D8 dari section
+            console.log('📌 Mengisi D1 Dropdown D3-D8...');
+            setDropdownFromSection('fuPicD3', d3SectionValue);        // D3 ← dari section D3
+            setDropdownFromSection('fuPicD4Select', d4SectionValue);  // D4 ← dari section D4
+            setDropdownFromSection('fuPicD5Select', d5SectionValue);  // D5 ← dari section D5
+            setDropdownFromSection('fuPicD6Select', d6SectionValue);  // D6 ← dari section D6
+            setDropdownFromSection('fuPicD7Select', d7SectionValue);  // D7 ← dari section D7
+            setDropdownFromSection('fuPicD8Select', d8SectionValue);  // D8 ← dari section D8
+            
+            console.log('✅ D3-D8 (D1 Dropdown) terisi dari section!');
+            
+        } else {
+            console.warn('⚠️ Gagal load PIC data dari Google Sheet, pakai fallback');
+            setFallbackPIC();
+            
+            // 🔥 TETAP COBA ISI D3-D8 DARI SECTION!
+            syncD1FromSections();
+            console.log('✅ D3-D8 (D1 Dropdown) terisi dari section (fallback mode)');
+        }
+        
+    } catch(e) {
+        console.error('❌ Error loading PIC data:', e);
+        setFallbackPIC();
+        
+        // 🔥 TETAP COBA ISI D3-D8 DARI SECTION!
+        syncD1FromSections();
+        console.log('✅ D3-D8 (D1 Dropdown) terisi dari section (error mode)');
     }
-  } catch(e) {
-    console.error('❌ Error loading PIC data:', e);
-    setFallbackPIC();
-  }
+    
+    console.log('✅ loadPICData: FINISH');
 }
 
 function assignCurrentUserPIC() {
@@ -2148,18 +2306,56 @@ async function submitFollowUp(step) {
 // ==========================================
 // 9. FUNGSI SUBMIT D3 - D8
 // ==========================================
-// Toggle D3 Edit/View
+// ============================================================
+// FUNCTION: toggleD3Mode - DIPERBAIKI!
+// ============================================================
+// Mengikuti pola D4: Hanya mengunci field di D3 SECTION saja
+// ============================================================
+
 function toggleD3Mode(isEdit) {
-  const fields = ['fuInterimDate','fuInterimRemarks','fuTotalOK','fuQtyReject','fuManHours'];
-  fields.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.readOnly = !isEdit;
-  });
-  const picD3 = document.getElementById('fuPicD3');
-  if (picD3) picD3.disabled = !isEdit;
-  
-  document.getElementById('labelD3Mode').textContent = isEdit ? 'EDIT MODE' : 'VIEW ONLY';
-  document.getElementById('btnSubmitD3').style.display = isEdit ? 'inline-block' : 'none';
+    console.log('🔄 toggleD3Mode:', isEdit ? 'EDIT MODE' : 'VIEW ONLY');
+    
+    // ===== 1. FIELD DI D3 SECTION =====
+    const fields = [
+        'fuInterimDate',
+        'fuInterimRemarks',
+        'fuTotalOK',
+        'fuQtyReject',
+        'fuManHours'
+    ];
+    
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.readOnly = !isEdit;
+            console.log(`  ${id}.readOnly = ${el.readOnly}`);
+        }
+    });
+    
+    // ===== 2. ❌ HAPUS PENGUNCI D1 DROPDOWN! =====
+    // Jangan sentuh fuPicD3 di D1!
+    // const picD3 = document.getElementById('fuPicD3');
+    // if (picD3) picD3.disabled = !isEdit;
+    
+    // ===== 3. UPDATE LABEL =====
+    const label = document.getElementById('labelD3Mode');
+    if (label) {
+        label.textContent = isEdit ? '✏️ EDIT MODE' : '👁️ VIEW ONLY';
+    }
+    
+    // ===== 4. TAMPILKAN/SEMBUNYIKAN TOMBOL SUBMIT =====
+    const btnSubmit = document.getElementById('btnSubmitD3');
+    if (btnSubmit) {
+        btnSubmit.style.display = isEdit ? 'inline-block' : 'none';
+    }
+    
+    // ===== 5. NOTICE BUTTON =====
+    const btnNotice = document.querySelector('[onclick="noticePICD3()"]');
+    if (btnNotice) {
+        btnNotice.style.display = isEdit ? 'inline-block' : 'inline-block';
+    }
+    
+    console.log('✅ toggleD3Mode FINISH');
 }
 
  function toggleD4Mode(isEdit) {
@@ -2722,155 +2918,288 @@ async function updatePIC() {
   }
 }
 
+// ============================================================
+// FUNCTION: loadNCRViewData
+// ============================================================
+// Fungsi ini mengisi semua data di halaman Follow-up
+// Berdasarkan data dari Google Sheet (ncr)
+// ============================================================
 
-  
 function loadNCRViewData(ncr) {
-  if (!ncr) return;
-  
-  // ===== D2: NON-CONFORMITY REPORT =====
-  document.getElementById('fuViewIssuedBy').value = ncr.IssuedBy || '-';
-  document.getElementById('fuViewIssuedDate').value = formatDateDisplay(ncr.IssuedDate) || '-';
-  document.getElementById('fuViewIdNo').value = ncr['ID No.'] || '-';
-  document.getElementById('fuViewType').value = ncr.Type || '-';
-  document.getElementById('fuViewCategory').value = ncr.Category || '-';
-  document.getElementById('fuViewShiftTime').value = ncr.ShiftTime || '-';
-  document.getElementById('fuViewPartNo').value = ncr.PartNo || '-';
-  document.getElementById('fuViewCustomerName').value = ncr.CustomerName || '-';
-  document.getElementById('fuViewLocation').value = ncr.DetectionLocation || '-';
-  document.getElementById('fuViewAffectedQty').value = ncr.AffectedQty || '-';
-  document.getElementById('fuViewSampleQty').value = ncr.SamplingQty || '-';
-  document.getElementById('fuViewNcQty').value = ncr.RejectQtyDeclated || '-';
-  document.getElementById('fuViewNcMode').value = ncr.NCMode || '-';
-  document.getElementById('fuViewNcCategory').value = ncr.NCCatagory || '-';
-  document.getElementById('fuViewDetailNC').value = ncr.DetailNC || '-';
-  document.getElementById('fuViewHowDetected').value = ncr.HowItDetected || '-';
-  document.getElementById('fuViewInterimAct').value = ncr.InterimAction || '-';
-  document.getElementById('fuViewSortingRequired').value = ncr.SortingRepairReworkRequired || '-';
-  document.getElementById('fuViewSortingPIC').value = ncr.SortingReworkPIC || '-';
+    // Cek apakah data ncr ada
+    if (!ncr) {
+        console.warn('⚠️ loadNCRViewData: ncr is null or undefined');
+        return;
+    }
+    
+    console.log('📋 loadNCRViewData dipanggil untuk ID:', ncr['ID No.']);
+    
+    // ============================================================
+    // BAGIAN 1: D2 - NON-CONFORMITY REPORT (VIEW ONLY)
+    // ============================================================
+    // Semua field di D2 diisi langsung dari Google Sheet
+    
+    document.getElementById('fuViewIssuedBy').value = ncr.IssuedBy || '-';
+    document.getElementById('fuViewIssuedDate').value = formatDateDisplay(ncr.IssuedDate) || '-';
+    document.getElementById('fuViewIdNo').value = ncr['ID No.'] || '-';
+    document.getElementById('fuViewType').value = ncr.Type || '-';
+    document.getElementById('fuViewCategory').value = ncr.Category || '-';
+    document.getElementById('fuViewShiftTime').value = ncr.ShiftTime || '-';
+    document.getElementById('fuViewPartNo').value = ncr.PartNo || '-';
+    document.getElementById('fuViewCustomerName').value = ncr.CustomerName || '-';
+    document.getElementById('fuViewLocation').value = ncr.DetectionLocation || '-';
+    document.getElementById('fuViewAffectedQty').value = ncr.AffectedQty || '-';
+    document.getElementById('fuViewSampleQty').value = ncr.SamplingQty || '-';
+    document.getElementById('fuViewNcQty').value = ncr.RejectQtyDeclated || '-';
+    document.getElementById('fuViewNcMode').value = ncr.NCMode || '-';
+    document.getElementById('fuViewNcCategory').value = ncr.NCCatagory || '-';
+    document.getElementById('fuViewDetailNC').value = ncr.DetailNC || '-';
+    document.getElementById('fuViewHowDetected').value = ncr.HowItDetected || '-';
+    document.getElementById('fuViewInterimAct').value = ncr.InterimAction || '-';
+    document.getElementById('fuViewSortingRequired').value = ncr.SortingRepairReworkRequired || '-';
+    document.getElementById('fuViewSortingPIC').value = ncr.SortingReworkPIC || '-';
 
- const photoUrl = ncr.NCPicture || '';
-  const display = document.getElementById('fuPhotoDisplay');
-  const placeholder = document.getElementById('fuPhotoPlaceholder');
-  
-  if (photoUrl && photoUrl.startsWith('http')) {
-    // Tampilkan foto
-    if (display) {
-      display.src = photoUrl;
-      display.style.display = 'block';
-      display.onerror = function() {
-        // Jika gagal load, tampilkan placeholder
-        this.style.display = 'none';
+    // ============================================================
+    // BAGIAN 2: FOTO NON-CONFORMITY
+    // ============================================================
+    // Tampilkan foto jika ada URL, atau tampilkan placeholder
+    
+    const photoUrl = ncr.NCPicture || '';
+    const display = document.getElementById('fuPhotoDisplay');
+    const placeholder = document.getElementById('fuPhotoPlaceholder');
+    
+    if (photoUrl && photoUrl.startsWith('http')) {
+        // Ada foto - tampilkan
+        if (display) {
+            display.src = photoUrl;
+            display.style.display = 'block';
+            display.onerror = function() {
+                // Jika gagal load, tampilkan placeholder
+                this.style.display = 'none';
+                if (placeholder) placeholder.style.display = 'flex';
+            };
+        }
+        if (placeholder) placeholder.style.display = 'none';
+    } else {
+        // Tidak ada foto - tampilkan placeholder
+        if (display) {
+            display.style.display = 'none';
+            display.src = '#';
+        }
         if (placeholder) placeholder.style.display = 'flex';
-      };
     }
-    if (placeholder) placeholder.style.display = 'none';
-  } else {
-    // Sembunyikan foto, tampilkan placeholder
-    if (display) {
-      display.style.display = 'none';
-      display.src = '#';
+    
+    // ============================================================
+    // BAGIAN 3: D3 - INTERIM/CONTAINMENT ACTION
+    // ============================================================
+    // Field-field di D3 diisi langsung dari Google Sheet
+    
+    const d3DateEl = document.getElementById('fuInterimDate');
+    if (d3DateEl) {
+        d3DateEl.value = formatDateForInput(ncr['InterimActionDate']) 
+                       || new Date().toISOString().split('T')[0];
     }
-    if (placeholder) placeholder.style.display = 'flex';
-  }
-  
-  // ===== D3: INTERIM ACTION =====
-  const d3DateEl = document.getElementById('fuInterimDate');
-  if (d3DateEl) {
-    d3DateEl.value = formatDateForInput(ncr['InterimActionDate']) 
-                   || new Date().toISOString().split('T')[0];
-  }
-  const d3Remarks = document.getElementById('fuInterimRemarks');
-  if (d3Remarks) d3Remarks.value = ncr['InterimRemarks'] || '';
-  
-  const fuTotalOK = document.getElementById('fuTotalOK');
-  if (fuTotalOK) fuTotalOK.value = ncr['TotalOK'] || '0';
-  
-  const fuQtyReject = document.getElementById('fuQtyReject');
-  if (fuQtyReject) fuQtyReject.value = ncr['FinalRejectQty'] || '0';
-  
-  const fuManHours = document.getElementById('fuManHours');
-  if (fuManHours) fuManHours.value = ncr['TotalManHour'] || '0';
+    
+    const d3Remarks = document.getElementById('fuInterimRemarks');
+    if (d3Remarks) d3Remarks.value = ncr['InterimRemarks'] || '';
+    
+    const fuTotalOK = document.getElementById('fuTotalOK');
+    if (fuTotalOK) fuTotalOK.value = ncr['TotalOK'] || '0';
+    
+    const fuQtyReject = document.getElementById('fuQtyReject');
+    if (fuQtyReject) fuQtyReject.value = ncr['FinalRejectQty'] || '0';
+    
+    const fuManHours = document.getElementById('fuManHours');
+    if (fuManHours) fuManHours.value = ncr['TotalManHour'] || '0';
 
-  // ===== D4: ROOT CAUSE =====
-  const fuRootCauseOcc = document.getElementById('fuRootCauseOcc');
-  if (fuRootCauseOcc) fuRootCauseOcc.value = ncr['RootCauseOcc'] || '';
-  
-  const fuRootCauseSkip = document.getElementById('fuRootCauseSkip');
-  if (fuRootCauseSkip) fuRootCauseSkip.value = ncr['RootCause(Escape)'] || '';
-  
-  const fuRCFactor = document.getElementById('fuRCFactor');
-  if (fuRCFactor) fuRCFactor.value = ncr['5M1E-Factor'] || '';
-  
-  const fuRCAdate = document.getElementById('fuRCAdate');
-  if (fuRCAdate) fuRCAdate.value = formatDateForInput(ncr['RC-AnalysisDate']);
+    // ============================================================
+    // BAGIAN 4: D4 - ROOT CAUSE ANALYSIS
+    // ============================================================
+    // Field-field di D4 diisi langsung dari Google Sheet
+    
+    const fuRootCauseOcc = document.getElementById('fuRootCauseOcc');
+    if (fuRootCauseOcc) fuRootCauseOcc.value = ncr['RootCauseOcc'] || '';
+    
+    const fuRootCauseSkip = document.getElementById('fuRootCauseSkip');
+    if (fuRootCauseSkip) fuRootCauseSkip.value = ncr['RootCause(Escape)'] || '';
+    
+    const fuRCFactor = document.getElementById('fuRCFactor');
+    if (fuRCFactor) fuRCFactor.value = ncr['5M1E-Factor'] || '';
+    
+    const fuRCAdate = document.getElementById('fuRCAdate');
+    if (fuRCAdate) fuRCAdate.value = formatDateForInput(ncr['RC-AnalysisDate']);
 
-  // ===== D5: CORRECTIVE ACTION =====
-  const fuCAOcc = document.getElementById('fuCAOcc');
-  if (fuCAOcc) fuCAOcc.value = ncr['CorrectiveActOccur'] || '';
-  
-  const fuCASkip = document.getElementById('fuCASkip');
-  if (fuCASkip) fuCASkip.value = ncr['CorrectiveActSkip'] || '';
-  
-  const fuCAdate = document.getElementById('fuCAdate');
-  if (fuCAdate) fuCAdate.value = formatDateForInput(ncr['CADate']);
+    // ============================================================
+    // BAGIAN 5: D5 - CORRECTIVE ACTION
+    // ============================================================
+    // Field-field di D5 diisi langsung dari Google Sheet
+    
+    const fuCAOcc = document.getElementById('fuCAOcc');
+    if (fuCAOcc) fuCAOcc.value = ncr['CorrectiveActOccur'] || '';
+    
+    const fuCASkip = document.getElementById('fuCASkip');
+    if (fuCASkip) fuCASkip.value = ncr['CorrectiveActSkip'] || '';
+    
+    const fuCAdate = document.getElementById('fuCAdate');
+    if (fuCAdate) fuCAdate.value = formatDateForInput(ncr['CADate']);
 
-  // ===== D6: VERIFY CORRECTIVE ACTION =====
-  const fuValOcc = document.getElementById('fuValOcc');
-  if (fuValOcc) fuValOcc.value = ncr['ValidationCAOcc'] || '';
-  
-  const fuValSkip = document.getElementById('fuValSkip');
-  if (fuValSkip) fuValSkip.value = ncr['ValidationCASkip'] || '';
-  
-  const fuValDate = document.getElementById('fuValDate');
-  if (fuValDate) fuValDate.value = formatDateForInput(ncr['ValidateCAPADate']);
-  
-  const fuValRslt = document.getElementById('fuValRslt');
-  if (fuValRslt) fuValRslt.value = ncr['ValidationResult'] || '';
+    // ============================================================
+    // BAGIAN 6: D6 - VERIFY CORRECTIVE ACTION
+    // ============================================================
+    // Field-field di D6 diisi langsung dari Google Sheet
+    
+    const fuValOcc = document.getElementById('fuValOcc');
+    if (fuValOcc) fuValOcc.value = ncr['ValidationCAOcc'] || '';
+    
+    const fuValSkip = document.getElementById('fuValSkip');
+    if (fuValSkip) fuValSkip.value = ncr['ValidationCASkip'] || '';
+    
+    const fuValDate = document.getElementById('fuValDate');
+    if (fuValDate) fuValDate.value = formatDateForInput(ncr['ValidateCAPADate']);
+    
+    const fuValRslt = document.getElementById('fuValRslt');
+    if (fuValRslt) fuValRslt.value = ncr['ValidationResult'] || '';
 
-  // ===== D7: PREVENTIVE ACTION =====
-  const fuPAOcc = document.getElementById('fuPAOcc');
-  if (fuPAOcc) fuPAOcc.value = ncr['PAOcc'] || '';
-  
-  const fuPASkip = document.getElementById('fuPASkip');
-  if (fuPASkip) fuPASkip.value = ncr['PASkip'] || '';
-  
-  const fuPADate = document.getElementById('fuPADate');
-  if (fuPADate) fuPADate.value = formatDateForInput(ncr['PADate']);
+    // ============================================================
+    // BAGIAN 7: D7 - PREVENTIVE ACTION
+    // ============================================================
+    // Field-field di D7 diisi langsung dari Google Sheet
+    
+    const fuPAOcc = document.getElementById('fuPAOcc');
+    if (fuPAOcc) fuPAOcc.value = ncr['PAOcc'] || '';
+    
+    const fuPASkip = document.getElementById('fuPASkip');
+    if (fuPASkip) fuPASkip.value = ncr['PASkip'] || '';
+    
+    const fuPADate = document.getElementById('fuPADate');
+    if (fuPADate) fuPADate.value = formatDateForInput(ncr['PADate']);
 
-  // ===== D8: CLOSURE & VALIDATION =====
-  const fuCongMsg = document.getElementById('fuCongMsg');
-  if (fuCongMsg) fuCongMsg.value = ncr['CongratulationMsg'] || '';
-  
-  const fuStatusNC = document.getElementById('fuStatusNC');
-  if (fuStatusNC) fuStatusNC.value = ncr['StatusNC'] || 'Open';
-  
-  const fuCloseDate = document.getElementById('fuCloseDate');
-  if (fuCloseDate) fuCloseDate.value = formatDateForInput(ncr['CloseDate']);
+    // ============================================================
+    // BAGIAN 8: D8 - CLOSURE & VALIDATION
+    // ============================================================
+    // Field-field di D8 diisi langsung dari Google Sheet
+    
+    const fuCongMsg = document.getElementById('fuCongMsg');
+    if (fuCongMsg) fuCongMsg.value = ncr['CongratulationMsg'] || '';
+    
+    const fuStatusNC = document.getElementById('fuStatusNC');
+    if (fuStatusNC) fuStatusNC.value = ncr['StatusNC'] || 'Open';
+    
+    const fuCloseDate = document.getElementById('fuCloseDate');
+    if (fuCloseDate) fuCloseDate.value = formatDateForInput(ncr['CloseDate']);
 
-  // ===== DROPDOWN D3-D8 (pakai setTimeout) =====
-  setTimeout(() => {
-    setDropdown('fuPicD3', ncr['InterimActBy'] || '');
-    document.getElementById('fuInterimActBy').value = 
-      document.getElementById('fuPicD3').value;
+    // ============================================================
+    // BAGIAN 9: SECTION D3-D8 (DIISI LANGSUNG DARI GOOGLE SHEET)
+    // ============================================================
+    // 🔥 INI BAGIAN PENTING!
+    // Section D3-D8 diisi LANGSUNG dari ncr (Google Sheet)
+    // BUKAN dari dropdown! Ini memastikan section SELALU terisi
+    
+    // ---- D3 SECTION ----
+    document.getElementById('fuInterimActBy').value = ncr['InterimActBy'] || '';
+    
+    // ---- D4 SECTION ----
+    document.getElementById('fuPicD4').value = ncr['RC-AnalysisBy'] || '';
+    
+    // ---- D5 SECTION ----
+    document.getElementById('fuPicD5').value = ncr['CABy'] || '';
+    
+    // ---- D6 SECTION ----
+    document.getElementById('fuPicD6').value = ncr['ValidateCAPABy'] || '';
+    
+    // ---- D7 SECTION ----
+    document.getElementById('fuPicD7').value = ncr['PABy'] || '';
+    
+    // ---- D8 SECTION ----
+    document.getElementById('fuPicD8').value = ncr['ApprovedBy'] || '';
 
-    setDropdown('fuPicD4Select', ncr['RC-AnalysisBy']  || '');
-    setDropdown('fuPicD5Select', ncr['CABy']           || '');
-    setDropdown('fuPicD6Select', ncr['ValidateCAPABy'] || '');
-    setDropdown('fuPicD7Select', ncr['PABy']           || '');
-    setDropdown('fuPicD8Select', ncr['ApprovedBy']     || '');
-
-    // Sync ke input text
-    const setValue = (id, val) => {
-      const el = document.getElementById(id);
-      if (el) el.value = val;
-    };
-    setValue('fuPicD4', ncr['RC-AnalysisBy']  || '');
-    setValue('fuPicD5', ncr['CABy']           || '');
-    setValue('fuPicD6', ncr['ValidateCAPABy'] || '');
-    setValue('fuPicD7', ncr['PABy']           || '');
-    setValue('fuPicD8', ncr['ApprovedBy']     || '');
-  }, 500);
+    // ============================================================
+    // BAGIAN 10: D1 DROPDOWN (DIISI DARI SECTION YANG SUDAH TERISI)
+    // ============================================================
+    // 🔥 INI JUGA PENTING!
+    // D1 Dropdown diisi dari SECTION, bukan langsung dari ncr
+    // Karena section sudah pasti terisi
+    
+    // Fungsi untuk mengisi dropdown (dengan auto-add jika tidak ada)
+    function setDropdownFromValue(id, value) {
+        const el = document.getElementById(id);
+        if (!el) {
+            console.warn(`⚠️ Element ${id} tidak ditemukan`);
+            return false;
+        }
+        
+        // Cari option yang match
+        let found = false;
+        for (let opt of el.options) {
+            if (opt.value === value) {
+                el.value = value;
+                found = true;
+                console.log(`✅ ${id} = "${value}" (ditemukan di option)`);
+                break;
+            }
+        }
+        
+        // Jika tidak ditemukan, TAMBAHKAN sebagai option baru
+        if (!found && value) {
+            console.log(`➕ Menambahkan "${value}" ke ${id}`);
+            const opt = document.createElement('option');
+            opt.value = value;
+            opt.textContent = value;
+            el.appendChild(opt);
+            el.value = value;
+            console.log(`✅ ${id} = "${value}" (auto-added)`);
+        }
+        
+        return true;
+    }
+    
+    // ---- D1 D3 ← dari SECTION D3 (fuInterimActBy) ----
+    const d3Value = document.getElementById('fuInterimActBy').value;
+    setDropdownFromValue('fuPicD3', d3Value);
+    
+    // ---- D1 D4 ← dari SECTION D4 (fuPicD4) ----
+    const d4Value = document.getElementById('fuPicD4').value;
+    setDropdownFromValue('fuPicD4Select', d4Value);
+    
+    // ---- D1 D5 ← dari SECTION D5 (fuPicD5) ----
+    const d5Value = document.getElementById('fuPicD5').value;
+    setDropdownFromValue('fuPicD5Select', d5Value);
+    
+    // ---- D1 D6 ← dari SECTION D6 (fuPicD6) ----
+    const d6Value = document.getElementById('fuPicD6').value;
+    setDropdownFromValue('fuPicD6Select', d6Value);
+    
+    // ---- D1 D7 ← dari SECTION D7 (fuPicD7) ----
+    const d7Value = document.getElementById('fuPicD7').value;
+    setDropdownFromValue('fuPicD7Select', d7Value);
+    
+    // ---- D1 D8 ← dari SECTION D8 (fuPicD8) ----
+    const d8Value = document.getElementById('fuPicD8').value;
+    setDropdownFromValue('fuPicD8Select', d8Value);
+    
+    // ============================================================
+    // BAGIAN 11: DEBUG - TAMPILKAN HASIL DI CONSOLE
+    // ============================================================
+    console.log('✅ loadNCRViewData SELESAI!');
+    console.log('📊 Hasil:');
+    console.log('  ── Section ──');
+    console.log('  D3 InterimActBy:', document.getElementById('fuInterimActBy').value);
+    console.log('  D4 RC Analysis:', document.getElementById('fuPicD4').value);
+    console.log('  D5 CA By:', document.getElementById('fuPicD5').value);
+    console.log('  D6 Valid By:', document.getElementById('fuPicD6').value);
+    console.log('  D7 PA By:', document.getElementById('fuPicD7').value);
+    console.log('  D8 Approved:', document.getElementById('fuPicD8').value);
+    console.log('  ── D1 Dropdown ──');
+    console.log('  D1 D3:', document.getElementById('fuPicD3').value);
+    console.log('  D1 D4:', document.getElementById('fuPicD4Select').value);
+    console.log('  D1 D5:', document.getElementById('fuPicD5Select').value);
+    console.log('  D1 D6:', document.getElementById('fuPicD6Select').value);
+    console.log('  D1 D7:', document.getElementById('fuPicD7Select').value);
+    console.log('  D1 D8:', document.getElementById('fuPicD8Select').value);
 }
+  
+
+  
 // ==========================================
 // FUNGSI BANTU: FORMAT DATE
 // ==========================================
