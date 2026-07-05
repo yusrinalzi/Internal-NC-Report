@@ -1363,7 +1363,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbyPxc9QadVia_72S0BtcfEjb7QRrZomibUfmkfbHx92LOof3gbhTV6LuUwWeh9PWAnY/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyfEm5HJ6kaFZ3us7-MpHD6A1ob3O33wGT5UPZIgSB8kDqZ9p4r_i1hZqMv8GD5fc6v/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
@@ -1920,14 +1920,11 @@ async function submitD1D2(e) {
       'StatusNC': 'Open'
     }
   };
-  
-  console.log('📤 Sending to Google Script...');
-  console.log('📤 Payload:', JSON.stringify(formData).substring(0, 500) + '...');
 
   try {
     showLoadingOverlay('Saving NCR...');
     
-    // 🔥 KIRIM KE GOOGLE SCRIPT
+    // 🔥 PAKAI mode: 'cors' (default)
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1952,25 +1949,7 @@ async function submitD1D2(e) {
   } catch(err) {
     hideLoadingOverlay();
     console.error("❌ Submission error:", err);
-    
-    // 🔥 FALLBACK: Coba dengan no-cors
-    console.log('📤 Trying no-cors mode...');
-    try {
-      await fetch(API_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      console.log('📤 Submitted with no-cors mode');
-      resetPhotoUpload();
-      alert('✅ NCR Submitted (no-cors mode)! Please refresh to see data.');
-      showDashboard();
-      loadAllData();
-    } catch(fallbackErr) {
-      console.error("❌ Fallback error:", fallbackErr);
-      alert("❌ Submission failed: " + fallbackErr.message);
-    }
+    alert('❌ Error: ' + err.message + '. Please check console for details.');
   }
 }
   
@@ -3721,22 +3700,23 @@ async function uploadPhotoToGitHub(base64Data, fileName, idNo) {
             }
         };
         
-        console.log('📤 Sending upload request...');
-        
-        // 🔥 PAKAI no-cors, TAPI response TIDAK BISA dibaca
-        await fetch(API_URL, {
+        // 🔥 PAKAI mode: 'cors' (default)
+        const response = await fetch(API_URL, {
             method: 'POST',
-            mode: 'no-cors',  // <-- PAKAI no-cors
-            headers: { 'Content-Type': 'text/plain' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
         
-        // 🔥 Karena no-cors, kita TIDAK BISA baca response
-        // Tapi request tetap terkirim ke Google Script
-        console.log('📤 Upload request sent (no-cors mode)');
+        const result = await response.json();
+        console.log('📥 Upload result:', result);
         
-        // 🔥 Kita asumsikan sukses, Google Script akan proses di backend
-        return { success: true, url: '' };
+        if (result && result.success) {
+            return { success: true, url: result.url };
+        } else {
+            const errorMsg = result?.error || 'Upload failed';
+            console.error('❌ Upload failed:', errorMsg);
+            return { success: false, error: errorMsg };
+        }
         
     } catch (error) {
         console.error('❌ Upload error:', error.message);
