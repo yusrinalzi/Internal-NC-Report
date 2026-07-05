@@ -1363,7 +1363,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbw-KluOosr9y9zeWMM44Sr15iKaC7G0vm-T7-yy1AsQA4Xph5Bs2rCqQfzp33OfRiYX/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzVpnMh3QzCyavheiRnwKwzrj7Lz7-t7wCv6ipqh86bswC9jGtH_p6oyeXFNnsHoR7k/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
@@ -3669,14 +3669,12 @@ async function uploadImageToGitHub(file, folder = 'Images') {
 
 // Upload foto dari camera (Create NCR)
   
-// Upload foto dari camera (Create NCR)
-// Upload foto dari camera (Create NCR)
+  
 async function uploadPhotoToGitHub(base64Data, fileName, idNo) {
     try {
         console.log('📤 Uploading photo from camera...');
         console.log('📤 File:', fileName);
         console.log('📤 ID No:', idNo);
-        console.log('📤 Base64 length:', base64Data ? base64Data.length : 0);
         
         const payload = {
             action: 'uploadImage',
@@ -3690,16 +3688,12 @@ async function uploadPhotoToGitHub(base64Data, fileName, idNo) {
         // 🔥 PAKAI no-cors + text/plain
         await fetch(API_URL, {
             method: 'POST',
-            mode: 'no-cors',  // <-- PAKAI no-cors
+            mode: 'no-cors',
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(payload)
         });
         
-        // Karena no-cors, response tidak bisa dibaca
-        // Tapi request tetap terkirim ke Google Script
         console.log('📤 Upload request sent (no-cors mode)');
-        
-        // 🔥 Kita asumsikan sukses, Google Script akan proses di backend
         return { success: true, url: '' };
         
     } catch (error) {
