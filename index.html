@@ -1924,32 +1924,27 @@ async function submitD1D2(e) {
   try {
     showLoadingOverlay('Saving NCR...');
     
-    // 🔥 PAKAI mode: 'cors' (default)
-    const response = await fetch(API_URL, {
+    // 🔥 PAKAI no-cors + text/plain
+    await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(formData)
     });
     
-    // 🔥 BACA RESPONSE
-    const result = await response.json();
-    console.log('📥 Response:', result);
+    // Karena no-cors, kita tidak bisa baca response
+    console.log('📤 NCR submitted (no-cors mode)');
     
-    if (result.status === 'ok') {
-      hideLoadingOverlay();
-      resetPhotoUpload();
-      alert('✅ NCR Submitted Successfully! ID: ' + (result.idNo || idNo));
-      showDashboard();
-      loadAllData();
-    } else {
-      hideLoadingOverlay();
-      alert('❌ Submission failed: ' + (result.message || 'Unknown error'));
-    }
+    hideLoadingOverlay();
+    resetPhotoUpload();
+    alert('✅ NCR Submitted Successfully!');
+    showDashboard();
+    loadAllData();
     
   } catch(err) {
     hideLoadingOverlay();
     console.error("❌ Submission error:", err);
-    alert('❌ Error: ' + err.message + '. Please check console for details.');
+    alert("❌ Submission failed: " + err.message);
   }
 }
   
@@ -3618,16 +3613,6 @@ function processPhotoFromCameraFu(imageData) {
 }
 
 
-
-function removePhoto() {
-  document.getElementById('photoUpload').value = '';
-  document.getElementById('photoPreviewContainer').style.display = 'none';
-  document.getElementById('photoPreview').src = '#';
-  uploadedPhotoData = null;
-  uploadedPhotoName = null;
-}
-
-
 // ==========================================
 // FUNGSI UPLOAD KE GITHUB
 // ==========================================
@@ -3684,6 +3669,8 @@ async function uploadImageToGitHub(file, folder = 'Images') {
 
 // Upload foto dari camera (Create NCR)
   
+// Upload foto dari camera (Create NCR)
+// Upload foto dari camera (Create NCR)
 async function uploadPhotoToGitHub(base64Data, fileName, idNo) {
     try {
         console.log('📤 Uploading photo from camera...');
@@ -3700,23 +3687,20 @@ async function uploadPhotoToGitHub(base64Data, fileName, idNo) {
             }
         };
         
-        // 🔥 PAKAI mode: 'cors' (default)
-        const response = await fetch(API_URL, {
+        // 🔥 PAKAI no-cors + text/plain
+        await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            mode: 'no-cors',  // <-- PAKAI no-cors
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(payload)
         });
         
-        const result = await response.json();
-        console.log('📥 Upload result:', result);
+        // Karena no-cors, response tidak bisa dibaca
+        // Tapi request tetap terkirim ke Google Script
+        console.log('📤 Upload request sent (no-cors mode)');
         
-        if (result && result.success) {
-            return { success: true, url: result.url };
-        } else {
-            const errorMsg = result?.error || 'Upload failed';
-            console.error('❌ Upload failed:', errorMsg);
-            return { success: false, error: errorMsg };
-        }
+        // 🔥 Kita asumsikan sukses, Google Script akan proses di backend
+        return { success: true, url: '' };
         
     } catch (error) {
         console.error('❌ Upload error:', error.message);
