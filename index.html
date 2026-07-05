@@ -1363,7 +1363,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbxWMjfhhJ3EfhDOQqpGfX7mSl0Xn_vPyaQwZxxqAe5-pxv6FWewYgGm170ytfuN0mxR/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyPxc9QadVia_72S0BtcfEjb7QRrZomibUfmkfbHx92LOof3gbhTV6LuUwWeh9PWAnY/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
@@ -1873,41 +1873,22 @@ function sendNoticeEmail(picId, subjectText, bodyText) {
 async function submitD1D2(e) {
   e.preventDefault();
   
-  let photoUrl = '';
-  if (uploadedPhotoData) {
-    showLoadingOverlay('Uploading photo...');
-    try {
-      // 🔥 Kirim request, tapi tidak baca response (no-cors)
-      await fetch(API_URL, {
-        method: 'POST',
-        mode: 'no-cors',  // <-- PAKAI no-cors
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({
-          action: 'uploadImage',
-          data: {
-            image: uploadedPhotoData,
-            filename: uploadedPhotoName || 'photo_' + Date.now() + '.jpg',
-            folder: 'Images'
-          }
-        })
-      });
-      
-      console.log('📤 Photo upload request sent (no-cors)');
-      // Karena no-cors, kita tidak bisa dapat URL dari response
-      // Tapi Google Script akan menyimpan URL di sheet NCPicture
-      
-    } catch(err) {
-      console.error('❌ Error upload foto:', err);
-    }
-    hideLoadingOverlay();
-  }
+  console.log('📤 Starting submitD1D2');
   
-  // Submit NCR
+  // Siapkan data NCR
+  const idNo = document.getElementById('idNo').value;
+  console.log('📤 ID No:', idNo);
+  
+  // 🔥 Ambil base64 foto
+  const photoBase64 = uploadedPhotoData || '';
+  console.log('📤 Photo data length:', photoBase64 ? photoBase64.length : 0);
+  
+  // Siapkan payload
   const formData = {
     action: 'appendNCR',
     timestamp: new Date().toISOString(),
     data: {
-      'ID No.': document.getElementById('idNo').value,
+      'ID No.': idNo,
       'Type': document.getElementById('ncrType').value,
       'Category': document.getElementById('prodCategory').value,
       'IssuedDate': new Date().toLocaleDateString('en-GB'),
@@ -1927,8 +1908,7 @@ async function submitD1D2(e) {
       'SortingReworkPIC': document.getElementById('picD3').value,
       'Period': new Date().toLocaleDateString('en-GB'),
       'IssuedBy': document.getElementById('issuedBy').value,
-      // 🔥 NCPicture akan diisi oleh Google Script saat upload
-      'NCPicture': '', // Kosong, nanti diisi oleh Google Script
+      'NCPicture': photoBase64, // 🔥 Kirim base64 foto
       'D1': document.getElementById('picD1').value,
       'D2': document.getElementById('picD2').value,
       'InterimActBy': document.getElementById('picD3').value,
@@ -1940,25 +1920,57 @@ async function submitD1D2(e) {
       'StatusNC': 'Open'
     }
   };
+  
+  console.log('📤 Sending to Google Script...');
+  console.log('📤 Payload:', JSON.stringify(formData).substring(0, 500) + '...');
 
   try {
     showLoadingOverlay('Saving NCR...');
-    await fetch(API_URL, {
+    
+    // 🔥 KIRIM KE GOOGLE SCRIPT
+    const response = await fetch(API_URL, {
       method: 'POST',
-      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
     });
+    
+    // 🔥 BACA RESPONSE
+    const result = await response.json();
+    console.log('📥 Response:', result);
+    
+    if (result.status === 'ok') {
+      hideLoadingOverlay();
+      resetPhotoUpload();
+      alert('✅ NCR Submitted Successfully! ID: ' + (result.idNo || idNo));
+      showDashboard();
+      loadAllData();
+    } else {
+      hideLoadingOverlay();
+      alert('❌ Submission failed: ' + (result.message || 'Unknown error'));
+    }
+    
+  } catch(err) {
     hideLoadingOverlay();
-
-    resetPhotoUpload();
-    alert('✅ NCR Submitted Successfully!');
-    showDashboard();
-    loadAllData();
-  } catch(err) { 
-    hideLoadingOverlay();
-    console.error("Submission error:", err);
-    alert("❌ Submission failed: " + err.message);
+    console.error("❌ Submission error:", err);
+    
+    // 🔥 FALLBACK: Coba dengan no-cors
+    console.log('📤 Trying no-cors mode...');
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      console.log('📤 Submitted with no-cors mode');
+      resetPhotoUpload();
+      alert('✅ NCR Submitted (no-cors mode)! Please refresh to see data.');
+      showDashboard();
+      loadAllData();
+    } catch(fallbackErr) {
+      console.error("❌ Fallback error:", fallbackErr);
+      alert("❌ Submission failed: " + fallbackErr.message);
+    }
   }
 }
   
