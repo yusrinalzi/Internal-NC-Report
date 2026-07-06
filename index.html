@@ -1644,6 +1644,28 @@ document.getElementById('toggleD8Edit').checked = false; toggleD8Mode(false);
   }
 
   applyGuestRestrictions();
+  
+// ===== 🔥 FORCE SYNC DARI SECTION =====
+        setTimeout(() => {
+            syncD1FromSections();
+            
+            // ===== 🔥 EXTRA: Final refresh =====
+            // Paksa dropdown D3 dan D4 untuk tampil
+            const d3 = document.getElementById('fuPicD3');
+            const d4 = document.getElementById('fuPicD4Select');
+            
+            if (d3 && d3.value) {
+                console.log('🔄 Final refresh D3:', d3.value);
+                // Trigger change lagi
+                d3.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (d4 && d4.value) {
+                console.log('🔄 Final refresh D4:', d4.value);
+                d4.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            
+        }, 500);
+  
 }
 
 
@@ -1953,71 +1975,70 @@ async function submitD1D2(e) {
 // ============================================================
 // Mengambil nilai D3-D8 dari SECTION dan mengisi ke D1 Dropdown
 // ============================================================
-
 function syncD1FromSections() {
     console.log('🔄 syncD1FromSections: START');
     
-    // Ambil nilai dari section
-    const values = {
-        D3: document.getElementById('fuInterimActBy')?.value || '',
-        D4: document.getElementById('fuPicD4')?.value || '',
-        D5: document.getElementById('fuPicD5')?.value || '',
-        D6: document.getElementById('fuPicD6')?.value || '',
-        D7: document.getElementById('fuPicD7')?.value || '',
-        D8: document.getElementById('fuPicD8')?.value || ''
-    };
-    
-    console.log('📊 Nilai dari section:', values);
-    
-    // Mapping section → D1 dropdown
-    const mappings = [
-        { sectionValue: values.D3, dropdownId: 'fuPicD3' },
-        { sectionValue: values.D4, dropdownId: 'fuPicD4Select' },
-        { sectionValue: values.D5, dropdownId: 'fuPicD5Select' },
-        { sectionValue: values.D6, dropdownId: 'fuPicD6Select' },
-        { sectionValue: values.D7, dropdownId: 'fuPicD7Select' },
-        { sectionValue: values.D8, dropdownId: 'fuPicD8Select' }
-    ];
-    
-    // Fungsi untuk set dropdown
-    function setDropdownValue(id, value) {
-        const el = document.getElementById(id);
-        if (!el) {
-            console.warn(`⚠️ Element ${id} tidak ditemukan`);
-            return false;
-        }
+    setTimeout(() => {
+        // ===== 1. AMBIL NILAI DARI SECTION =====
+        const d3Value = document.getElementById('fuInterimActBy')?.value || '';
+        const d4Value = document.getElementById('fuPicD4')?.value || '';
+        const d5Value = document.getElementById('fuPicD5')?.value || '';
+        const d6Value = document.getElementById('fuPicD6')?.value || '';
+        const d7Value = document.getElementById('fuPicD7')?.value || '';
+        const d8Value = document.getElementById('fuPicD8')?.value || '';
         
-        // Cari option yang match
-        let found = false;
-        for (let opt of el.options) {
-            if (opt.value === value) {
-                el.value = value;
-                found = true;
-                console.log(`✅ ${id} = "${value}" (ditemukan)`);
-                break;
+        console.log('📊 Nilai dari section:', { d3Value, d4Value, d5Value, d6Value, d7Value, d8Value });
+        
+        // ===== 2. FUNGSI SET DROPDOWN =====
+        function setDropdownValue(id, value) {
+            const el = document.getElementById(id);
+            if (!el) {
+                console.warn(`⚠️ Element ${id} tidak ditemukan`);
+                return false;
             }
+            
+            // Cari option yang match
+            let found = false;
+            for (let opt of el.options) {
+                if (opt.value === value) {
+                    el.value = value;
+                    found = true;
+                    console.log(`✅ ${id} = "${value}" (ditemukan)`);
+                    break;
+                }
+            }
+            
+            // Jika tidak ditemukan, tambahkan
+            if (!found && value) {
+                console.log(`➕ Menambahkan "${value}" ke ${id}`);
+                const opt = document.createElement('option');
+                opt.value = value;
+                opt.textContent = value + ' (auto)';
+                el.appendChild(opt);
+                el.value = value;
+                console.log(`✅ ${id} = "${value}" (auto-added)`);
+            }
+            
+            return true;
         }
         
-        // Jika tidak ditemukan, tambahkan
-        if (!found && value) {
-            console.log(`➕ Menambahkan "${value}" ke ${id}`);
-            const opt = document.createElement('option');
-            opt.value = value;
-            opt.textContent = value + ' (auto)';
-            el.appendChild(opt);
-            el.value = value;
-            console.log(`✅ ${id} = "${value}" (auto-added)`);
-        }
+        // ===== 🔥 TAMBAHKAN INI: DEFINE MAPPINGS =====
+        const mappings = [
+            { dropdownId: 'fuPicD3', sectionValue: d3Value },
+            { dropdownId: 'fuPicD4Select', sectionValue: d4Value },
+            { dropdownId: 'fuPicD5Select', sectionValue: d5Value },
+            { dropdownId: 'fuPicD6Select', sectionValue: d6Value },
+            { dropdownId: 'fuPicD7Select', sectionValue: d7Value },
+            { dropdownId: 'fuPicD8Select', sectionValue: d8Value }
+        ];
         
-        return true;
-    }
-    
-    // Isi semua dropdown
-    mappings.forEach(({ sectionValue, dropdownId }) => {
-        setDropdownValue(dropdownId, sectionValue);
-    });
-    
-    console.log('✅ syncD1FromSections: FINISH');
+        // ===== 3. ISI SEMUA DROPDOWN =====
+        mappings.forEach(({ sectionValue, dropdownId }) => {
+            setDropdownValue(dropdownId, sectionValue);
+        });
+        
+        console.log('✅ syncD1FromSections: FINISH');
+    }, 500);
 }
   
 // ============================================================
@@ -2959,6 +2980,18 @@ function loadNCRViewData(ncr) {
     document.getElementById('fuViewSortingRequired').value = ncr.SortingRepairReworkRequired || '-';
     document.getElementById('fuViewSortingPIC').value = ncr.SortingReworkPIC || '-';
 
+ // ===== 🔥 FORCE REFRESH SECTION DISPLAY =====
+    // Trigger change event pada section agar UI update
+    const sections = ['fuInterimActBy', 'fuPicD4', 'fuPicD5', 'fuPicD6', 'fuPicD7', 'fuPicD8'];
+    sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.value) {
+            const event = new Event('change', { bubbles: true });
+            el.dispatchEvent(event);
+        }
+    });
+
+  
     // ============================================================
     // BAGIAN 2: FOTO NON-CONFORMITY
     // ============================================================
