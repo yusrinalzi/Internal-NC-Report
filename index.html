@@ -1610,64 +1610,110 @@ function openFollowUp() {
 }
 
 async function openFollowUpFromRow(idNo) {
-  currentFollowUpId = idNo;
-  localStorage.setItem('currentFollowUpId', idNo);
-  openFollowUp(); // remove loadAuditors() call from inside openFollowUp, see below
+    console.log('🚀 openFollowUpFromRow DIPANGGIL! ID:', idNo);
+    
+    currentFollowUpId = idNo;
+    localStorage.setItem('currentFollowUpId', idNo);
+    openFollowUp();
 
-  const ncr = rawDataNCR.find(r => r['ID No.'] === idNo);
-  if (ncr) {
-    document.getElementById('followUpId').textContent = ncr['ID No.'] || '-';
-    document.getElementById('followUpType').textContent = ncr.Type || '-';
-    document.getElementById('followUpCategory').textContent = ncr.Category || '-';
-    
-    const status = ncr.StatusNC || 'Open';
-    const statusEl = document.getElementById('followUpStatus');
-    statusEl.textContent = status;
-    statusEl.className = 'badge ' + (status === 'Closed' ? 'status-done' : status === 'In Progress' ? 'status-progress' : 'status-open');
-    
-    loadNCRViewData(ncr);
-    assignFollowUpPIC();
-    
-    // ✅ TAMBAHKAN DI SINI - ganti seluruh blok setTimeout lama
-    loadNCRViewData(ncr);
+    // ===== PASTIKAN AUDITOR LIST SUDAH LOAD =====
+    if (auditorList.length === 0) {
+        console.log('⏳ Loading auditors...');
+        await loadAuditors();
+        console.log('✅ Auditors loaded! Jumlah:', auditorList.length);
+    }
 
- // ✅ Reset semua D ke VIEW ONLY
-document.getElementById('toggleD3Edit').checked = false; toggleD3Mode(false);
-document.getElementById('toggleD4Edit').checked = false; toggleD4Mode(false);
-document.getElementById('toggleD5Edit').checked = false; toggleD5Mode(false);
-document.getElementById('toggleD6Edit').checked = false; toggleD6Mode(false);
-document.getElementById('toggleD7Edit').checked = false; toggleD7Mode(false);
-document.getElementById('toggleD8Edit').checked = false; toggleD8Mode(false);
+    const ncr = rawDataNCR.find(r => r['ID No.'] === idNo);
+    console.log('📋 NCR ditemukan?', ncr ? 'YA' : 'TIDAK');
     
-  } else {
-    alert('⚠️ NCR with ID ' + idNo + ' not found!');
-  }
-
-  applyGuestRestrictions();
-  
-// ===== 🔥 FORCE SYNC DARI SECTION =====
+    if (ncr) {
+        console.log('📋 Data NCR:', ncr);
+        console.log('📋 InterimActBy:', ncr['InterimActBy']);
+        console.log('📋 RC-AnalysisBy:', ncr['RC-AnalysisBy']);
+        
+        // ===== UPDATE HEADER =====
+        document.getElementById('followUpId').textContent = ncr['ID No.'] || '-';
+        document.getElementById('followUpType').textContent = ncr.Type || '-';
+        document.getElementById('followUpCategory').textContent = ncr.Category || '-';
+        
+        const status = ncr.StatusNC || 'Open';
+        const statusEl = document.getElementById('followUpStatus');
+        statusEl.textContent = status;
+        statusEl.className = 'badge ' + (status === 'Closed' ? 'status-done' : 
+                                        status === 'In Progress' ? 'status-progress' : 'status-open');
+        
+        // =========================================================
+        // STEP 1: LOAD DATA KE FORM
+        // =========================================================
+        console.log('📌 1. Memanggil loadNCRViewData...');
+        loadNCRViewData(ncr);
+        console.log('✅ loadNCRViewData selesai!');
+        
+        // =========================================================
+        // STEP 2: ISI D1 & D2
+        // =========================================================
+        console.log('📌 2. Memanggil assignFollowUpPIC...');
+        assignFollowUpPIC();
+        console.log('✅ assignFollowUpPIC selesai!');
+        
+        // =========================================================
+        // STEP 3: SYNC D1 DROPDOWN DARI SECTION
+        // =========================================================
+        console.log('📌 3. Memanggil syncD1FromSections...');
+        syncD1FromSections();
+        console.log('✅ syncD1FromSections selesai!');
+        
+        // =========================================================
+        // 🔥🔥🔥 STEP 4: FORCE MANUAL (SEPERTI YANG ANDA TEST!)
+        // =========================================================
         setTimeout(() => {
-            syncD1FromSections();
+            console.log('🔧 FORCE MANUAL D3 & D4...');
             
-            // ===== 🔥 EXTRA: Final refresh =====
-            // Paksa dropdown D3 dan D4 untuk tampil
-            const d3 = document.getElementById('fuPicD3');
-            const d4 = document.getElementById('fuPicD4Select');
+            // Ambil nilai dari section
+            const d3Value = document.getElementById('fuInterimActBy')?.value || '';
+            const d4Value = document.getElementById('fuPicD4')?.value || '';
             
-            if (d3 && d3.value) {
-                console.log('🔄 Final refresh D3:', d3.value);
-                // Trigger change lagi
-                d3.dispatchEvent(new Event('change', { bubbles: true }));
+            console.log('📊 Nilai dari section (manual force):', { d3Value, d4Value });
+            
+            // ===== PAKSA TAMPILKAN SECARA MANUAL =====
+            if (d3Value) {
+                const d3 = document.getElementById('fuPicD3');
+                if (d3) {
+                    d3.value = d3Value;
+                    d3.dispatchEvent(new Event('change', { bubbles: true }));
+                    console.log('✅ D3 manual force:', d3.value);
+                }
             }
-            if (d4 && d4.value) {
-                console.log('🔄 Final refresh D4:', d4.value);
-                d4.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            if (d4Value) {
+                const d4 = document.getElementById('fuPicD4Select');
+                if (d4) {
+                    d4.value = d4Value;
+                    d4.dispatchEvent(new Event('change', { bubbles: true }));
+                    console.log('✅ D4 manual force:', d4.value);
+                }
             }
             
-        }, 500);
-  
-}
+            // ===== CEK HASIL =====
+            console.log('🔍 FINAL CHECK (setelah manual force):');
+            console.log('  D1 D3:', document.getElementById('fuPicD3')?.value);
+            console.log('  D1 D4:', document.getElementById('fuPicD4Select')?.value);
+            
+        }, 800);  // ← Jeda 800ms agar semua proses selesai
+        
+        // ===== RESET MODE =====
+        document.getElementById('toggleD3Edit').checked = false;
+        toggleD3Mode(false);
+        document.getElementById('toggleD4Edit').checked = false;
+        toggleD4Mode(false);
+        // ... dst ...
+        
+    } else {
+        alert('⚠️ NCR with ID ' + idNo + ' not found!');
+    }
 
+    applyGuestRestrictions();
+}
 
 function getActiveDandPIC(r) {
   // Jika sudah closed
@@ -1970,6 +2016,7 @@ async function submitD1D2(e) {
     alert("❌ Submission failed: " + err.message);
   }
 }
+
 // ============================================================
 // FUNCTION: syncD1FromSections()
 // ============================================================
@@ -1988,12 +2035,17 @@ function syncD1FromSections() {
         const d8Value = document.getElementById('fuPicD8')?.value || '';
         
         console.log('📊 Nilai dari section:', { d3Value, d4Value, d5Value, d6Value, d7Value, d8Value });
-        
+
         // ===== 2. FUNGSI SET DROPDOWN =====
         function setDropdownValue(id, value) {
             const el = document.getElementById(id);
             if (!el) {
                 console.warn(`⚠️ Element ${id} tidak ditemukan`);
+                return false;
+            }
+            
+            if (!value) {
+                console.log(`ℹ️ Value kosong untuk ${id}`);
                 return false;
             }
             
@@ -2013,16 +2065,23 @@ function syncD1FromSections() {
                 console.log(`➕ Menambahkan "${value}" ke ${id}`);
                 const opt = document.createElement('option');
                 opt.value = value;
-                opt.textContent = value + ' (auto)';
+                opt.textContent = value;
                 el.appendChild(opt);
                 el.value = value;
                 console.log(`✅ ${id} = "${value}" (auto-added)`);
             }
             
+            // ===== 🔥 FORCE REFRESH =====
+            const event = new Event('change', { bubbles: true });
+            el.dispatchEvent(event);
+            
+            const inputEvent = new Event('input', { bubbles: true });
+            el.dispatchEvent(inputEvent);
+            
             return true;
         }
         
-        // ===== 🔥 TAMBAHKAN INI: DEFINE MAPPINGS =====
+        // ===== 3. DEFINE MAPPINGS =====
         const mappings = [
             { dropdownId: 'fuPicD3', sectionValue: d3Value },
             { dropdownId: 'fuPicD4Select', sectionValue: d4Value },
@@ -2032,14 +2091,54 @@ function syncD1FromSections() {
             { dropdownId: 'fuPicD8Select', sectionValue: d8Value }
         ];
         
-        // ===== 3. ISI SEMUA DROPDOWN =====
+        // ===== 4. ISI SEMUA DROPDOWN =====
         mappings.forEach(({ sectionValue, dropdownId }) => {
             setDropdownValue(dropdownId, sectionValue);
         });
         
+        // =========================================================
+        // 🔥 EXTRA FORCE REFRESH UNTUK D3 & D4!
+        // =========================================================
+        setTimeout(() => {
+            console.log('🔄 EXTRA FORCE REFRESH untuk D3 & D4...');
+            
+            // Force refresh D3
+            const d3El = document.getElementById('fuPicD3');
+            if (d3El && d3El.value) {
+                d3El.style.display = 'none';
+                setTimeout(() => {
+                    d3El.style.display = '';
+                    d3El.dispatchEvent(new Event('change', { bubbles: true }));
+                    console.log('✅ D3 force refresh selesai:', d3El.value);
+                }, 50);
+            }
+            
+            // Force refresh D4
+            const d4El = document.getElementById('fuPicD4Select');
+            if (d4El && d4El.value) {
+                d4El.style.display = 'none';
+                setTimeout(() => {
+                    d4El.style.display = '';
+                    d4El.dispatchEvent(new Event('change', { bubbles: true }));
+                    console.log('✅ D4 force refresh selesai:', d4El.value);
+                }, 50);
+            }
+            
+            console.log('🔍 FINAL CHECK D1 DROPDOWN:');
+            console.log('  D1 D3 (fuPicD3):', document.getElementById('fuPicD3')?.value);
+            console.log('  D1 D4 (fuPicD4Select):', document.getElementById('fuPicD4Select')?.value);
+            console.log('  D1 D5 (fuPicD5Select):', document.getElementById('fuPicD5Select')?.value);
+            console.log('  D1 D6 (fuPicD6Select):', document.getElementById('fuPicD6Select')?.value);
+            console.log('  D1 D7 (fuPicD7Select):', document.getElementById('fuPicD7Select')?.value);
+            console.log('  D1 D8 (fuPicD8Select):', document.getElementById('fuPicD8Select')?.value);
+            
+        }, 100);
+        
         console.log('✅ syncD1FromSections: FINISH');
-    }, 500);
-}
+        
+    }, 500);  // ← TUTUP setTimeout PERTAMA
+}   // ← TUTUP FUNCTION
+
   
 // ============================================================
 // FUNGSI: loadPICData() - DIPERLUAS!
