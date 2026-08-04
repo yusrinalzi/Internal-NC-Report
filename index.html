@@ -763,6 +763,7 @@
       <div class="col-md-3"><strong>Type:</strong> <span id="followUpType">-</span></div>
       <div class="col-md-3"><strong>Category:</strong> <span id="followUpCategory">-</span></div>
       <div class="col-md-3"><strong>Status:</strong> <span id="followUpStatus" class="badge status-open">Open</span></div>
+      <button class="btn btn-secondary btn-sm" onclick="sendEmailtoAll()"><i class="fas fa-send"></i> Submit report</button>
     </div>
   </div>
 
@@ -2283,6 +2284,73 @@ function toggleD8Mode(isEdit) {
   document.getElementById('btnSubmitD8').style.display = isEdit ? 'inline-block' : 'none';
 }
 
+// ==========================================
+// Submit To all
+// ==========================================
+  
+function sendEmailtoAll() {
+  const picName = document.getElementById('fuPicD3').value;
+  if (!picName) { alert('⚠️ Pilih PIC D3 terlebih dahulu!'); return; }
+  
+  const idNo = currentFollowUpId || '-';
+  
+  // 🔥 TO LIST
+  const toList = [
+    'Rudi Hermawan <Rudi.Hermawan@volex.com>',
+    'Hendro Sianipar <Hendro.Sianipar@volex.com>',
+    'Daniel Sihombing <Daniel.Sihombing@volex.com>',
+    'Usman Timunk <Usman.Timunk@volex.com>',
+    'Sherwin Goh <sherwin.goh@volex.com>',
+    'Kharismaadil Laiya <Kharismaadil.Laiya@volex.com>',
+    'Fekky Rotty <Fekky.Rotty@volex.com>',
+    'Rifki Wijaya <Rifki.Wijaya@volex.com>',
+    'Ahmad Gusfanri <ahmad.gusfanri@volex.com>',
+    'Wantri Manurung <wantri.manurung@volex.com>',
+    'Junianto Nainggolan <Junianto.Nainggolan@volex.com>',
+    'Hafizh Mahendra <hafizh.mahendra@volex.com>',
+    'Ainul Syawal <ainul.syawal@volex.com>',
+    'Sulanto Sula <Sulanto.Sula@volex.com>',
+    'Jos Sudarso <jos.sudarso@volex.com>',
+    'Bigsanro Banjarnahor <Bigsanro.Banjarnahor@volex.com>'
+  ].join(';');
+  
+  // 🔥 CC LIST
+  const ccList = [
+    'Firdaus Fauzi <Firdaus.Fauzi@volex.com>',
+    'Muhammad Ridwan <muhammad.ridwan@volex.com>',
+    'Sri Sulastri <Sri.Sulastri@volex.com>',
+    'Denny Mulyady <Denny.Mulyady@volex.com>',
+    'Manorgang Purba <Manorgang.Purba@volex.com>',
+    'Fara Rezki <Fara.Rezki@volex.com>',
+    'Rima Melati <Rima.Melati@volex.com>',
+    'Nur Iskomah <Nur.Iskomah@volex.com>',
+    'Hasril Fz <Hasril.Fz@volex.com>',
+    'Arnold Novi <Arnold.Novi@volex.com>',
+    'Adeyani Simarmata <adeyani.simarmata@volex.com>',
+    'Zulherry Yusuf <Zulherry.Yusuf@volex.com>',
+    'Yusrizal Iskandar <Yusrizal.Iskandar@volex.com>',
+    'Desi Purnamasari <desi.purnamasari@volex.com>',
+    'Panal Sihombing <panal.sihombing@volex.com>',
+    'Verlyzia Amanda <verlyzia.amanda@volex.com>',
+    'Maha Kurniawanto <Maha.Kurniawanto@volex.com>',
+    'Dessy Windasyari <Dessy.Windasyari@volex.com>',
+    'Suryo Wahono <suryo.wahono@volex.com>'
+  ].join(';');
+  
+  // 🔥 BODY dengan HTML (Hyperlink)
+  const body = encodeURIComponent(
+    `Dear All,\n\nThere is an NC with number: ${idNo}.\n\nFor the all PIC team, Please completed and follow-up the required action to prevent the reoccureance issue.\n\nPlease open the NCR portal by clicking <a href="https://yusrinalzi.github.io/Internal-NC-Report/">THIS LINK</a>.\n\nUse your User Name and Id to login or contact QMS team for access.\n\nThank you.`
+  );
+
+  const subject = encodeURIComponent(`[Action Required] NCR ${idNo}`);
+  
+  window.open(
+    `mailto:${encodeURIComponent(toList)}?cc=${encodeURIComponent(ccList)}&subject=${subject}&body=${body}`,
+    '_blank'
+  );
+}
+
+  
   
 // ==========================================
 // NOTICE PIC D3 - D8
