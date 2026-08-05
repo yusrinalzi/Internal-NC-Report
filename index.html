@@ -2294,24 +2294,46 @@ function sendEmailtoAll() {
   
   const idNo = currentFollowUpId || '-';
   
+   // 🔥 AMBIL INFORMASI TAMBAHAN DARI NCR
+  const customerName = ncr?.CustomerName || '-';
+  const location = ncr?.DetectionLocation || '-';
+  const partNo = ncr?.PartNo || '-';
+  const ncMode = ncr?.NCMode || '-';
+  const ncCategory = ncr?.NCCatagory || '-';
+  const detailNC = ncr?.DetailNC || '-';
+  const issuedBy = ncr?.IssuedBy || '-';
+  const issuedDate = ncr?.IssuedDate || '-';
+  
+  // 🔥 AMBIL URL GAMBAR (jika ada)
+  const photoUrl = ncr?.NCPicture || '';
+  
   // 🔥 TO LIST
   const toList = [
-    'Rudi Hermawan <Rudi.Hermawan@volex.com>',
-    'Hendro Sianipar <Hendro.Sianipar@volex.com>',
-    'Daniel Sihombing <Daniel.Sihombing@volex.com>',
-    'Usman Timunk <Usman.Timunk@volex.com>',
-    'Sherwin Goh <sherwin.goh@volex.com>',
-    'Kharismaadil Laiya <Kharismaadil.Laiya@volex.com>',
-    'Fekky Rotty <Fekky.Rotty@volex.com>',
-    'Rifki Wijaya <Rifki.Wijaya@volex.com>',
-    'Ahmad Gusfanri <ahmad.gusfanri@volex.com>',
-    'Wantri Manurung <wantri.manurung@volex.com>',
-    'Junianto Nainggolan <Junianto.Nainggolan@volex.com>',
-    'Hafizh Mahendra <hafizh.mahendra@volex.com>',
-    'Ainul Syawal <ainul.syawal@volex.com>',
-    'Sulanto Sula <Sulanto.Sula@volex.com>',
-    'Jos Sudarso <jos.sudarso@volex.com>',
-    'Bigsanro Banjarnahor <Bigsanro.Banjarnahor@volex.com>'
+'Rudi Hermawan <Rudi.Hermawan@volex.com>' , 
+' Hendro Sianipar <Hendro.Sianipar@volex.com>' , 
+'Daniel Sihombing <Daniel.Sihombing@volex.com>' , 
+'Usman Timunk <Usman.Timunk@volex.com>' , 
+' Sherwin Goh <sherwin.goh@volex.com>', 
+' Kharismaadil Laiya <Kharismaadil.Laiya@volex.com>' , 
+' Fekky Rotty <Fekky.Rotty@volex.com>' , 
+' Rifki Wijaya <Rifki.Wijaya@volex.com>' , 
+' Ahmad Gusfanri <ahmad.gusfanri@volex.com>', 
+' Wantri Manurung <wantri.manurung@volex.com>' , 
+' Junianto Nainggolan <Junianto.Nainggolan@volex.com>' , 
+' Hafizh Mahendra <hafizh.mahendra@volex.com>' , 
+' Ainul Syawal <ainul.syawal@volex.com>' , 
+' Sulanto Sula <Sulanto.Sula@volex.com>' , 
+'Jos Sudarso <jos.sudarso@volex.com>' , 
+' Bigsanro Banjarnahor <Bigsanro.Banjarnahor@volex.com>' , 
+'Elpi Hotriani <Elpi.Hotriani@volex.com>' , 
+'Henriko Sitanggang <Henriko.Sitanggang@volex.com>' , 
+'Harjo Hutabarat <Harjo.Hutabarat@volex.com>' , 
+'Ravi Hariska <ravi.hariska@volex.com>' , 
+'Rikardo Rumapea <rikardo.rumapea@volex.com>' , 
+'Toni Sugiarto <Toni.Sugiarto@volex.com>' , 
+'Musthafa Ramadhan <musthafa.ramadhan@volex.com>' , 
+'Iwan Padli  <iwan.padli@volex.com>' , 
+'Adrian Saputra <adrian.saputra@volex.com>'
   ].join(';');
   
   // 🔥 CC LIST
@@ -2334,13 +2356,47 @@ function sendEmailtoAll() {
     'Verlyzia Amanda <verlyzia.amanda@volex.com>',
     'Maha Kurniawanto <Maha.Kurniawanto@volex.com>',
     'Dessy Windasyari <Dessy.Windasyari@volex.com>',
-    'Suryo Wahono <suryo.wahono@volex.com>'
+    'Suryo Wahono <suryo.wahono@volex.com>',
+    'Fitriani Fitri <Fitriani.Fitri@volex.com>',
+    'Meirany Sianturi <Meirany.Sianturi@volex.com>',
+    'Azrin Krih <Azrin.Krih@volex.com>',
+    'Ana Karolina <Ana.Karolina@volex.com>',
+    'Emilia Fatmi <Emilia.Fatmi@volex.com>',
+    'Ayuly Elizabeth <ayuly.elizabeth@volex.com>',
+    'Zulkarnain Zul <Zulkarnain.Zul@volex.com>',
+    'Sherwin Goh <sherwin.goh@volex.com>'
+
   ].join(';');
   
   // 🔥 BODY dengan HTML (Hyperlink)
   const body = encodeURIComponent(
-    `Dear All,\n\nThere is an NC with number: ${idNo}.\n\nFor the all PIC team, Please completed and follow-up the required action to prevent the reoccureance issue.\n\nPlease open the NCR portal by clicking <a href="https://yusrinalzi.github.io/Internal-NC-Report/">THIS LINK</a>.\n\nUse your User Name and Id to login or contact QMS team for access.\n\nThank you.`
-  );
+ `Dear All,
+
+There is an NC with number: ${idNo}.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 NCR DETAILS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• ID No.        : ${idNo}
+• Issued By     : ${issuedBy}
+• Issued Date   : ${issuedDate}
+• Customer Name : ${customerName}
+• Part No/Name  : ${partNo}
+• Location/Area : ${location}
+• NC Mode       : ${ncMode}
+• NC Category   : ${ncCategory}
+• Detail NC     : ${detailNC}
+• NC Photo URL  : ${NCPicture}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For the all PIC team, please complete and follow-up the required action to prevent the recurrence issue.
+
+Please open the NCR portal by clicking THIS LINK:
+https://yusrinalzi.github.io/Internal-NC-Report/
+
+Use your User Name and ID to login or contact QMS team for access.
+
+Thank you.` );
 
   const subject = encodeURIComponent(`[Action Required] NCR ${idNo}`);
   
