@@ -2306,7 +2306,7 @@ function sendEmailtoAll() {
   const ncCategory = ncr?.NCCatagory || '-';
   const detailNC = ncr?.DetailNC || '-';
   const issuedBy = ncr?.IssuedBy || '-';
-  const issuedDate = ncr?.IssuedDate || '-';
+  const issuedDate = formatDateDisplay(ncr?.IssuedDate); // ✅ FORMAT TANGGAL
   
   // 🔥 AMBIL URL GAMBAR (jika ada)
   const photoUrl = ncr?.NCPicture || '';
