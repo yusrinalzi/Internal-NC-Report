@@ -6,7 +6,7 @@
 <title>Internal Non-Conformity Report (8D)</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
   <style>
     :root {
       --primary: #02453c;
@@ -1369,7 +1369,7 @@
   // ==========================================
 // 1. KONFIGURASI & VARIABEL
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbyYb4DFGnTPa0y0pFMsr2ofCWczzUYIF3DkCmXnCY-sHMkbqsVkaFIfrQaqFESWx0C9/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyYTmcnsxHuqZGIx9lzx8tmzcCZY0U1yc5eu7o8DPRUcAXfJsIDMgFNYqD8nnrs1KEU/exec';
 let rawDataNCR = [];
 let currentUser = null;
 let currentFollowUpId = null;
@@ -1695,19 +1695,69 @@ function getActiveDandPIC(r) {
 async function loadAllData() {
   showLoadingOverlay('Loading data from Google Sheet...');
   try {
-    await Promise.all([
-      loadDashboardData(),
-      loadAuditors(),
-      loadPICData()
-    ]);
-    // ...rest of your follow-up refresh logic stays after this
+    const response = await fetch(`${API_URL}?action=getInitialData`);
+    const res = await response.json();
+
+    if (res.status !== 'ok') {
+      throw new Error(res.message || 'Unknown error dari server');
+    }
+
+    // 1. Dashboard & Chart
+    rawDataNCR = res.summary;
+    renderDashboard(rawDataNCR);
+    initCharts(rawDataNCR);
+
+    // 2. Auditor dropdown
+    auditorList = res.auditors;
+    if (auditorList && auditorList.length > 0) {
+      fillAuditorDropdowns(auditorList);
+    } else {
+      setFallbackAuditors();
+    }
+
+    // 3. PIC Data (D1 & D2)
+    picDataMap = res.picData;
+    if (picDataMap && Object.keys(picDataMap).length > 0) {
+      assignCurrentUserPIC();
+      if (document.getElementById('followUpPage').style.display === 'block') {
+        assignFollowUpPIC();
+      }
+    } else {
+      setFallbackPIC();
+    }
+
     hideLoadingOverlay();
+
   } catch(error) {
     console.error('Error loading data:', error);
     hideLoadingOverlay();
+    document.getElementById('ncrTableBody').innerHTML =
+      '<tr><td colspan="8" class="text-center text-danger">Gagal memuat data. Coba refresh.</td></tr>';
+    setFallbackAuditors();
+    setFallbackPIC();
     alert('❌ Failed to load data: ' + error.message);
   }
 }
+
+// 🔥 FUNGSI BARU — dipisah dari loadAuditors() lama,
+// supaya bisa dipakai ulang tanpa fetch baru
+function fillAuditorDropdowns(list) {
+  const dropdowns = [
+    'picD3','picD4','picD5','picD6','picD7','picD8',
+    'fuPicD3',
+    'fuPicD4Select','fuPicD5Select',
+    'fuPicD6Select','fuPicD7Select','fuPicD8Select'
+  ];
+
+  dropdowns.forEach(dropdownId => {
+    const select = document.getElementById(dropdownId);
+    if (select) {
+      select.innerHTML = '<option value="">-- Select PIC --</option>' +
+        list.map(a => `<option value="${a.AuditorName}">${a.AuditorName}</option>`).join('');
+    }
+  });
+}
+
 
 async function loadDashboardData() {
   try {
@@ -1815,32 +1865,20 @@ function filterDashboard(cat) {
 // ==========================================
 // 6. FUNGSI AUDITOR
 // ==========================================
+// loadAuditors() TETAP DIPERTAHANKAN (dipakai terpisah di openFollowUpFromRow
+// & updatePIC saat butuh refresh list auditor tanpa reload semua data)
 async function loadAuditors() {
   try {
     const response = await fetch(`${API_URL}?action=getAuditors`);
     const res = await response.json();
-    
+
     if (res.status === 'ok' && res.rows && res.rows.length > 0) {
       auditorList = res.rows;
-      // Tambahkan ID select di D1 section untuk D3-D8
-     const dropdowns = [
-  'picD3','picD4','picD5','picD6','picD7','picD8',   // Create form
-  'fuPicD3',                                           // Follow-up D1 D3
-  'fuPicD4Select','fuPicD5Select',                     // Follow-up D1 D4-D5
-  'fuPicD6Select','fuPicD7Select','fuPicD8Select'      // Follow-up D1 D6-D8
-];
-      
-      dropdowns.forEach(dropdownId => {
-        const select = document.getElementById(dropdownId);
-        if (select) {
-          select.innerHTML = '<option value="">-- Select PIC --</option>' + 
-            auditorList.map(a => `<option value="${a.AuditorName}">${a.AuditorName}</option>`).join('');
-        }
-      });
+      fillAuditorDropdowns(auditorList);
     } else {
       setFallbackAuditors();
     }
-  } catch(e) { 
+  } catch(e) {
     console.error("Gagal memuat list auditor/PIC", e);
     setFallbackAuditors();
   }
