@@ -552,7 +552,7 @@
         <h4 class="mb-0">📝 NON-CONFORMITY REPORT</h4>
       </div>
       <div class="card-body">
-        <form id="formD1D2" onsubmit="submitD1D2(event)">
+        <form id="formD1D2" onsubmit="(event)">
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label fw-bold">NCR Type</label>
@@ -1541,19 +1541,23 @@ function showDashboard() {
 
 // ✅ FUNGSI BARU
 function resetPhotoUpload() {
-  uploadedPhotoData = null;
-  uploadedPhotoName = null;
-  
-  const photoUpload = document.getElementById('photoUpload');
-  if (photoUpload) photoUpload.value = '';
-  
-  const previewContainer = document.getElementById('photoPreviewContainer');
-  if (previewContainer) previewContainer.style.display = 'none';
-  
-  const preview = document.getElementById('photoPreview');
-  if (preview) preview.src = '#';
-}
+  window.photoBadFile = null;
+  window.photoGoodFile = null;
 
+  const badInput = document.getElementById('photoUploadBad');
+  if (badInput) badInput.value = '';
+  const badContainer = document.getElementById('photoPreviewBadContainer');
+  if (badContainer) badContainer.style.display = 'none';
+  const badPreview = document.getElementById('photoPreviewBad');
+  if (badPreview) badPreview.src = '#';
+
+  const goodInput = document.getElementById('photoUploadGood');
+  if (goodInput) goodInput.value = '';
+  const goodContainer = document.getElementById('photoPreviewGoodContainer');
+  if (goodContainer) goodContainer.style.display = 'none';
+  const goodPreview = document.getElementById('photoPreviewGood');
+  if (goodPreview) goodPreview.src = '#';
+}
 // ==========================================
 // FUNGSI RESET UPLOAD FOTO (Follow-up D2)
 // ==========================================
@@ -1580,21 +1584,20 @@ function openCreateForm() {
  // ✅ Reset upload foto
   resetPhotoUpload();
   
-  // ✅ 1. Reset upload foto MANUAL (sebelum form.reset)
-  uploadedPhotoData = null;
-  uploadedPhotoName = null;
-  const photoUpload = document.getElementById('photoUpload');
-  if (photoUpload) {
-    photoUpload.value = '';  // Reset input file
-  }
-  const previewContainer = document.getElementById('photoPreviewContainer');
-  if (previewContainer) {
-    previewContainer.style.display = 'none';
-  }
-  const preview = document.getElementById('photoPreview');
-  if (preview) {
-    preview.src = '#';
-  }
+uploadedPhotoData = null;
+uploadedPhotoName = null;
+const photoUpload = document.getElementById('photoUpload');
+if (photoUpload) {
+  photoUpload.value = '';
+}
+const previewContainer = document.getElementById('photoPreviewContainer');
+if (previewContainer) {
+  previewContainer.style.display = 'none';
+}
+const preview = document.getElementById('photoPreview');
+if (preview) {
+  preview.src = '#';
+}
   
   // ✅ 2. Reset form (akan mereset semua field termasuk select, textarea, dll)
   const form = document.getElementById('formD1D2');
@@ -1959,17 +1962,26 @@ function sendNoticeEmail(picId, subjectText, bodyText) {
 async function submitD1D2(e) {
   e.preventDefault();
   
-  console.log('📤 Starting submitD1D2');
-  
-  // Siapkan data NCR
   const idNo = document.getElementById('idNo').value;
-  console.log('📤 ID No:', idNo);
   
-  // 🔥 Ambil base64 foto
-  const photoBase64 = uploadedPhotoData || '';
-  console.log('📤 Photo data length:', photoBase64 ? photoBase64.length : 0);
+  // 🔥 Convert foto Bad & Good ke base64 (readFileAsBase64 sudah ada di kode Anda)
+  let photoBadBase64 = '';
+  let photoGoodBase64 = '';
   
-  // Siapkan payload
+  try {
+    if (window.photoBadFile) {
+      photoBadBase64 = await readFileAsBase64(window.photoBadFile);
+    }
+    if (window.photoGoodFile) {
+      photoGoodBase64 = await readFileAsBase64(window.photoGoodFile);
+    }
+  } catch(err) {
+    console.error('❌ Gagal membaca file foto:', err);
+  }
+  
+  console.log('📤 Photo Bad length:', photoBadBase64.length);
+  console.log('📤 Photo Good length:', photoGoodBase64.length);
+  
   const formData = {
     action: 'appendNCR',
     timestamp: new Date().toISOString(),
@@ -1994,7 +2006,8 @@ async function submitD1D2(e) {
       'SortingReworkPIC': document.getElementById('picD3').value,
       'Period': new Date().toLocaleDateString('en-GB'),
       'IssuedBy': document.getElementById('issuedBy').value,
-      'NCPicture': photoBase64, // 🔥 Kirim base64 foto
+      'NCPicture': photoBadBase64,   // 🔥 foto Bad sample
+      'OKPicture': photoGoodBase64,  // 🔥 foto Good sample
       'D1': document.getElementById('picD1').value,
       'D2': document.getElementById('picD2').value,
       'InterimActBy': document.getElementById('picD3').value,
@@ -2010,7 +2023,6 @@ async function submitD1D2(e) {
   try {
     showLoadingOverlay('Saving NCR...');
     
-    // 🔥 PAKAI no-cors + text/plain
     await fetch(API_URL, {
       method: 'POST',
       mode: 'no-cors',
@@ -2018,7 +2030,6 @@ async function submitD1D2(e) {
       body: JSON.stringify(formData)
     });
     
-    // Karena no-cors, kita tidak bisa baca response
     console.log('📤 NCR submitted (no-cors mode)');
     
     hideLoadingOverlay();
@@ -2033,7 +2044,6 @@ async function submitD1D2(e) {
     alert("❌ Submission failed: " + err.message);
   }
 }
-
 
   
 // ============================================================
