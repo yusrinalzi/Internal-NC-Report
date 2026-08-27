@@ -1575,35 +1575,20 @@ function resetFuPhotoUpload() {
   const fuPreview = document.getElementById('fuPhotoPreview');
   if (fuPreview) fuPreview.src = '#';
 }
-  
+
 function openCreateForm() {
   document.getElementById('sectionDashboard').style.display = 'none';
   document.getElementById('ncrFormPage').style.display = 'block';
   document.getElementById('followUpPage').style.display = 'none';
 
- // ✅ Reset upload foto
+  // ✅ Reset upload foto (versi baru, Bad & Good)
   resetPhotoUpload();
   
-uploadedPhotoData = null;
-uploadedPhotoName = null;
-const photoUpload = document.getElementById('photoUpload');
-if (photoUpload) {
-  photoUpload.value = '';
-}
-const previewContainer = document.getElementById('photoPreviewContainer');
-if (previewContainer) {
-  previewContainer.style.display = 'none';
-}
-const preview = document.getElementById('photoPreview');
-if (preview) {
-  preview.src = '#';
-}
-  
-  // ✅ 2. Reset form (akan mereset semua field termasuk select, textarea, dll)
+  // ✅ 2. Reset form
   const form = document.getElementById('formD1D2');
   if (form) form.reset();
   
-  // ✅ 3. Set nilai IssuedBy (karena form.reset() akan menghapusnya)
+  // ✅ 3. Set nilai IssuedBy
   const issuedByField = document.getElementById('issuedBy');
   if (issuedByField) {
     if (currentUser && currentUser.name) {
