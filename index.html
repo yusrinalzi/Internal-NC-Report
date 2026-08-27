@@ -677,19 +677,39 @@
 
             <!-- Upload Foto -->
 <!-- ✅ HANYA SATU BAGIAN UPLOAD FOTO -->
-<!-- Upload Foto -->
+<!-- 📷 Upload / Ambil Foto Non-Conformity — Bad & Good sample -->
 <div class="col-12">
-  <label class="form-label fw-bold">📷 Upload / Ambil Foto Non-Conformity</label>
-  <div class="d-flex gap-2 flex-wrap">
-    <input type="file" id="photoUpload" class="form-control" accept="image/*" onchange="previewPhoto(event)" style="flex:1; min-width:150px;">
-    <button type="button" class="btn btn-primary" onclick="openCamera()" style="white-space:nowrap;">
-      <i class="fas fa-camera"></i> Ambil Foto
-    </button>
-  </div>
-  <div id="photoPreviewContainer" class="mt-2" style="display:none;">
-    <img id="photoPreview" src="#" alt="Preview" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px; background:white;">
-    <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removePhoto()">✕ Hapus</button>
-    <small class="text-muted d-block mt-1">Format: JPG, PNG (Max 5MB)</small>
+  <label class="form-label fw-bold">📷 Upload / Ambil Foto Non-Conformity (Bad & Good sample)</label>
+  <div class="row g-3">
+    <div class="col-sm-6">
+      <label class="form-label">Bad Sample (NG)</label>
+      <div class="d-flex gap-2">
+        <input type="file" id="photoUploadBad" name="photoBad" accept="image/*" class="form-control" onchange="previewPhoto(event,'bad')" style="flex:1; min-width:150px;">
+        <button type="button" class="btn btn-primary" onclick="openCamera('bad')" style="white-space:nowrap;">
+          <i class="fas fa-camera"></i> Ambil Foto
+        </button>
+      </div>
+      <div id="photoPreviewBadContainer" class="mt-2" style="display:none;">
+        <img id="photoPreviewBad" src="#" alt="Preview Bad" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px; background:white;">
+        <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removePhoto('bad')">✕ Hapus</button>
+        <small class="text-muted d-block mt-1">Format: JPG, PNG (Max 5MB)</small>
+      </div>
+    </div>
+
+    <div class="col-sm-6">
+      <label class="form-label">Good Sample (OK)</label>
+      <div class="d-flex gap-2">
+        <input type="file" id="photoUploadGood" name="photoGood" accept="image/*" class="form-control" onchange="previewPhoto(event,'good')" style="flex:1; min-width:150px;">
+        <button type="button" class="btn btn-primary" onclick="openCamera('good')" style="white-space:nowrap;">
+          <i class="fas fa-camera"></i> Ambil Foto
+        </button>
+      </div>
+      <div id="photoPreviewGoodContainer" class="mt-2" style="display:none;">
+        <img id="photoPreviewGood" src="#" alt="Preview Good" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px; background:white;">
+        <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removePhoto('good')">✕ Hapus</button>
+        <small class="text-muted d-block mt-1">Format: JPG, PNG (Max 5MB)</small>
+      </div>
+    </div>
   </div>
 </div>
             
@@ -3704,33 +3724,28 @@ function formatDateForInput(dateStr) {
 // ==========================================
 // FUNGSI UPLOAD FOTO
 // ==========================================
-let uploadedPhotoData = null;
+// ===== photo upload / camera helpers for Bad & Good samples =====
+let currentCameraTarget = null;    // 'bad' or 'good'
+let cameraStream = null;
+window.photoBadFile = null;
+window.photoGoodFile = null;
 
-// ✅ FUNGSI BARU
-function previewPhoto(event) {
-  const file = event.target.files[0];
+function previewPhoto(e, type) {
+  const file = e.target.files && e.target.files[0];
   if (!file) return;
-  
-  // Validasi ukuran (max 5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    alert('❌ Ukuran foto terlalu besar! Maksimal 5MB.');
-    event.target.value = '';
-    return;
+  if (file.size > 5 * 1024 * 1024) { alert('Max file size is 5MB'); e.target.value = ''; return; }
+  const url = URL.createObjectURL(file);
+  if (type === 'bad') {
+    document.getElementById('photoPreviewBad').src = url;
+    document.getElementById('photoPreviewBadContainer').style.display = 'block';
+    window.photoBadFile = file;
+  } else {
+    document.getElementById('photoPreviewGood').src = url;
+    document.getElementById('photoPreviewGoodContainer').style.display = 'block';
+    window.photoGoodFile = file;
   }
-  
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const previewContainer = document.getElementById('photoPreviewContainer');
-    const preview = document.getElementById('photoPreview');
-    preview.src = e.target.result;
-    previewContainer.style.display = 'block';
-    
-    // Simpan data foto untuk diupload
-    uploadedPhotoData = e.target.result.split(',')[1]; // Base64 tanpa header
-    uploadedPhotoName = file.name;
-  };
-  reader.readAsDataURL(file);
 }
+
 
 // ✅ FUNGSI BARU
 function previewFuPhoto(event) {
@@ -3783,13 +3798,19 @@ function removeFuPhoto() {
 }
   
   
-// ✅ FUNGSI BARU
-function removePhoto() {
-  document.getElementById('photoUpload').value = '';
-  document.getElementById('photoPreviewContainer').style.display = 'none';
-  document.getElementById('photoPreview').src = '#';
-  uploadedPhotoData = null;
-  uploadedPhotoName = null;
+// Remove photo (clears input and preview)
+function removePhoto(type) {
+  if (type === 'bad') {
+    document.getElementById('photoUploadBad').value = '';
+    document.getElementById('photoPreviewBad').src = '#';
+    document.getElementById('photoPreviewBadContainer').style.display = 'none';
+    window.photoBadFile = null;
+  } else {
+    document.getElementById('photoUploadGood').value = '';
+    document.getElementById('photoPreviewGood').src = '#';
+    document.getElementById('photoPreviewGoodContainer').style.display = 'none';
+    window.photoGoodFile = null;
+  }
 }
 
   // ==========================================
@@ -3799,114 +3820,99 @@ function removePhoto() {
 let videoStream = null;
 let photoCaptured = false;
 
-function openCamera() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert('❌ Browser Anda tidak mendukung akses kamera. Silakan gunakan Chrome atau Edge terbaru.');
-    return;
-  }
-
+// Open camera modal and start camera; pass 'bad' or 'good'
+function openCamera(target) {
+  currentCameraTarget = target;
   const modal = document.getElementById('cameraModal');
-  if (modal) {
-    modal.style.display = 'flex';
-    startCamera();
-  } else {
-    alert('❌ Modal kamera tidak ditemukan. Silakan refresh halaman.');
-  }
-}
-
-async function startCamera() {
-  const video = document.getElementById('cameraVideo');
-  if (!video) return;
-  
-  try {
-    if (videoStream) {
-      videoStream.getTracks().forEach(track => track.stop());
-    }
-    
-    videoStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
-      audio: false
-    });
-    
-    video.srcObject = videoStream;
-    await video.play();
-    photoCaptured = false;
-    
-    document.getElementById('btnCapture').style.display = 'inline-block';
-    document.getElementById('btnConfirm').style.display = 'none';
-    document.getElementById('btnRetake').style.display = 'none';
-    
-    // Reset canvas
-    const canvas = document.getElementById('cameraCanvas');
-    if (canvas) {
-      canvas.style.display = 'none';
-      video.style.display = 'block';
-    }
-    
-  } catch(err) {
-    console.error('❌ Error opening camera:', err);
-    alert('❌ Tidak dapat mengakses kamera. Pastikan Anda memberikan izin kamera.\n\nError: ' + err.message);
-    closeCamera();
-  }
-}
-
-function capturePhoto() {
-  const video = document.getElementById('cameraVideo');
-  const canvas = document.getElementById('cameraCanvas');
-  
-  if (!video || !canvas) return;
-  
-  canvas.width = video.videoWidth || 1280;
-  canvas.height = video.videoHeight || 720;
-  
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  
-  canvas.style.display = 'block';
-  video.style.display = 'none';
-  
-  photoCaptured = true;
-  
-  document.getElementById('btnCapture').style.display = 'none';
-  document.getElementById('btnConfirm').style.display = 'inline-block';
-  document.getElementById('btnRetake').style.display = 'inline-block';
-}
-
-function retakePhoto() {
-  const video = document.getElementById('cameraVideo');
-  const canvas = document.getElementById('cameraCanvas');
-  
-  video.style.display = 'block';
-  canvas.style.display = 'none';
-  
-  photoCaptured = false;
-  
+  modal.style.display = 'flex';
+  startCamera('cameraVideo');
+  // Hide/Show capture/confirm UI as in your modal
   document.getElementById('btnCapture').style.display = 'inline-block';
   document.getElementById('btnConfirm').style.display = 'none';
   document.getElementById('btnRetake').style.display = 'none';
 }
 
-function confirmPhoto() {
-  const canvas = document.getElementById('cameraCanvas');
-  if (!canvas) return;
-  
-  const imageData = canvas.toDataURL('image/jpeg', 0.9);
-  closeCamera();
-  processPhotoFromCamera(imageData);
+// Start camera into a video element id (string)
+function startCamera(videoId) {
+  const video = document.getElementById(videoId);
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert('Camera API not supported');
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+    .then(stream => {
+      cameraStream = stream;
+      video.srcObject = stream;
+      video.play();
+    }).catch(err => {
+      console.error(err);
+      alert('Could not start camera: ' + err.message);
+    });
 }
 
+
+function capturePhoto() {
+  const video = document.getElementById('cameraVideo');
+  const canvas = document.getElementById('cameraCanvas');
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 720;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  canvas.style.display = 'block';
+  // show confirm/retake buttons
+  document.getElementById('btnCapture').style.display = 'none';
+  document.getElementById('btnConfirm').style.display = 'inline-block';
+  document.getElementById('btnRetake').style.display = 'inline-block';
+  // pause video for preview (optional)
+  video.pause();
+}
+
+function retakePhoto() {
+  const video = document.getElementById('cameraVideo');
+  const canvas = document.getElementById('cameraCanvas');
+  canvas.style.display = 'none';
+  document.getElementById('btnCapture').style.display = 'inline-block';
+  document.getElementById('btnConfirm').style.display = 'none';
+  document.getElementById('btnRetake').style.display = 'none';
+  if (video && cameraStream) video.play();
+}
+
+function confirmPhoto() {
+  const canvas = document.getElementById('cameraCanvas');
+  canvas.toBlob(blob => {
+    const fileName = 'photo_' + (currentCameraTarget || 'shot') + '_' + Date.now() + '.jpg';
+    const file = new File([blob], fileName, { type: 'image/jpeg' });
+    if (currentCameraTarget === 'bad') {
+      window.photoBadFile = file;
+      document.getElementById('photoPreviewBad').src = URL.createObjectURL(file);
+      document.getElementById('photoPreviewBadContainer').style.display = 'block';
+      document.getElementById('photoUploadBad').value = ''; // keep input empty because file created via camera
+    } else {
+      window.photoGoodFile = file;
+      document.getElementById('photoPreviewGood').src = URL.createObjectURL(file);
+      document.getElementById('photoPreviewGoodContainer').style.display = 'block';
+      document.getElementById('photoUploadGood').value = '';
+    }
+    closeCamera();
+  }, 'image/jpeg', 0.9);
+}
+
+
 function closeCamera() {
-  if (videoStream) {
-    videoStream.getTracks().forEach(track => track.stop());
-    videoStream = null;
-  }
-  
   const modal = document.getElementById('cameraModal');
-  if (modal) {
-    modal.style.display = 'none';
+  modal.style.display = 'none';
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
   }
-  
-  photoCaptured = false;
+  currentCameraTarget = null;
+  // hide canvas if used
+  const canvas = document.getElementById('cameraCanvas');
+  if (canvas) canvas.style.display = 'none';
+  // reset buttons as needed
+  document.getElementById('btnCapture').style.display = 'inline-block';
+  document.getElementById('btnConfirm').style.display = 'none';
+  document.getElementById('btnRetake').style.display = 'none';
 }
 
 function processPhotoFromCamera(imageData) {
