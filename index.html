@@ -291,7 +291,7 @@
   max-width: 100%;
   max-height: 300px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border:2px solid #dc3545;
   object-fit: contain;
 }
 
@@ -690,7 +690,7 @@
         </button>
       </div>
       <div id="photoPreviewBadContainer" class="mt-2" style="display:none;">
-        <img id="photoPreviewBad" src="#" alt="Preview Bad" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px; background:white;">
+        <img id="photoPreviewBad" src="#" alt="Preview Bad" style="max-width:200px; max-height:200px; border-radius:8px; border:2px solid #dc3545; padding:4px; background:white;">
         <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removePhoto('bad')">✕ Hapus</button>
         <small class="text-muted d-block mt-1">Format: JPG, PNG (Max 5MB)</small>
       </div>
@@ -705,7 +705,7 @@
         </button>
       </div>
       <div id="photoPreviewGoodContainer" class="mt-2" style="display:none;">
-        <img id="photoPreviewGood" src="#" alt="Preview Good" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #ddd; padding:4px; background:white;">
+        <img id="photoPreviewGood" src="#" alt="Preview Good" style="max-width:200px; max-height:200px; border-radius:8px; border:2px solid #198754; padding:4px; background:white;">
         <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removePhoto('good')">✕ Hapus</button>
         <small class="text-muted d-block mt-1">Format: JPG, PNG (Max 5MB)</small>
       </div>
@@ -980,20 +980,34 @@
       </div>
     </div>
       
-     <!-- ===== 📷 FOTO NC - DITARUH DI SINI (setelah semua field) ===== -->
+<!-- ===== 📷 FOTO NC - DITARUH DI SINI (setelah semua field) ===== -->
 <div class="col-12">
   <hr>
-  <label class="form-label fw-bold">📷 Foto Non-Conformity</label>
-  
-  <!-- Tampilan foto -->
-  <div id="fuPhotoContainer">
-    <div id="fuPhotoPlaceholder" class="img-placeholder" style="height:200px; background:#f8f9fa; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#adb5bd; border:2px dashed #dee2e6;">
-      <i class="fas fa-image fa-3x"></i>
-      <p class="mt-2 mb-0">Belum ada foto</p>
+  <div class="row g-3">
+    <!-- Foto Bad Sample -->
+    <div class="col-md-6">
+      <label class="form-label fw-bold">📷 Foto Bad Sample (NC)</label>
+      <div id="fuPhotoContainer">
+        <div id="fuPhotoPlaceholder" class="img-placeholder" style="height:200px; background:#f8f9fa; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#adb5bd; border:2px dashed #dee2e6;">
+          <i class="fas fa-image fa-3x"></i>
+          <p class="mt-2 mb-0">Belum ada foto</p>
+        </div>
+        <img id="fuPhotoDisplay" src="#" alt="NCR Photo" style="display:none; max-width:100%; max-height:300px; border-radius:8px; border:2px solid #dc3545; object-fit:contain; background:#fafafa;">
+      </div>
     </div>
-    <img id="fuPhotoDisplay" src="#" alt="NCR Photo" style="display:none; max-width:100%; max-height:300px; border-radius:8px; border:1px solid #ddd; object-fit:contain; background:#fafafa;">
-  
+
+    <!-- 🔥 Foto Good Sample — BARU -->
+    <div class="col-md-6">
+      <label class="form-label fw-bold">📷 Foto Good Sample (OK)</label>
+      <div id="fuPhotoGoodContainer">
+        <div id="fuPhotoGoodPlaceholder" class="img-placeholder" style="height:200px; background:#f8f9fa; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#adb5bd; border:2px dashed #dee2e6;">
+          <i class="fas fa-image fa-3x"></i>
+          <p class="mt-2 mb-0">Belum ada foto</p>
+        </div>
+        <img id="fuPhotoGoodDisplay" src="#" alt="OK Sample Photo" style="display:none; max-width:100%; max-height:300px; border-radius:8px; border:2px solid #198754; object-fit:contain; background:#fafafa;">
+      </div>
     </div>
+  </div>
   
   <!-- Upload foto baru (hanya muncul di EDIT MODE) -->
   <div id="fuPhotoEditSection" style="display:none; margin-top:10px;">
@@ -3070,7 +3084,30 @@ function loadNCRViewData(ncr) {
         }
         if (placeholder) placeholder.style.display = 'flex';
     }
-    
+
+  // 🔥 BARU: Tampilkan foto Good Sample (OKPicture)
+const photoUrlGood = ncr.OKPicture || '';
+const displayGood = document.getElementById('fuPhotoGoodDisplay');
+const placeholderGood = document.getElementById('fuPhotoGoodPlaceholder');
+
+if (photoUrlGood && photoUrlGood.startsWith('http')) {
+    if (displayGood) {
+        displayGood.src = photoUrlGood;
+        displayGood.style.display = 'block';
+        displayGood.onerror = function() {
+            this.style.display = 'none';
+            if (placeholderGood) placeholderGood.style.display = 'flex';
+        };
+    }
+    if (placeholderGood) placeholderGood.style.display = 'none';
+} else {
+    if (displayGood) {
+        displayGood.style.display = 'none';
+        displayGood.src = '#';
+    }
+    if (placeholderGood) placeholderGood.style.display = 'flex';
+}
+  
     // ============================================================
     // BAGIAN 3: D3 - INTERIM/CONTAINMENT ACTION
     // ============================================================
