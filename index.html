@@ -1242,7 +1242,7 @@
       <label class="form-label">Verification Result</label>
       <select id="fuValRslt" class="form-select highlight-area">
         <option value="">-- Select Result --</option>
-        <option value="Accapted">Accepted</option>
+        <option value="Accepted">Accepted</option>
         <option value="Rejected">Rejected</option>
         </select>
     </div>
@@ -2023,11 +2023,10 @@ async function submitD1D2(e) {
     showLoadingOverlay('Saving NCR...');
     
     await fetch(API_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(formData)
-    });
+  method: 'POST',
+  headers: { 'Content-Type': 'text/plain' },  // Tetap text/plain untuk hindari preflight
+  body: JSON.stringify(payload)
+});
     
     console.log('📤 NCR submitted (no-cors mode)');
     
@@ -2228,13 +2227,10 @@ async function submitFollowUp(step) {
   try {
     // Kirim ke API
     await fetch(API_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload)
-    });
+  method: 'POST',
+  headers: { 'Content-Type': 'text/plain' },  // Tetap text/plain untuk hindari preflight
+  body: JSON.stringify(payload)
+});
     
     alert(`✅ ${step} submitted successfully!`);
     
@@ -2970,11 +2966,10 @@ async function updatePIC() {
   
   try {
     await fetch(API_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+  method: 'POST',
+  headers: { 'Content-Type': 'text/plain' },  // Tetap text/plain untuk hindari preflight
+  body: JSON.stringify(payload)
+});
     
     toggleButtonSpinner('btnUpdatePIC', false);
     alert('✅ PIC Updated Successfully!');
@@ -3493,11 +3488,10 @@ async function submitD2Update() {
             
             // Kirim request (response tidak bisa dibaca karena no-cors)
             await fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify(uploadPayload)
-            });
+  method: 'POST',
+  headers: { 'Content-Type': 'text/plain' },  // Tetap text/plain untuk hindari preflight
+  body: JSON.stringify(payload)
+});
             
             console.log('📤 Upload request sent, waiting for processing...');
             
@@ -3591,12 +3585,11 @@ async function submitD2Update() {
     try {
         showLoadingOverlay('Updating D2 data...');
         
-        await fetch(API_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify(payload)
-        });
+      await fetch(API_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'text/plain' },  // Tetap text/plain untuk hindari preflight
+  body: JSON.stringify(payload)
+});
         
         // Tunggu sebentar agar update selesai
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -3662,11 +3655,10 @@ async function uploadPhotoToGitHubWithCallback(base64Data, fileName, idNo) {
         
         // Karena no-cors, kita kirim dulu
         await fetch(API_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify(uploadPayload)
-        });
+  method: 'POST',
+  headers: { 'Content-Type': 'text/plain' },  // Tetap text/plain untuk hindari preflight
+  body: JSON.stringify(payload)
+});
         
         console.log('📤 Upload request sent, waiting for processing...');
         
@@ -4160,7 +4152,6 @@ async function uploadImageToGitHub(file, folder = 'Images') {
         // 🔥 PAKAI no-cors
         await fetch(API_URL, {
             method: 'POST',
-            mode: 'no-cors',  // <-- TAMBAHKAN INI!
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({
                 action: 'uploadImage',
@@ -4203,7 +4194,6 @@ async function uploadPhotoToGitHub(base64Data, fileName, idNo) {
         // 🔥 PAKAI no-cors + text/plain
         await fetch(API_URL, {
             method: 'POST',
-            mode: 'no-cors',
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(payload)
         });
