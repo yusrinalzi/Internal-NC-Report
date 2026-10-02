@@ -2019,7 +2019,7 @@ async function submitD1D2(e) {
     }
   };
 
-  try {
+ try {
   showLoadingOverlay('Saving NCR...');
   
   const response = await fetch(API_URL, {
@@ -2046,6 +2046,7 @@ async function submitD1D2(e) {
   hideLoadingOverlay();
   console.error("❌ Submission error:", err);
   alert("❌ Submission failed: " + err.message);
+}
 }
   
 // ============================================================
@@ -3494,7 +3495,7 @@ async function submitD2Update() {
             await fetch(API_URL, {
   method: 'POST',
   headers: { 'Content-Type': 'text/plain' },  // Tetap text/plain untuk hindari preflight
-  body: JSON.stringify(payload)
+  body: JSON.stringify(uploadPayload)
 });
             
             console.log('📤 Upload request sent, waiting for processing...');
@@ -3661,7 +3662,7 @@ async function uploadPhotoToGitHubWithCallback(base64Data, fileName, idNo) {
         await fetch(API_URL, {
   method: 'POST',
   headers: { 'Content-Type': 'text/plain' },  // Tetap text/plain untuk hindari preflight
-  body: JSON.stringify(payload)
+  body: JSON.stringify(uploadPayload)
 });
         
         console.log('📤 Upload request sent, waiting for processing...');
