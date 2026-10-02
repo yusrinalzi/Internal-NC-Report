@@ -2020,29 +2020,33 @@ async function submitD1D2(e) {
   };
 
   try {
-    showLoadingOverlay('Saving NCR...');
-    
-    await fetch(API_URL, {
-  method: 'POST',
-  headers: { 'Content-Type': 'text/plain' },  // Tetap text/plain untuk hindari preflight
-  body: JSON.stringify(payload)
-});
-    
-    console.log('📤 NCR submitted (no-cors mode)');
-    
-    hideLoadingOverlay();
+  showLoadingOverlay('Saving NCR...');
+  
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(formData)
+  });
+  
+  const result = await response.json();
+  console.log('📤 Server response:', result);
+  
+  hideLoadingOverlay();
+  
+  if (result.status === 'ok') {
     resetPhotoUpload();
     alert('✅ NCR Submitted Successfully!');
     showDashboard();
     loadAllData();
-    
-  } catch(err) {
-    hideLoadingOverlay();
-    console.error("❌ Submission error:", err);
-    alert("❌ Submission failed: " + err.message);
+  } else {
+    alert('❌ Gagal menyimpan: ' + (result.message || 'Unknown error'));
   }
+  
+} catch(err) {
+  hideLoadingOverlay();
+  console.error("❌ Submission error:", err);
+  alert("❌ Submission failed: " + err.message);
 }
-
   
 // ============================================================
 // FUNGSI: loadPICData() - DIPERLUAS!
