@@ -1879,10 +1879,27 @@ function formatDate(dateStr) {
   return dateStr;
 }
 
+function getFiscalPeriod(date) {
+  const month = date.getMonth(); // 0=Jan ... 11=Des
+  // April(3) = P1, jadi geser referensi ke April sebagai titik nol
+  const period = ((month - 3 + 12) % 12) + 1;
+  return 'P' + period;
+}  
+  
 function generateIDNo() {
   const cat = document.getElementById('ncrType').value;
-  const nextNum = rawDataNCR.length + 1;
-  document.getElementById('idNo').value = cat + "-" + String(nextNum).padStart(3, '0');
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  const periodLabel = getFiscalPeriod(now);   // 🔥 dihitung otomatis, bukan hardcode "P7"
+
+  const countThisMonth = rawDataNCR.filter(r => {
+    const d = parseDate(r.IssuedDate);
+    return d && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+  }).length;
+
+  const nextNum = countThisMonth + 1;
+  document.getElementById('idNo').value = `${cat}-${periodLabel}-${String(nextNum).padStart(3, '0')}`;
 }
 
 function filterDashboard(cat) {
