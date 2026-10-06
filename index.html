@@ -456,7 +456,9 @@
   <!-- ========== DASHBOARD PAGE ========== -->
   <div id="sectionDashboard" class="page-content">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3>📊 Dashboard Overview</h3>
+      <h3>📊 Dashboard Overview 
+      <span id="syncSpinner" class="spinner-border spinner-border-sm text-secondary ms-2" style="display:none;" role="status"></span>
+      </h3>
       <button class="btn btn-sm btn-secondary" onclick="loadAllData()"><i class="fas fa-sync"></i> Refresh</button>
     </div>
 
@@ -1731,7 +1733,7 @@ function getActiveDandPIC(r) {
 // 5. FUNGSI DATA
 // ==========================================
 async function loadAllData() {
-  showLoadingOverlay('Loading data from Google Sheet...');
+  showSyncIndicator();
   try {
     const response = await fetch(`${API_URL}?action=getInitialData`);
     const res = await response.json();
@@ -1764,11 +1766,11 @@ async function loadAllData() {
       setFallbackPIC();
     }
 
-    hideLoadingOverlay();
+    hideSyncIndicator();
 
   } catch(error) {
     console.error('Error loading data:', error);
-    hideLoadingOverlay();
+    hideSyncIndicator();
     document.getElementById('ncrTableBody').innerHTML =
       '<tr><td colspan="8" class="text-center text-danger">Gagal memuat data. Coba refresh.</td></tr>';
     setFallbackAuditors();
@@ -3372,7 +3374,16 @@ window.onload = function() {
   // ==========================================
 // FULL PAGE LOADING OVERLAY
 // ==========================================
+function showSyncIndicator() {
+  const el = document.getElementById('syncSpinner');
+  if (el) el.style.display = 'inline-block';
+}
 
+function hideSyncIndicator() {
+  const el = document.getElementById('syncSpinner');
+  if (el) el.style.display = 'none';
+}
+  
 function showLoadingOverlay(message = 'Processing...') {
   const overlay = document.getElementById('loadingOverlay');
   const msgEl = document.getElementById('loadingMessage');
