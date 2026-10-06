@@ -1648,8 +1648,12 @@ async function openFollowUpFromRow(idNo) {
     localStorage.setItem('currentFollowUpId', idNo);
     openFollowUp();
 
-    // 1. PASTIKAN auditor list selesai dimuat dulu (tunggu sampai selesai)
-    await loadAuditors();
+    // 🔥 Cuma fetch ulang kalau auditorList BELUM ada (hindari panggilan boros)
+if (!auditorList || auditorList.length === 0) {
+  await loadAuditors();
+} else {
+  fillAuditorDropdowns(auditorList);  // pakai data yang sudah ada, tanpa fetch baru
+}
 
     // 2. Cari data NCR
     const ncr = rawDataNCR.find(r => r['ID No.'] === idNo);
@@ -3002,7 +3006,13 @@ async function updatePIC() {
     
     const ncr = rawDataNCR.find(r => r['ID No.'] === currentFollowUpId);
 if (ncr) {
+  // 🔥 Cuma fetch ulang kalau auditorList BELUM ada (hindari panggilan boros)
+if (!auditorList || auditorList.length === 0) {
   await loadAuditors();
+} else {
+  fillAuditorDropdowns(auditorList);  // pakai data yang sudah ada, tanpa fetch baru
+}
+ 
   loadNCRViewData(ncr);
   assignFollowUpPIC();
   fillD1DropdownsFromSection();
