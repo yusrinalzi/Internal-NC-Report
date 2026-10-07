@@ -1747,13 +1747,18 @@ async function loadAllData() {
     renderDashboard(rawDataNCR);
     initCharts(rawDataNCR);
 
-    // 2. Auditor dropdown
-    auditorList = res.auditors;
-    if (auditorList && auditorList.length > 0) {
-      fillAuditorDropdowns(auditorList);
-    } else {
-      setFallbackAuditors();
-    }
+   // 2. Auditor dropdown
+auditorList = res.auditors;
+if (auditorList && auditorList.length > 0) {
+  fillAuditorDropdowns(auditorList);
+  // 🔥 Kalau user sedang di halaman Follow-up, restore pilihan dropdown D1
+  //    supaya tidak ketimpa kosong oleh sync latar belakang ini
+  if (document.getElementById('followUpPage').style.display === 'block') {
+    fillD1DropdownsFromSection();
+  }
+} else {
+  setFallbackAuditors();
+}
 
     // 3. PIC Data (D1 & D2)
     picDataMap = res.picData;
