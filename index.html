@@ -2430,7 +2430,8 @@ function sendEmailtoAll() {
   const detailNC = ncr?.DetailNC || '-';
   const issuedBy = ncr?.IssuedBy || '-';
   const issuedDate = formatDateDisplay(ncr?.IssuedDate); // ✅ FORMAT TANGGAL
-  
+  const D3PIC = ncr?.InterimActBy ||'-';
+  const D4PIC = ncr?.RC-AnalysisBy ||'-';  
   // 🔥 AMBIL URL GAMBAR (jika ada)
   const photoUrl = ncr?.NCPicture || '';
   
@@ -2516,6 +2517,9 @@ There is an NC with number: ${idNo}.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 For the all PIC team, please complete and follow-up the required action to prevent the recurrence issue.
+
+Hi ${D3PIC} & ${D4PIC}, 
+Please conduct the Interim/Containment Action immediately (within 24 hours) & Root Cause Analysis 
 
 Please open the NCR portal by clicking THIS LINK:
 https://yusrinalzi.github.io/Internal-NC-Report/
