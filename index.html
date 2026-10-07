@@ -2431,7 +2431,7 @@ function sendEmailtoAll() {
   const issuedBy = ncr?.IssuedBy || '-';
   const issuedDate = formatDateDisplay(ncr?.IssuedDate); // ✅ FORMAT TANGGAL
   const D3PIC = ncr?.InterimActBy ||'-';
-  const D4PIC = ncr?.[RC-AnalysisBy] ||'-';  
+  const D4PIC = ncr?.['RC-AnalysisBy'] || '-'; 
   // 🔥 AMBIL URL GAMBAR (jika ada)
   const photoUrl = ncr?.NCPicture || '';
   
