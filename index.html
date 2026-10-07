@@ -1937,6 +1937,11 @@ async function loadAuditors() {
     if (res.status === 'ok' && res.rows && res.rows.length > 0) {
       auditorList = res.rows;
       fillAuditorDropdowns(auditorList);
+      // 🔥 Selalu restore pilihan dropdown D1 kalau sedang di halaman Follow-up
+      //    (menjaga dari proses lain yang memanggil loadAuditors() tanpa disadari)
+      if (document.getElementById('followUpPage').style.display === 'block') {
+        fillD1DropdownsFromSection();
+      }
     } else {
       setFallbackAuditors();
     }
